@@ -1,0 +1,25 @@
+project:
+  type: book
+
+book:
+  title: "Microeconometrics: Methods and Applications"
+  author: "Damian Clarke"
+  date: "07-08-2023"
+  page-navigation: true
+  chapters:
+    - index.qmd
+    - 01_IdentifyingCausalEffects.qmd
+    - intro.qmd
+    - references.qmd
+  appendices: 
+    - IntroR.qmd
+    - IntroPython.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+
+editor: visual
+

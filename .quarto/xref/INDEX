@@ -1,0 +1,23 @@
+{
+  "index.qmd": {
+    "index.html": "9690eda7"
+  },
+  "intro.qmd": {
+    "intro.html": "e46f407e"
+  },
+  "summary.qmd": {
+    "summary.html": "a88701d0"
+  },
+  "references.qmd": {
+    "references.html": "b1943718"
+  },
+  "01_IdentifyingCausalEffects.qmd": {
+    "01_IdentifyingCausalEffects.html": "10014b78"
+  },
+  "IntroPython.qmd": {
+    "IntroPython.html": "f4ad270c"
+  },
+  "IntroR.qmd": {
+    "IntroR.html": "93dea512"
+  }
+}
