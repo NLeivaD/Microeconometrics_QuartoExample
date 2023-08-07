@@ -1,6 +1,6 @@
 # Introduction to R {.unnumbered}
 
-Here will be the introduction to R. Now an example of code visualization, this allows to write and execute `R` and `Python` code:
+Here will be the introduction to R. Now an example of code visualization, this allows to write and execute code:
 
 ```{r}
 library(ggplot2)

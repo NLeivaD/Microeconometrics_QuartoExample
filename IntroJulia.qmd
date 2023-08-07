@@ -1,0 +1,14 @@
+---
+jupyter: julia-1.9
+---
+
+# Introduction to Julia {.unnumbered}
+
+Here will be the introduction to `Julia`. Now an example of code visualization, this allows to write and execute code:
+
+```{julia}
+using Plots
+using Distributions
+using StatsPlots
+display(plot(Normal(0,1)))
+```

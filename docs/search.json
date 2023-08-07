@@ -19,5 +19,26 @@
     "title": "Microeconometrics: Methods and Applications",
     "section": "",
     "text": "Preface\nWhat a reader may get from this book.\nStructure.\nAcknowledgments."
+  },
+  {
+    "objectID": "intro.html",
+    "href": "intro.html",
+    "title": "2  Introduction",
+    "section": "",
+    "text": "This is a book created from markdown and executable code.\nSee Knuth (1984) for additional discussion of literate programming.\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+  },
+  {
+    "objectID": "IntroR.html",
+    "href": "IntroR.html",
+    "title": "Introduction to R",
+    "section": "",
+    "text": "Here will be the introduction to R. Now an example of code visualization, this allows to write and execute code:\n\nlibrary(ggplot2)\nggplot(data.frame(x=c(-3,3)), aes(x)) +\n  stat_function(fun=dnorm, args=list(mean=0, sd=1),\n                geom=\"line\", colour=\"red\", size=1) +\n  scale_x_continuous(breaks = seq(-3,3), label = seq(-3,3)) +\n  scale_y_continuous(expand= c(0,0)) +\n  annotate(geom = \"text\", x = 2, y = 0.3, parse = TRUE,\n           label = \"mu==0 ~ ',' ~ sigma == 1\") +\n  annotate(\"segment\", x = 2, xend = 1.3, y = 0.27, yend = 0.2, colour = \"black\",\n           size=0.6, arrow=arrow(length = unit(0.15, \"cm\"), type = \"closed\")) +\n  labs(x = \"x\", y= \"\") +\n  theme_minimal() +\n  theme(axis.text.y = element_blank(),\n        axis.line.y = element_blank(),\n        axis.ticks.y = element_blank())\n\nWarning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` instead."
+  },
+  {
+    "objectID": "IntroStata.html",
+    "href": "IntroStata.html",
+    "title": "Introduction to Stata",
+    "section": "",
+    "text": "Here will be the introduction to Stata. Now an example of code visualization:\n\nlibrary(Statamarkdown)\n\nWarning: package 'Statamarkdown' was built under R version 4.2.3\n\n\nStata found at C:/Program Files/Stata16/StataMP-64.exe\n\n\nThe 'stata' engine is ready to use.\n\n\n\nclear all\nset obs 10000\ngen x = -3 + 6/(_N-1)*(_n - 1)\ngen y = normalden(x)\nline y x\n\nnumber of observations (_N) was 0, now 10,000\n\n\n\n\n\nNormal Density"
   }
 ]
