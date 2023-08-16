@@ -1,21 +1,84 @@
 ## Introduction to R and Basic Tools Required for this book
 
-Here will be the introduction to R. Now an example of code visualization, this allows to write and execute code:
+- How does R works  
+- What is an R sessione  
+- How does R execute code (console)  
+- What is a script  
+- What is CRAN
+
+### An introduction to language and data types
+
+- Syntaxis  
+- Assign Objects  
+- Data Types:  
+  - Strings, integers, float, vectors, arrays, lists, data frames
 
 ```{r}
-library(ggplot2)
-ggplot(data.frame(x=c(-3,3)), aes(x)) +
-  stat_function(fun=dnorm, args=list(mean=0, sd=1),
-                geom="line", colour="red", size=1) +
-  scale_x_continuous(breaks = seq(-3,3), label = seq(-3,3)) +
-  scale_y_continuous(expand= c(0,0)) +
-  annotate(geom = "text", x = 2, y = 0.3, parse = TRUE,
-           label = "mu==0 ~ ',' ~ sigma == 1") +
-  annotate("segment", x = 2, xend = 1.3, y = 0.27, yend = 0.2, colour = "black",
-           size=0.6, arrow=arrow(length = unit(0.15, "cm"), type = "closed")) +
-  labs(x = "x", y= "") +
-  theme_minimal() +
-  theme(axis.text.y = element_blank(),
-        axis.line.y = element_blank(),
-        axis.ticks.y = element_blank())
+df <- data.frame(A = c(1, 2, 3), B = c(4, 5, 6))
 ```
+
+- Use of `[ ]` to access data in different data types.
+- Mathematical Operations
+- Interaction between the data types
+- Use of functions
+- Some functions come along with `R`
+- Some other functions are in other packages
+
+### Managing packages
+
+What are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your R enviroment using the function `install.packages()` writing within `" "` the package name. As an example, in order to install `dplyr` -that is one of the most famous `R`'s packages for data manipulation- you must execute the following code:
+
+```{r eval=FALSE}
+install.packages("dplyr")
+```
+
+Now that the package is installed you doesn't need to install it again unless you want to update the package. That a package is installed doesn't mean that `R` automatically loads the package along with their functions and data types, for example if you want to use the `dplyr`'s function `mutate` to create a new variable in your data frame it will be an error if you haven't load the `dplyr` package:
+
+```{r error=TRUE}
+mutate(df, C = A + B)
+```
+
+So in order to use the package you must load it each time you open a new session with the function `library()` writing the package's name within `" "` as follows
+
+```{r}
+library(dplyr)
+```
+
+Now if you want to use the `dplyr`'s function `mutate` it will work
+
+```{r}
+mutate(df, C = A + B)
+```
+
+
+Is highly recommended that the load of the package be included in your script for reproducibility of your code.  
+
+A situation that you may encounter in your `R` work is that sometimes you may want to use two packages that have different functions with the same name. As an example if you see the message that `R` print when you loaded `dplyr` package this says "*The following objects are masked from 'package:stats':*" and next it points the functions `filter` and `lag`, this message means that the package `stats` -one of the automatically installed and loaded by `R`- also has functions with the names `filter` and `lag`, but when you use them `R` will use the `dplyr`'s functions. For example the next code use `dplyr`'s `lag`
+
+```{r}
+lag(df$A)
+```
+
+But in order to use the masked functions you can use the syntaxis `package::function`, following the previous example, to use `stats`'s `lag`
+
+```{r}
+stats::lag(df$A)
+```
+
+### Loading and viewing data  
+
+- Load from csv, txt, excel and dta.
+- Visualize data with `View()` function
+
+### Tyding data  
+
+- Use of tidyverse along with dplyr, tidyr, tiblee
+- Create new variables
+- Order the columns
+- Order the rows by columns value or condition
+- Filter data (Rows or columns)
+
+### Basic Plots
+
+- Use of `plot` function
+- Use of `ggplot2` package

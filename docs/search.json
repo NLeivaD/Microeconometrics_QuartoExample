@@ -25,28 +25,28 @@
     "href": "01_00_FollowingR.html",
     "title": "Following Along with R",
     "section": "",
-    "text": "Some info about R and this chapter."
+    "text": "In this chapter we show you how to follow the book’s examples with R. What is R? Give an R definition…\nWe recommend to work in an IDE like RStudio?\nThe rest of this chapter is organized as follow: First is shown an introduction to the language as a tutorial focused in giving the tools to following along the book’s material and procedures, next there is a series of sections focused on follow the book’s examples and make the applications in R."
   },
   {
     "objectID": "01_01_IntroductionR.html",
     "href": "01_01_IntroductionR.html",
     "title": "Introduction to R and Basic Tools Required for this book",
     "section": "",
-    "text": "Here will be the introduction to R. Now an example of code visualization, this allows to write and execute code:\n\nlibrary(ggplot2)\nggplot(data.frame(x=c(-3,3)), aes(x)) +\n  stat_function(fun=dnorm, args=list(mean=0, sd=1),\n                geom=\"line\", colour=\"red\", size=1) +\n  scale_x_continuous(breaks = seq(-3,3), label = seq(-3,3)) +\n  scale_y_continuous(expand= c(0,0)) +\n  annotate(geom = \"text\", x = 2, y = 0.3, parse = TRUE,\n           label = \"mu==0 ~ ',' ~ sigma == 1\") +\n  annotate(\"segment\", x = 2, xend = 1.3, y = 0.27, yend = 0.2, colour = \"black\",\n           size=0.6, arrow=arrow(length = unit(0.15, \"cm\"), type = \"closed\")) +\n  labs(x = \"x\", y= \"\") +\n  theme_minimal() +\n  theme(axis.text.y = element_blank(),\n        axis.line.y = element_blank(),\n        axis.ticks.y = element_blank())\n\nWarning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` instead."
+    "text": "How does R works\n\nWhat is an R sessione\n\nHow does R execute code (console)\n\nWhat is a script\n\nWhat is CRAN\n\n\nAn introduction to language and data types\n\nSyntaxis\n\nAssign Objects\n\nData Types:\n\nStrings, integers, float, vectors, arrays, lists, data frames\n\n\n\ndf <- data.frame(A = c(1, 2, 3), B = c(4, 5, 6))\n\n\nUse of [ ] to access data in different data types.\nMathematical Operations\nInteraction between the data types\nUse of functions\nSome functions come along with R\nSome other functions are in other packages\n\n\n\nManaging packages\nWhat are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package’s source, but no matter the option is the case, the procedure must be done only once in your R enviroment using the function install.packages() writing within \" \" the package name. As an example, in order to install dplyr -that is one of the most famous R’s packages for data manipulation- you must execute the following code:\n\ninstall.packages(\"dplyr\")\n\nNow that the package is installed you doesn’t need to install it again unless you want to update the package. That a package is installed doesn’t mean that R automatically loads the package along with their functions and data types, for example if you want to use the dplyr’s function mutate to create a new variable in your data frame it will be an error if you haven’t load the dplyr package:\n\nmutate(df, C = A + B)\n\nError in mutate(df, C = A + B): no se pudo encontrar la función \"mutate\"\n\n\nSo in order to use the package you must load it each time you open a new session with the function library() writing the package’s name within \" \" as follows\n\nlibrary(dplyr)\n\nWarning: package 'dplyr' was built under R version 4.2.3\n\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\n\nNow if you want to use the dplyr’s function mutate it will work\n\nmutate(df, C = A + B)\n\n  A B C\n1 1 4 5\n2 2 5 7\n3 3 6 9\n\n\nIs highly recommended that the load of the package be included in your script for reproducibility of your code.\nA situation that you may encounter in your R work is that sometimes you may want to use two packages that have different functions with the same name. As an example if you see the message that R print when you loaded dplyr package this says “The following objects are masked from ‘package:stats’:” and next it points the functions filter and lag, this message means that the package stats -one of the automatically installed and loaded by R- also has functions with the names filter and lag, but when you use them R will use the dplyr’s functions. For example the next code use dplyr’s lag\n\nlag(df$A)\n\n[1] NA  1  2\n\n\nBut in order to use the masked functions you can use the syntaxis package::function, following the previous example, to use stats’s lag\n\nstats::lag(df$A)\n\n[1] 1 2 3\nattr(,\"tsp\")\n[1] 0 2 1\n\n\n\n\nLoading and viewing data\n\nLoad from csv, txt, excel and dta.\nVisualize data with View() function\n\n\n\nTyding data\n\nUse of tidyverse along with dplyr, tidyr, tiblee\nCreate new variables\nOrder the columns\nOrder the rows by columns value or condition\nFilter data (Rows or columns)\n\n\n\nBasic Plots\n\nUse of plot function\nUse of ggplot2 package"
   },
   {
     "objectID": "01_02_Chapter2R.html",
     "href": "01_02_Chapter2R.html",
     "title": "Details required for Chapter 2",
     "section": "",
-    "text": "Here will be the introduction to R. Now an example of code visualization, this allows to write and execute code:\n\nlibrary(ggplot2)\nggplot(data.frame(x=c(-3,3)), aes(x)) +\n  stat_function(fun=dnorm, args=list(mean=0, sd=1),\n                geom=\"line\", colour=\"red\", size=1) +\n  scale_x_continuous(breaks = seq(-3,3), label = seq(-3,3)) +\n  scale_y_continuous(expand= c(0,0)) +\n  annotate(geom = \"text\", x = 2, y = 0.3, parse = TRUE,\n           label = \"mu==0 ~ ',' ~ sigma == 1\") +\n  annotate(\"segment\", x = 2, xend = 1.3, y = 0.27, yend = 0.2, colour = \"black\",\n           size=0.6, arrow=arrow(length = unit(0.15, \"cm\"), type = \"closed\")) +\n  labs(x = \"x\", y= \"\") +\n  theme_minimal() +\n  theme(axis.text.y = element_blank(),\n        axis.line.y = element_blank(),\n        axis.ticks.y = element_blank())"
+    "text": "Here will be the Chapter 2 excersises and examples."
   },
   {
     "objectID": "01_03_Chapter3R.html",
     "href": "01_03_Chapter3R.html",
     "title": "Details required for Chapter 3",
     "section": "",
-    "text": "Here will be the introduction to R. Now an example of code visualization, this allows to write and execute code:\n\nlibrary(ggplot2)\nggplot(data.frame(x=c(-3,3)), aes(x)) +\n  stat_function(fun=dnorm, args=list(mean=0, sd=1),\n                geom=\"line\", colour=\"red\", size=1) +\n  scale_x_continuous(breaks = seq(-3,3), label = seq(-3,3)) +\n  scale_y_continuous(expand= c(0,0)) +\n  annotate(geom = \"text\", x = 2, y = 0.3, parse = TRUE,\n           label = \"mu==0 ~ ',' ~ sigma == 1\") +\n  annotate(\"segment\", x = 2, xend = 1.3, y = 0.27, yend = 0.2, colour = \"black\",\n           size=0.6, arrow=arrow(length = unit(0.15, \"cm\"), type = \"closed\")) +\n  labs(x = \"x\", y= \"\") +\n  theme_minimal() +\n  theme(axis.text.y = element_blank(),\n        axis.line.y = element_blank(),\n        axis.ticks.y = element_blank())"
+    "text": "Here will be the Chapter 3 excersises and examples."
   },
   {
     "objectID": "02_00_FollowingStata.html",
@@ -67,13 +67,13 @@
     "href": "02_02_Chapter2Stata.html",
     "title": "Details required for Chapter 2",
     "section": "",
-    "text": "Here will be the introduction to Stata. Now an example of code visualization:\n\nlibrary(Statamarkdown)\n\n\nclear all\nset obs 10000\ngen x = -3 + 6/(_N-1)*(_n - 1)\ngen y = normalden(x)\nline y x\n\n\n\n\nNormal Density"
+    "text": "Here will be the Chapter 2 excersises and examples."
   },
   {
     "objectID": "02_03_Chapter3Stata.html",
     "href": "02_03_Chapter3Stata.html",
     "title": "Details required for Chapter 3",
     "section": "",
-    "text": "Here will be the introduction to Stata. Now an example of code visualization:\n\nlibrary(Statamarkdown)\n\n\nclear all\nset obs 10000\ngen x = -3 + 6/(_N-1)*(_n - 1)\ngen y = normalden(x)\nline y x\n\n\n\n\nNormal Density"
+    "text": "Here will be the Chapter 3 excersises and examples."
   }
 ]
