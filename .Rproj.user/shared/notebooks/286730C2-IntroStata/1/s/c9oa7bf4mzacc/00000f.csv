@@ -1,4 +1,0 @@
-"0","suppressWarnings(min(data))
-"
-"2","Error in min(data) : invalid 'type' (closure) of argument
-"

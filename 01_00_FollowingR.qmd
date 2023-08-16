@@ -1,0 +1,3 @@
+# Following Along with R
+
+Some info about R and this chapter.

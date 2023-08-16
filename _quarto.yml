@@ -5,29 +5,30 @@ project:
 book:
   title: "Microeconometrics: Methods and Applications"
   author: "Damian Clarke"
-  date: "`r Sys.Date()`"
+  date: "16-08-2023"
   page-navigation: true
   chapters:
-    - part: 00_Introduction.qmd
+    - part: index.qmd
       chapters: 
         - 00_01_About.qmd
         - 00_02_Download.qmd
-    - part: 01_FollowingR.qmd
+    - part: 01_00_FollowingR.qmd
       chapters: 
         - 01_01_IntroductionR.qmd
         - 01_02_Chapter2R.qmd
         - 01_03_Chapter3R.qmd
-    - part: 02_FollowingStata.qmd
+    - part: 02_00_FollowingStata.qmd
       chapters: 
         - 02_01_IntroductionStata.qmd
         - 02_02_Chapter2Stata.qmd
         - 02_03_Chapter3Stata.qmd
+    - 06_references.qmd
     
 bibliography: references.bib
 
 format:
   html:
     theme: cosmo
+    number-sections: false
 
 editor: visual
-

@@ -1,0 +1,18 @@
+## Details required for Chapter 3
+
+Here will be the introduction to `Stata`. Now an example of code visualization:
+
+```{r eval=FALSE}
+library(Statamarkdown)
+```
+
+```{stata eval = F, echo = 1:5}
+clear all
+set obs 10000
+gen x = -3 + 6/(_N-1)*(_n - 1)
+gen y = normalden(x)
+line y x
+quietly graph export "NormalDensity.png", replace
+```
+
+![Normal Density](NormalDensity.png)

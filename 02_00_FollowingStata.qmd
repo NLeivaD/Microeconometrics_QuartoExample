@@ -1,0 +1,3 @@
+# Following Along with Stata
+
+Some info about Stata and this Chapter.
