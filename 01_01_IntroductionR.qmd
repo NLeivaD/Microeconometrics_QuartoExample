@@ -1,19 +1,50 @@
-```{r chunk-setup}
+```{r echo = FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
-
 ## Introduction to R and Basic Tools Required for this book
 
-- How does R works  
-- What is an R sessione  
-- How does R execute code (console)  
-- What is a script  
-- What is CRAN
+From the moment you open `R` you are into an `R` session until the moment you close it, from now on understand a session as this time between you open and close `R`. A good idea when working with `R` is to use `R Projects` who allows you to organize into a better way your enviroment in a self-contained folder, where all the documents (input or output) by default will be in that folder unless you define subfolders or specify the entire path in your computer to other folders. In order to execute code you should input the code in your `R` console, that is the place where `R` receive instructions and execute them, so if you input in your console
+
+```{r}
+4 + 4
+```
+
+`R` will understand the instruction that you want to add 4 plus 4 and show the result, latter in this chapter we will explain more about mathematical operations and the different `R` data types. Another example of `R` execution is that if you type in your console:
+
+```{r}
+getwd()
+```
+
+`R` will show you the path to the current working directory, the folder where `R` understand is working. If you want to change this directory you must use the function `setwd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to `R` understand that is a character, again a topic that will be seen deeper latter. Another important thing is that you must type path with `/` because interprets some backslash `\` followed by certains letters as escape characters that executes some specific order, as `\n` when used into certains function:
+
+```{r}
+cat("Hello \nWorld")
+```
+
+Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute core in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
+
+```{r}
+print("Hello World")
+```
+
+`R` will understan that you are giving the instruction to print the character *Hello World*, but instead if you type
+
+```{r}
+# print("Hello World")
+```
+
+`R` will do nothing because interpret all to the right from the `#` as plain text and not code with instructions to follow. Note that is said "all to the right from the `#`", this implies that it can be used in the same line as code
+
+```{r}
+print("Hello World") # To the left of # code, all to the right, plain text
+```
+
+As you can see it executes the instruction to the left from `#` but ignores all to the right, this plain text is known as comment and is always a good practice in programming to include a few comments in your script explaining in general terms what are you doing. The previous idea helps you when revise old scripts and when share your code work with others.
 
 ### An introduction to language and data types
 
-In order to store the results of your procedures you can define a variable or an object using one of the next symbols: `->`, `=` or `<-`. Now is shown an example where is asigned a variable named `x` with different numbers:
+Until now we have executed some code in `R`, some of this code can made internal changes as the `setwd` function, some of this code show an specific result as `print` function and other just execute an action and show result as `4 + 4`, but just doing and showing it, not storing this result. In order to store the results of your procedures you can define a variable or an object using one of the next symbols: `->`, `=` or `<-`. Now is shown an example where is asigned a variable named `x` with different numbers:
 
 ```{r}
 x <- 1
@@ -28,9 +59,15 @@ With the use of `->` or `<-` is clearly how `R` assign the value, but with the u
 ```{r error=TRUE}
 4 = x
 ```
+
+All the way long in your sessions you could see this type of messages, this messages points you different types of details:  
+- `Error`: This kind of messages are telling you that something gone wrong and `R` couldn't execute the code you type. Usually they include a brief explanation of the error for you to debugging it.  
+- `Warning`: This kind of message are telling you that something that may cause you problems occured. `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.  
+- `Message`: This kind of message are only providing information about the execution, `R` telling something is considered good to know. Not necessary are errors or warnings, sometimes just comunicate of procedures.  
+
 #### Data Types
 
-Now that you know how to store a value in an object, you should know that `R` has different data types for this objects, some of them are character, numeric, arrays, data frames and lists as an example. Different types of data allows different ways to operate with it, for example characters must be specified between `" "`, or `' '`, otherwise `R` will understand them as variables names. For example if you want to write *Hello World* the next try will give you an error:
+Now that you know how to store a value in an object and some of the messages you can get, you should know that `R` has different data types for this objects, some of them are character, numeric, arrays, data frames and lists as an example. Different types of data allows different ways to operate with it, for example characters must be specified between `" "`, or `' '`, otherwise `R` will understand them as variables names. For example if you want to write *Hello World* the next try will give you an error:
 
 ```{r error=TRUE}
 Hello World
@@ -332,7 +369,7 @@ In this section we are covering how to manipulate data, specifically how to make
 class(mroz)
 ```
 
-Previously we mentioned the existence of *tibbles* that are a widely used structure similar to data frames but with a few differences like don't consider rownames or don't interpret strings as factors by default. We introduce this because with the use of some functions from `dplyr` package a data frame becomes automatically a tibble. For example, consider de `mroz` data frame, if we apply the combination of `group_by` and `summarise` functions to get the mean of the number of kids with less than 6 years by labor situation of the women:
+Along with this section you will see the use of the `head` function, this function shows us the first rows of an object in order to prevent a data frame being totally printed. Previously we mentioned the existence of *tibbles* that are a widely used structure similar to data frames but with a few differences like don't consider rownames or don't interpret strings as factors by default. We introduce this because with the use of some functions from `dplyr` package a data frame becomes automatically a tibble. For example, consider de `mroz` data frame, if we apply the combination of `group_by` and `summarise` functions to get the mean of the number of kids with less than 6 years by labor situation of the women:
 
 ```{r}
 ungroup(summarise(group_by(mroz, inlf), meankidslt6 = mean(kidslt6)))
@@ -376,7 +413,7 @@ head(mroz)
 Another function to create variables is `transmute`, but this function doesn't mantain old variables, in fact it replace all the data for the new one
 
 ```{r}
-mroz %>% transmute(expersquared = exper^2)
+head(mroz %>% transmute(expersquared = exper^2))
 ```
 
 ```{r echo=FALSE}
@@ -491,3 +528,4 @@ ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
   theme_minimal() + geom_smooth(method = "lm", color = "blue")
 ```
 
+As said before, this introductory section of this chapter doesn't intend to be a comprehensive tutorial of `R`, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.
