@@ -8,25 +8,246 @@
 
 ### An introduction to language and data types
 
-- Syntaxis  
-- Assign Objects  
-- Data Types:  
-  - Strings, integers, float, vectors, arrays, lists, data frames
+- Syntaxis and error messages  
+In order to store the results of your procedures you can define a variable or an object using one of the next symbols: `->`, `=` or `<-`. Now is shown an example where is asigned a variable named `x` with different numbers:
 
 ```{r}
-df <- data.frame(A = c(1, 2, 3), B = c(4, 5, 6))
+x <- 1
+x
+x = 2
+x
+3 -> x
 ```
 
-- Use of `[ ]` to access data in different data types.
-- Mathematical Operations
-- Interaction between the data types
-- Use of functions
-- Some functions come along with `R`
-- Some other functions are in other packages
+With the use of `->` or `<-` is clearly how `R` assign the value, but with the use of `=` you must be cautelous of do it the way `name = value`, if not, there will be an error:
+
+```{r error=TRUE}
+4 = x
+```
+#### Data Types
+
+Now that you know how to store a value in an object, you should know that `R` has different data types for this objects, some of them are character, numeric, arrays, data frames and lists as an example. Different types of data allows different ways to operate with it, for example characters must be specified between `" "`, or `' '`, otherwise `R` will understand them as variables names. For example if you want to write *Hello World* the next try will give you an error:
+
+```{r error=TRUE}
+Hello World
+```
+
+In change, the next code understands that is a character:
+
+```{r}
+"Hello World"
+```
+
+A function that allows you to know which data type is an object is `class`, for example if you type `class("Hello World")` it will return `"character"`
+
+```{r}
+class("Hello World")
+```
+
+As previous, if you don't input the between `" "` it will return an error pointing that the object doesn't exists
+
+```{r error=TRUE}
+class(Hello World)
+```
+
+Numeric data doesn't need to be inputted between `" "` or `' '`, in fact if is inputted between `" "` or `' '`, `R` will understand it as a character instead a number. For example if you type just `2` the output will be a number, instead if you type `"2"` the output will be printed between `" "`, pointing that element is a character
+
+```{r}
+2
+"2"
+```
+You can check also with the `class` function
+
+```{r}
+class(2)
+class("2")
+```
+
+Other option of obecjts are vectors or arrays, this types allows to create objectis with multiple elements and an easy way to create them is with the function `c`, that stands for combine. For example if you want to produce an object with two elements if you just type them without the `c` function will be an error
+
+```{r error=TRUE}
+1 2 
+1,2
+```
+
+Instead, if you use the `c` function it will create an object with multiple elements
+
+```{r}
+c(1,2)
+```
+
+A precaution is how you mix other data types in the objects that combine different elements because different data types will influence the way this combination works. For example vectors will coerce to the most restrictive data type, if you mix characters with numbers in a vector, `R` will coerce the vector type to a character
+
+```{r}
+class(c(1,2))
+class(c(1,"2"))
+```
+
+You can also create arrays with the `matrix` function, this allows you to get objects in two dimensiones, rows and columns
+
+```{r}
+matrix(c(1,2,3,4), nrow = 2)
+```
+
+An inconvenient from arrays is that, as vectors do, coerce to the more restrictive data type
+
+```{r}
+matrix(c(1,2,3,"4"), nrow = 2)
+```
+
+One of the data types that works along with mutliple othe types are data frames, this allows to create a standard data base as you tipically know with multiple rows and columns, where an entire column will coerce to the most restrictive data type but you can have different data types in different columns. As an example we create a data frame named `df` that will use later in other examples
+
+```{r}
+df <- data.frame(A = c(1, 2, 3), B = c(4, 5, 6), 
+                 C = c("XXX", "YYY", "ZZZ"))
+df
+```
+
+Later we will introduce a data type named *tibble* that is very similar to data frames, with a few differences, and is common to work with it in the *tidyverse* that will be explained later. The last data type of this section will be lists, this one allows to store any data type you imagine, you can combine in one object characters, numbers or data frame, within other objects, and is that the reason multiple functions that will explore later will return it results as a list or an object created from a list. An example of this lists are the next one, where we create an object named `l` that is a list we will use later in other examples.
+
+```{r}
+l <- list(Character = c("Hello", "World"), Number = c(1, 2, 3, 4),
+          DataFrame = df)
+```
+
+#### Subset Multidimensional Elements
+
+As you see previously, there is elements as data frames or lists that stores multiple elements. Sometimes you  will want to work with a subset of this multidimensional data types instead the entire object. In data frames, or lists, you can easily access to an entire column, or object, by using `$` followed by the column, or object, name:
+
+```{r}
+df$A
+l$Character
+```
+
+But sometimes you may want to access more, or less, than one entire column or object, so the more generally way to access to the elements are with the use of `[ ]`. One dimension objects like vectors or a column of a data frame, allows to access its elements by using the number of the element position between `[ ]`
+
+```{r}
+df$A[1]
+```
+
+This syntax allows also to access more than one object by combining it with a vector
+
+```{r}
+df$A[c(1, 3)]
+```
+
+In case of multidimensional elements as an entire data frame or arrays you should use `[row,column]` syntax, if you want an entire row just left in blank the row position 
+
+```{r}
+df[,1]
+```
+
+And the same for an entire row
+
+```{r}
+df[1,]
+```
+
+You can also mix a single element and more than one row, or column
+
+```{r}
+df[2,2]
+df[c(1,3), 2]
+```
+
+In lists you must use a slight syntax, first you must access the object with double `[ ]` and then once you access the object it works like the object do. For example, now we show how to access the data frame that is the third object of the list, and then the element of the second row and second column
+
+```{r}
+l[[3]][2,2]
+```
+
+Between `[ ]` you can also use the elements names when calling an object inside a list of a column in a data frame. The next code replicates the previous example
+
+```{r}
+l[["DataFrame"]][2,"B"]
+```
+
+#### Basic Operations
+
+Now that you know how to store data, and the different objects where you can store the data, you must know the basic operations to do with that data. `R` has the next basic mathematical operations:
+
+| Symbol | Operation |
+|:------:|:------:|
+| `+` | Addition |
+| `-` | Subtraction |
+| `*` | Multiplication |
+| `/` | Division |
+| `**` or `^` | Power |
+| `%%` | Modulus |
+| `%/%` | Integer Division |
+
+A few examples
+
+```{r}
+10 + 3
+10 - 3
+10 * 3
+10 / 3
+10 ^ 3
+10 ** 3
+10 %% 3
+10 %/% 3
+```
+
+`R` also has logical operatos that returns a boolean value (`TRUE` or `FALSE`, also abbreviated as `T` or `F`) pointing if the statement is true or false. This operators are:
+
+| Symbol | Comparison |
+|:------:|:------:|
+| `==` | Equals |
+| `!=` | Difference |
+| `>` | Greater |
+| `>=` | Greater or Equal |
+| `<` | Less than |
+| `<=` | Less than or Equal |
+| `%in%` | If it is in |
+| `|` | Or |
+| `&` | And |  
+
+A few examples
+
+```{r}
+4 == 3
+4 != 3
+4 > 3
+4 >= 3
+4 < 3
+4 <= 3
+4 %in% c(1,2,3,4)
+TRUE | FALSE
+TRUE & FALSE
+```
+
+This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows to work with them numerically and is useful when you want to check a series of conditions.  
+
+The logical and mathematical operators are useful when making operations between different objects, it can be an object of a single valur or an object with multiple values. As many software `R` came with some basic functions that make specific tasks, for example if you want to add all the values in a vector you don´t need to type one-by-one all those values, you can use the function `sum`:
+
+```{r}
+sum(df$A)
+```
+
+In order to use this functions the syntaxis in `R` is the function's name followed by parenthesis `( )` and between the parenthesis the function's arguments separated by comma `,`. To know better how a function works is always a good idea to read the help document that comes along with `R`, some that you can make with `?` symbol. For an example if you type `?sum` you will see how `sum` function works and its arguments, where you can see an argument `na.rm = FALSE`, this points that the default value of the argument is `FALSE` and if you keep reading a little forward you can see that the documentation indicates for this argument: *logical. Should missing values (including NaN) be removed?* telling you the type of value that you can use and what is the functionality. Let `x` be a vector with a *missing value* `NA`
+
+```{r}
+x <- c(1, 2, NA)
+```
+
+If you use the sum function you will get an `NA` value
+
+```{r}
+sum(x)
+```
+
+But if you use the `na.rm` argument you will get the sum of the valid values
+
+```{r}
+sum(x, na.rm = TRUE)
+```
+
+As the `sum` function, `R` comes with a lot of functions in their base environment as functions to get descriptive statistics, work with dates and others. This functions are sufficient to take along any task manually but not necesarilly optimally. There are very useful functions and data types that doesn't come with base enviroment and comes with packages.
 
 ### Managing packages
 
-What are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your R enviroment using the function `install.packages()` writing within `" "` the package name. As an example, in order to install `dplyr` -that is one of the most famous `R`'s packages for data manipulation- you must execute the following code:
+What are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your R enviroment. Now is explained how to do it from CRAN by using the function `install.packages()` writing within `" "` the package name. As an example, in order to install `dplyr` -that is one of the most famous `R`'s packages for data manipulation- you must execute the following code:
 
 ```{r eval=FALSE}
 install.packages("dplyr")
@@ -67,18 +288,196 @@ stats::lag(df$A)
 
 ### Loading and viewing data  
 
-- Load from csv, txt, excel and dta.
-- Visualize data with `View()` function
+In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`. The first doesn't need specific packages to work well, but the latters do.  
+
+For `csv` and `txt` data `R` comes with the functions `read.csv`, `read.csv2`, `read.delim` and `read.delim2`. If you see the help documentation you will see that the four of them belongs to the family of the `read.table` function and has a very similar usage, being the basic usage:
+
+```{r eval=FALSE}
+read.table(file = "Path/To/Your/File.csv")
+```
+
+Note that the example is made with `csv` but is the same for `txt`. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates if the first row should be taken as a header row, what is the separation between columns, the decimal separator and others.  
+
+For `excel` files you count with a variety of packages such as `readxl`, `openxlsx` and `xlsx`. Each package has their function and allows different tasks as read or write depending on the package. As this section is focused on import data, we present an example of the `readxl` package's family of functions `read_xls`, `read_xlsx` and `read_excel`
+
+```{r eval=FALSE}
+read_xlsx(path = "Path/To/Your/File.xlsx")
+```
+
+If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to impor, an specific range, use or not the first row as column names, between others.  
+
+Finally in order to import `dta` files the package will be `haven` and the functions `read_stata` or `read_dta`, both with the basic usage as follows
+
+```{r eval=FALSE}
+read_dta(file = "Path/To/Your/File.dta")
+```
+
+Until now all examples only import data but not store it in any object, an action that doesn't make much sense because probably you import data to work with it. Now we are going to import an internal dataset from the package `wooldridge`, that contains 115 data sets from the book "Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge, in order to show how manipulate this data sets
+
+```{r}
+mroz <- wooldridge::mroz
+```
+
+This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799.
 
 ### Tyding data  
 
-- Use of tidyverse along with dplyr, tidyr, tiblee
-- Create new variables
-- Order the columns
-- Order the rows by columns value or condition
-- Filter data (Rows or columns)
+In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame
+
+```{r}
+class(mroz)
+```
+
+Previously we mentioned the existence of *tibbles* that are a widely used structure similar to data frames but with a few differences like don't consider rownames or don't interpret strings as factors by default. We introduce this because with the use of some functions from `dplyr` package a data frame becomes automatically a tibble. For example, consider de `mroz` data frame, if we apply the combination of `group_by` and `summarise` functions to get the mean of the number of kids with less than 6 years by labor situation of the women:
+
+```{r}
+ungroup(summarise(group_by(mroz, inlf), meankidslt6 = mean(kidslt6)))
+```
+
+As you can see the result is a tibble. Now that you have an example of the use of `dplyr` you can see how easily is to get confused by using too many functions at once, a really nice operator that comes with `dplyr` is the pipe operator `%>%` that allows to apply functions without writing all together. As an example the next code replicates the previous example:
+
+```{r}
+mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6)) %>%
+  ungroup()
+```
+
+Note that this works as: to the object at the left of the pipe operator, apply the function to the right. Another thing you can note is the use of the `group_by`, `summarise` and `ungroup` combo, where `group_by` as the name says allows to group by the variable(s) indicated, `summarise` calculate a descriptive statistic that can be `mean`, `sd`, `min`, `max`, `median`, `quantile` and others, in order to know them all you should consult the help documentation of `summarise` function.  
+
+Other functionalities of `dplyr` package are the use of `sql` functions like `sql_join` that allows to merge two data frames or tibbles, apply functions to every column or specific ones, among others. Another famous package for data manipulation is `tidyverse`, a package that comes along with other package as `dplyr`, `tibble`, `tidyr` and others like `ggplot2` for plots, `lubridate` for dates, `stringr` for strings. This fact became `tidyverse` as one of the must have package for data manipulation but with the caution that it takes up more memory.  
+
+```{r}
+library(tidyverse)
+```
+
+Once loaded `tidyverse` package, you can use all the tools in the packages that are loaded with `tidyverse`. So let's now try to make a join between two data frames (tibbles), first create the mean as previous examples and next join this mean to the mroz dataset by the column inlf
+
+```{r}
+mroz %>% group_by(inlf) %>% summarise(MeanKidslt6 = mean(kidslt6)) %>%
+  ungroup() %>% right_join(mroz, by = "inlf")
+```
+
+Note that the result of this procedure hasn't been store in any object, so it can't be accessed later. Other convenient tools that you will apply on this book are selecting some rows or some columns from the dataset, from `filter` function we can filter rows that meet certain condition and from the use of `select` we can filter specific columns:
+
+```{r}
+mroz %>% select(kidslt6, hours) %>% filter(kidslt6 > 2)
+```
+
+In previous section has been shown the use of `mutate` function to create new variables, in tibbles as in data frames the use of `$` operator also creates new variables:
+
+```{r}
+mroz$exper2 <- mroz$exper^2
+mroz
+```
+
+Another function to create variables is `transmute`, but this function doesn't mantain old variables, in fact it replace all the data for the new one
+
+```{r}
+mroz %>% transmute(expersquared = exper^2)
+```
+
+```{r echo=FALSE}
+rm(list = setdiff(ls(), "mroz"))
+```
+
+So it must be used with caution. Finally the last tool that we introduce for data manipulation is transform data from wide format to long format and reverse. Consider the next data frame
+
+```{r}
+Data <- data.frame(Zone = c("A", "A", "B", "B"), 
+                   Year = c(2021, 2022, 2021, 2022),
+                   Sales = c(100, 115, 98, 106))
+Data
+```
+
+This format is the long format, you have multiple observations for one unit (zone in this example), to transform it in wide format
+
+```{r}
+Data = pivot_wider(data = Data, id_cols = Zone, names_from = Year,
+                   values_from = Sales)
+Data
+```
+
+As you can see now there is one observation per unit. Lets get it back to long format
+
+```{r}
+Data = pivot_longer(data = Data, names_to = "Year", values_to = "Sales",
+                    cols = -Zone)
+Data
+```
+
+Now that you know the basics of data manipulation, the next step is to learn how make some basic plots.
+
+```{r echo=FALSE}
+rm(list = setdiff(ls(), "mroz"))
+```
 
 ### Basic Plots
 
-- Use of `plot` function
-- Use of `ggplot2` package
+The basic function to make a plot in `R` is the plot function, this function maps pairs of points in the $(x,y)$ coordinate axis. Let $x$ be a sequence of integers between -5 and 5
+
+```{r}
+x <- -5:5
+```
+
+Now consider $y = x^2$
+
+```{r}
+y = x^2
+```
+
+`plot` function by default maps a point plot
+
+```{r}
+plot(x,y)
+```
+
+If you access help documentation for plot you can see how add elements to the graph
+
+```{r}
+plot(x,y, type = "l", main = "Plot Example", xlab = "Variable X",
+     ylab = "Variable Y")
+```
+
+A widely used package for make more custom graphs is `ggplot2`, as `tidyverse` has been loaded previous, in this case we don't need to load `ggplot2`, but if you haven't load it remember that with the next code you can do it
+
+```{r}
+library(ggplot2)
+```
+
+The first step in `ggplot` is to define the plot
+
+```{r}
+ggplot()
+```
+
+This define a blank canvas where you can add elements, as an example a line object (*geom*) is added
+
+```{r}
+ggplot() + geom_line()
+```
+
+Until now we haven't added data so `ggplot2` is not mapping any pair of points, now specify the data, this must be done inside the `aes` function
+
+```{r}
+ggplot() + geom_line(aes(x = x, y = y))
+```
+
+Note that in order to add elements to the graph we have been using `+` unlike when using multiple variables where were used the pipe operator `%>%`. With this syntax you can add more elements to the graph
+
+```{r}
+ggplot() + geom_line(aes(x , y)) + geom_point(aes(x, y))
+```
+
+When you use a data frame you can also define `aes` inside `ggplot` function
+
+```{r warning=FALSE}
+ggplot(mroz, aes(x = exper, y = lwage)) + geom_point()
+```
+
+Here you can manipulate different overall themes for your plot and elements characteristics such as color or size
+
+```{r warning=FALSE}
+ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
+  theme_minimal()
+```
+
+In this way you can add a variety of 
