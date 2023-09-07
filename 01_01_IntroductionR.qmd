@@ -1,3 +1,8 @@
+```{r chunk-setup}
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+
 ## Introduction to R and Basic Tools Required for this book
 
 - How does R works  
@@ -8,7 +13,6 @@
 
 ### An introduction to language and data types
 
-- Syntaxis and error messages  
 In order to store the results of your procedures you can define a variable or an object using one of the next symbols: `->`, `=` or `<-`. Now is shown an example where is asigned a variable named `x` with different numbers:
 
 ```{r}
@@ -366,7 +370,7 @@ In previous section has been shown the use of `mutate` function to create new va
 
 ```{r}
 mroz$exper2 <- mroz$exper^2
-mroz
+head(mroz)
 ```
 
 Another function to create variables is `transmute`, but this function doesn't mantain old variables, in fact it replace all the data for the new one
@@ -480,4 +484,10 @@ ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
   theme_minimal()
 ```
 
-In this way you can add a variety of 
+In this way you can add a variety of elements such as an OLS regression line
+
+```{r warning=FALSE}
+ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
+  theme_minimal() + geom_smooth(method = "lm", color = "blue")
+```
+
