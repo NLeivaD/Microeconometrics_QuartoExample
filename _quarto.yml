@@ -5,8 +5,9 @@ project:
 book:
   title: "Microeconometrics: Methods and Applications"
   author: "Damian Clarke"
-  date: "16-08-2023"
   page-navigation: true
+  repo-url: https://github.com/damiancclarke
+  downloads: [pdf, epub]
   chapters:
     - part: index.qmd
       chapters: 
@@ -22,13 +23,18 @@ book:
         - 02_01_IntroductionStata.qmd
         - 02_02_Chapter2Stata.qmd
         - 02_03_Chapter3Stata.qmd
+    - part: 03_00_FollowingPython.qmd
+      chapters: 
+        - 03_01_IntroductionPython.qmd
+        - 03_02_Chapter2Python.qmd
+        - 03_03_Chapter3Python.qmd
     - 06_references.qmd
     
 bibliography: references.bib
 
 format:
   html:
-    theme: cosmo
+    theme: pulse
     number-sections: false
 
 editor: visual

@@ -1,4 +1,7 @@
-# References {.unnumbered}
+---
+title: "References"
+bibliography: refs.bib  
+---
 
 ::: {#refs}
 :::
