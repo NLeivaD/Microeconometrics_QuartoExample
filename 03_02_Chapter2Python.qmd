@@ -1,0 +1,211 @@
+---
+title: "3.2 -- Details required for Chapter 2"
+bibliography: refs.bib
+---
+
+# Preliminaries
+We will begin by examining a number of details which will be required during the exercises encountered in this chapter.  This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
+
+To start, we will simulate some data based on the following data generating process:
+
+$y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
+
+where $\beta_0=1$, $\beta_1=2$, and both $x_i$ and $\varepsilon_i$ are distributed $\mathcal{N}(0,1)$.  Having conducted this simulation, we will estimate a regression model to estimate $\widehat\beta_1$.  In the book, you will be asked to consider examples which are more appropriate for the treatment effects framework which we are considering.
+
+```{python}
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+# Generate independent variable (X) and dependent variable (Y)
+np.random.seed(1213)
+N = 1000
+x = np.random.rand(N, 1)  # 1000 observations of a single independent variable
+y = 1 + 2*x + np.random.randn(N, 1)  # Linear relationship with some noise
+
+
+data = pd.DataFrame({'x': x[:, 0], 'y': y[:, 0]})
+#Could also do:
+#data = pd.DataFrame({'x': x.flatten(), 'y': y.flatten()})
+
+# Create a LinearRegression model
+model = LinearRegression()
+
+# Fit the model to the data
+model.fit(data[['x']], data[['y']])
+
+# Coefficients
+beta1hat = model.coef_[0][0]
+beta0hat = model.intercept_[0]
+
+print(f"beta 1 (Coefficient): {beta1hat}")
+print(f"Intercept: {beta0hat}")
+```
+
+
+```{python}
+#| label: fig-regscatter
+#| fig-cap: "Two-way scatter plot with regression model"
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Make predictions using the model
+data['yhat'] = model.predict(data[['x']])
+
+# Create a scatter plot with regression line
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='x', y='y', data=data, label='Data Points')
+sns.lineplot(x='x', y='yhat', data=data, color='red', label='Regression Line')
+plt.xlabel(r'$x$')
+plt.ylabel(r'$y$')
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+
+Finally, we will do this 500 times, to see what the distribution of estimated paramters $\widehat\beta_1$ looks like:
+```{python}
+#| label: fig-reghist
+#| fig-cap: "Regression estimates in 500 simulations"
+
+#Now do this 500 times to see distribution of beta hat
+# Create an empty list to store slope coefficients
+beta1hats = []
+
+# Perform the simulations and regressions 500 times
+for _ in range(500):
+    # Generate synthetic data
+    x = np.random.rand(N, 1)
+    y = 1 + 2 *x + np.random.randn(N, 1)
+
+    # Create a DataFrame
+    data = pd.DataFrame({'x': x[:, 0], 'y': y[:, 0]})
+
+    # Create a LinearRegression model and fit it to the data
+    model = LinearRegression()
+    model.fit(data[['x']], data[['y']])
+
+    # Extract the slope coefficient and store it
+    beta1hats.append(model.coef_[0][0])
+
+# Calculate mean estimate of beta 1 hat
+print('Mean coefficient estimate is: ' + str(np.mean(beta1hats)))
+
+# Create a histogram of the slope coefficients
+plt.figure(figsize=(8, 6))
+plt.hist(beta1hats, bins=30, edgecolor='black', label='Estimates')
+plt.axvline(2, color='red', linestyle='dashed', label=r'$\beta_1$')
+plt.xlabel(r'$\widehat\beta_1$')
+plt.ylabel('Frequency')
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+
+# Regression and Comparison of Means Estimators
+Here we will work with data from @Banerjeeetal2021
+
+# Randomization Inference
+## An Exact p-value
+It is perhaps useful to see a simple example.  Consider the case of 6 units, with 3 observations randomly assigned treatment.  Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$.  A simple comparison of means estimator suggests that the treatment effect is 11.33.  To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect.  If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below.  In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status).  Suggesting an exact p-value of $1/20=0.05$.
+
+
+| Permutation | T1 | T2 | T3 | C1 | C2 | C3 | Estimate|
+|-------------|----|----|----|----|----|----|---------|
+Original (1)  | 34 | 27 | 29 | 14 | 18 | 24 | 11.33   |
+|   2         | 34 | 27 | 14 | 29 | 18 | 24 | 1.33    |
+|   3         | 34 | 27 | 18 | 14 | 29 | 24 | 4	      |
+|   4         | 34 | 27 | 24 | 14 | 18 | 29 | 8       |
+|   5         | 34 | 14 | 29 | 27 | 18 | 24 | 2.67    |
+|   6         | 34 | 18 | 29 | 14 | 27 | 24 | 5.33    |
+|   7         | 34 | 24 | 29 | 14 | 18 | 27 | 9.33    |
+|   8         | 14 | 27 | 29 | 34 | 18 | 24 | -2      |
+|   9         | 18 | 27 | 29 | 14 | 34 | 24 | 0.67    |
+|   10        | 24 | 27 | 29 | 14 | 18 | 34 | 4.67    |
+|   11        | 34 | 14 | 18 | 27 | 29 | 24 | -4.67   |
+|   12        | 34 | 14 | 24 | 27 | 18 | 29 | -0.67   |
+|   13        | 34 | 18 | 24 | 14 | 27 | 29 | 2       |
+|   14        | 14 | 27 | 18 | 34 | 29 | 24 | -9.33   |
+|   15        | 14 | 27 | 24 | 34 | 18 | 29 | -5.33   |
+|   16        | 18 | 27 | 24 | 14 | 34 | 29 | -2.67   |
+|   17        | 14 | 18 | 29 | 34 | 27 | 24 | -8      |
+|   18        | 14 | 24 | 29 | 34 | 18 | 27 | -4      |
+|   19        | 18 | 24 | 29 | 14 | 34 | 27 | -1.33   |
+|   20        | 14 | 18 | 24 | 34 | 27 | 29 | -11.33  |
+   
+ : A Simple Illustration of Randomization Inference {.striped .hover .borderless .secondary}
+
+We will set this up in Python.  First, we will load the required libraries:
+
+```{python}
+#Load required libraries
+import pandas as pd
+import numpy as np
+from itertools import permutations
+import matplotlib.pyplot as plt
+import seaborn as sns
+```
+
+We will now enter data as a Pandas data frame, and subsequently calculate the difference in means estimator in a number of lines.  You will note that in calculating the differnce in means estimator, we are first sub-setting using logical indexing (for example: ```data[data['W']==1]```, which means "choose all rows of data for which $W=1$").  Then, we calculate the means in each group using the Pandas ```mean()``` operator.
+
+```{python}
+#Enter data as Pandas data frame
+data = {'Y': [34, 27, 29, 14, 18, 24],
+        'W': [1, 1, 1, 0, 0, 0]}
+data = pd.DataFrame(data)
+
+
+#Calculate Difference in means estimator  
+Y1 = data[data['W']==1]['Y']
+Y0 = data[data['W']==0]['Y']
+tau = Y1.mean() - Y0.mean()
+```
+
+```{python}
+#Generate permutations of W
+perm=permutations([1,1,1,0,0,0])
+#Wperm=perm
+Wperm = set(perm)
+
+Taus = []
+for p in Wperm:
+    dataP = pd.DataFrame({'Y': [34, 27, 29, 14, 18, 24], 'W': p})
+    tauP = dataP[dataP['W']==1]['Y'].mean()-dataP[dataP['W']==0]['Y'].mean()
+    Taus.append(tauP)
+
+
+p_2side = sum(np.absolute(Taus)>=tau)/len(Taus)
+p_1side = sum(Taus>=tau)/len(Taus)
+
+print("The two-sided p-value is: " + str(p_2side))
+```
+
+
+
+```{python}
+#| label: fig-permute
+#| fig-cap: "Permutation inference"
+
+#Generate graph
+sns.set_palette("pastel")
+plt.hist(Taus,bins=10, edgecolor='black', density=True, label="Permutations")
+plt.ylabel("Density")
+plt.xlabel("Test statistic")
+plt.axvline(tau, color='red', linestyle='dashed', label=r'$\widehat\tau$')
+plt.legend() 
+plt.show()
+```
+
+## Randomization inference with a larger dataset
+Here we will return to the example from @Banerjeeetal2021.
+
+
+
+
+1. Preserve the original treatment assignment.
+2. Generate placebo treatment statuses according to the original assignment method.
+3. Estimate the original regression equation with an additional term for the placebo treatment.
+4. Repeat \#1–3.
+5. The randomization inference p-value is the proportion of times the placebo treatment effect was larger than the estimated treatment effect.
+

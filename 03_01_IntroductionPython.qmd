@@ -1,0 +1,8 @@
+## 3.1 Introduction to Python
+
+Here will be the introduction to `Python`. Now an example of code visualization:
+
+```{python}
+print('Hello World!')
+```
+

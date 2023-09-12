@@ -1,0 +1,17 @@
+---
+title: "Following Along with Python"
+engine: knitr
+---
+
+In this chapter we show you how to follow the book's examples with Python. What is Python? Give a Python definition...  
+
+
+```{bash}
+ipython
+```
+
+We recommend to work in an IDE like Spyder.
+
+![Spyder screenshot](spyder.png)
+
+The rest of this chapter is organized as follow: First is shown an introduction to the language as a tutorial focused in giving the tools to following along the book's material and procedures, next there is a series of sections focused on follow the book's examples and make the applications in Python.
