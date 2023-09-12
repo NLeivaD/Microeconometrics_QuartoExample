@@ -1,3 +1,53 @@
 ## Details required for Chapter 2
 
-Here will be the Chapter 2 excersises and examples.
+### Block 2.1
+
+To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
+
+1. **Loading the Data**: We start by loading the household data from a specified location.
+    
+    ```
+    
+    use "C:\\Users\\maria\\Desktop\\Proyecto\\Data.dta", clear
+    
+    ```
+    
+2. **Simple Regression**: We run a simple regression of the variable **`ind_fin_el1`** on the treatment variable, filtering the data to only include observations where **`el1 == 1`**.
+    
+    ```
+    
+    reg ind_fin_el1 treatment if el1==1
+    
+    ```
+    
+    We note down the coefficient for the treatment variable for later comparison.
+    
+3. **Mean for the Treatment Group**: We calculate the mean of **`ind_fin_el1`** for the treatment group.
+    
+    ```
+    
+    summarize ind_fin_el1 if treatment==1 & el1==1
+    scalar mean_treatment = r(mean)
+    
+    ```
+    
+4. **Mean for the Control Group**: Similarly, we calculate the mean of **`ind_fin_el1`** for the control group.
+    
+    ```
+    
+    summarize ind_fin_el1 if treatment==0 & el1==1
+    scalar mean_control = r(mean)
+    
+    ```
+    
+5. **Difference in Means**: We then calculate the difference in means between the treatment and control groups.
+    
+    ```
+    
+    scalar diff_means = mean_treatment - mean_control
+    display "Difference in means (Treatment - Control): " diff_means
+    
+    ```
+    
+
+By following these steps, we can empirically verify that in a binary regression set-up, the coefficient for the treatment variable in a simple OLS regression is equivalent to the difference in means between the treatment and control groups. This serves as a useful check for the validity of our regression model and strengthens the causal interpretation of the treatment effect.
