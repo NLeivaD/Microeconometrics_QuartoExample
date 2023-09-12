@@ -1,10 +1,28 @@
 # Following Along with R
 
-In this chapter we show you how to follow the book's examples with R. What is R? According to the R Project web's definition "R is a free software environment for statistical computing and graphics". In general we recommend you to work in an IDE like RStudio, that is a friendly user interface who allows you to have in view your workspace, output like graphics, help documentation, console, etc... This chapter doesn't intend to be comprehensive introduction to the language, instead is intended to provide you with the very basic tools to understand the development of the book excercises along the different chapters.  
+## Introduction
+In this section we will provide a primer in [R](https://www.r-project.org/), which seeks to provide you with the necessary tools to explore the microeconometric methods introduced throughout the book.  R is an open source langague focused on statistical computation.  R has a long history, dating the early 1980s, and also an ever-growing body of user-contributed add-on packages.  It also has an active community providing online support on forums such as [Stack Overflow](https://stackoverflow.com/questions/tagged/r), and a substantial corpus of code online, meaning that large language models will be well suited to support you in your programming in R. It provides you with the large majority of tools you will need throughout this book, as well as the programming environment necessary to extend available tools where required.
 
-If you want a widely comprehensive tutorial about `R` or specific topics like graphs or manipulating data, we recommend you the next free literature:  
-- Wickham, H., Cetinkaya-Rundel, M. & Grolemund, G. (2023). R for data science. O'Reilly Media. 2nd Edition. [Link](https://r4ds.hadley.nz/)  
-- Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis, Springer-Verlag New York. [Link](https://ggplot2-book.org/)  
-- Wilke, C. (2019). Fundamentals of Data Visualization: A Primer on Making Informative and Compelling Figures. O'Reilly Media. 1st Edition. [Link](https://clauswilke.com/dataviz/)  
+The goal of this site is not to provide you with a comprehensive introduction to the language, but instead we it seeks to provide you with an overview of the basic tools to understand the required tools that we will use to get up and running in this book.  In the first section we will focus on a brief rundown of some principal elements of R without yet getting into the empirical methods discussed in the textbook.  Thereafter, we will focus on causal econometric methods, but in each section will also introduce any further tools required to complete key analyses or end-of-chapter questions.  The goal of this resource is that after following along with these sections you will be sufficiently well-versed in R that you will comfortably be able to work with real data and econometric implementations.  Nevertheless, below we point you to further resources if you are seeking a comprehensive overview of R as a language.
 
-The rest of this chapter is organized as follow: First is shown an introduction to the language as a tutorial focused in giving the tools to following along the book's material and procedures, next there is a series of sections focused on follow the book's examples and make the applications in R.
+
+## Installing and Working with R
+Information on how to download R is available on the [R website](https://www.r-project.org/), and further support can be found searching the web.  In general, we recommend that you install an Integrated Development Environment (IDE) such as RStudio.  RStudio provides a user-friendly interface for R, allowing you to view any elements that you have generated in the memory in R, output like graphics, help documentation, and so forth.  An example of what RStudio looks like is provided below, where you can see that code is visible, as well as graphical output, and information about what is in the your "environment".  For further information on installing RStudio, see the [RStudio website](https://posit.co/download/rstudio-desktop/#download).  You are of course welcome to use R however you prefer, and you may prefer to edit code in your favourite text editor and exectue code from the command line.  Throughout the rest of these resources, we will assume that you have R installed on your computer and have some way to interact with it, either via an IDE or some other work flow that suits you.
+
+ADD SCREENSHOT HERE
+
+
+## Further Resources
+From here we will move to a first tutorial about R as a language, and an overview of a number of hey elements.  If you are interested in generating a more complete overview of R, a number of free resources can be consulted, such as the following books provided free online:
+
+* Wickham, H., Cetinkaya-Rundel, M. & Grolemund, G. (2023). [R for Data Science](https://r4ds.hadley.nz/)  . O'Reilly Media. 2nd Edition.
+* Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis, Springer-Verlag New York. [Link](https://ggplot2-book.org/)  
+* Wilke, C. (2019). Fundamentals of Data Visualization: A Primer on Making Informative and Compelling Figures. O'Reilly Media. 1st Edition. [Link](https://clauswilke.com/dataviz/)  
+
+A range of other textbooks are available that may help you with your work in `R` including:
+
+* Matloff, N., (2011) [The Art of R Programming](https://www.oreilly.com/library/view/the-art-of/9781593273842/), No Starch Press.
+
+and, with a particular focus on economics and causal methods:
+
+* Huber, M., (2023) [Causal Analysis: Impact Evaluation and Causal Machine Learning with Applications in R](https://mitpress.mit.edu/9780262545914/causal-analysis/), MIT Press.
