@@ -1,16 +1,25 @@
+---
+title: "An Introduction to R"
+bibliography: refs.bib
+engine: knitr
+---
 ```{r echo = FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
-## Introduction to R and Basic Tools Required for this book
+# Preliminaries
+We will assume that when you are reading this you have downloaded R and have been able to access R in some way.  This may be via the command line, but most likely we imagine you will have some GUI which allows you to see a number of windows including a space for graphical output, a description of the contents of your R Environment (for example any data you have loaded), potentially a place to write your code in R, and, most importantly, a "shell", or R interface, which looks like the following:
+```{bash}
+R --no-save
+```
 
-From the moment you open `R` you are into an `R` session until the moment you close it, from now on understand a session as this time between you open and close `R`. A good idea when working with `R` is to use `R Projects` who allows you to organize into a better way your enviroment in a self-contained folder, where all the documents (input or output) by default will be in that folder unless you define subfolders or specify the entire path in your computer to other folders. In order to execute code you should input the code in your `R` console, that is the place where `R` receive instructions and execute them, so if you input in your console
+Here, R code can be entered directly following a prompt which is the `>` symbol at the bottom of the window above. From the moment you open `R` you are in an `R` session until the moment you close it, from now on understand a session as this time between you open and close `R`. The most simple way to execute code in `R`is to simply input commands into your `R` console.  So, for example, you could write the following at to the right of the `>` symbol, and R will evaluate this code:
 
 ```{r}
 4 + 4
 ```
 
-`R` will understand the instruction that you want to add 4 plus 4 and show the result, latter in this chapter we will explain more about mathematical operations and the different `R` data types. Another example of `R` execution is that if you type in your console:
+As you can see, `R` has understand the instruction that you want to add 4 plus 4 and show the result, which is output directly below the code in the `R` console.  Later in this chapter we will properly explain these mathematical operations and the different `R` data types. Another example of `R` execution is that if you type in your console:
 
 ```{r}
 getwd()
