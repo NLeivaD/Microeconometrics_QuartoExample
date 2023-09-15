@@ -148,6 +148,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Microeconometrics: Methods and Applications</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/damiancclarke" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Download" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="./Microeconometrics--Methods-and-Applications.pdf">
+            <i class="bi bi-bi-file-pdf pe-1"></i>
+          Download PDF
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="./Microeconometrics--Methods-and-Applications.epub">
+            <i class="bi bi-bi-journal pe-1"></i>
+          Download ePub
+          </a>
+        </li>
+    </ul>
+</div>
     </div>
       </div>
       <div class="mt-2 flex-shrink-0 align-items-center">
@@ -212,7 +230,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata</span></a>
+  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -227,9 +245,34 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./03_00_FollowingPython.html" class="sidebar-item-text sidebar-link">Following Along with Python</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3.1 Introduction to Python</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_02_Chapter2Python.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3.2 – Details required for Chapter 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_03_Chapter3Python.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 3</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./06_references.html" class="sidebar-item-text sidebar-link">References</a>
+  <a href="./06_references.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">References</span></a>
   </div>
 </li>
     </ul>
@@ -294,7 +337,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 World</code></pre>
 </div>
 </div>
-<p>Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute core in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in <code>R Scripts</code>. What are scripts? Are text files that <code>R</code> understands it like code to execute, all you write in a script <code>R</code> will interpret it as code to execute unless you have the <code>#</code> character to the left. For example if you type in your script</p>
+<p>Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in <code>R Scripts</code>. What are scripts? Are text files that <code>R</code> understands it like code to execute, all you write in a script <code>R</code> will interpret it as code to execute unless you have the <code>#</code> character to the left. For example if you type in your script</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Hello World"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -604,6 +647,13 @@ World</code></pre>
 <pre><code>[1] 3</code></pre>
 </div>
 </div>
+<p>Also when you combine different operators it respect the PEMDAS order, first solve Parenthesis, second solve Exponents, third Multiplication, fourth Division, fifth Addition and sixth Substraction. For example in order to solve <span class="math display">\[-\frac{5 + 3^{5-3}}{5\times 3}\]</span> You should use the code</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span>(<span class="dv">5</span><span class="sc">+</span><span class="dv">3</span><span class="sc">^</span>(<span class="dv">5-3</span>))<span class="sc">/</span>(<span class="dv">5</span><span class="sc">*</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.9333333</code></pre>
+</div>
+</div>
 <p><code>R</code> also has logical operatos that returns a boolean value (<code>TRUE</code> or <code>FALSE</code>, also abbreviated as <code>T</code> or <code>F</code>) pointing if the statement is true or false. This operators are:</p>
 <table class="table">
 <thead>
@@ -653,39 +703,39 @@ World</code></pre>
 </table>
 <p>A few examples</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">==</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">==</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">!=</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">!=</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&gt;</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&gt;</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&gt;=</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&gt;=</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&lt;</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&lt;</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&lt;=</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">&lt;=</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span> <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="cn">TRUE</span> <span class="sc">|</span> <span class="cn">FALSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="cn">TRUE</span> <span class="sc">|</span> <span class="cn">FALSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="cn">TRUE</span> <span class="sc">&amp;</span> <span class="cn">FALSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="cn">TRUE</span> <span class="sc">&amp;</span> <span class="cn">FALSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
@@ -693,25 +743,25 @@ World</code></pre>
 <p>This boolean values are interpreted by <code>R</code> as the numbers 0 for <code>F</code> and 1 for <code>T</code>, characteristic that allows to work with them numerically and is useful when you want to check a series of conditions.</p>
 <p>The logical and mathematical operators are useful when making operations between different objects, it can be an object of a single valur or an object with multiple values. As many software <code>R</code> came with some basic functions that make specific tasks, for example if you want to add all the values in a vector you don´t need to type one-by-one all those values, you can use the function <code>sum</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(df<span class="sc">$</span>A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(df<span class="sc">$</span>A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6</code></pre>
 </div>
 </div>
 <p>In order to use this functions the syntaxis in <code>R</code> is the function’s name followed by parenthesis <code>( )</code> and between the parenthesis the function’s arguments separated by comma <code>,</code>. To know better how a function works is always a good idea to read the help document that comes along with <code>R</code>, some that you can make with <code>?</code> symbol. For an example if you type <code>?sum</code> you will see how <code>sum</code> function works and its arguments, where you can see an argument <code>na.rm = FALSE</code>, this points that the default value of the argument is <code>FALSE</code> and if you keep reading a little forward you can see that the documentation indicates for this argument: <em>logical. Should missing values (including NaN) be removed?</em> telling you the type of value that you can use and what is the functionality. Let <code>x</code> be a vector with a <em>missing value</em> <code>NA</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="cn">NA</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="cn">NA</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>If you use the sum function you will get an <code>NA</code> value</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA</code></pre>
 </div>
 </div>
 <p>But if you use the <code>na.rm</code> argument you will get the sum of the valid values</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3</code></pre>
 </div>
@@ -723,18 +773,18 @@ World</code></pre>
 <h3 class="anchored" data-anchor-id="managing-packages">Managing packages</h3>
 <p>What are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package’s source, but no matter the option is the case, the procedure must be done only once in your R enviroment. Now is explained how to do it from CRAN by using the function <code>install.packages()</code> writing within <code>" "</code> the package name. As an example, in order to install <code>dplyr</code> -that is one of the most famous <code>R</code>’s packages for data manipulation- you must execute the following code:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"dplyr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"dplyr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now that the package is installed you doesn’t need to install it again unless you want to update the package. That a package is installed doesn’t mean that <code>R</code> automatically loads the package along with their functions and data types, for example if you want to use the <code>dplyr</code>’s function <code>mutate</code> to create a new variable in your data frame it will be an error if you haven’t load the <code>dplyr</code> package:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(df, <span class="at">C =</span> A <span class="sc">+</span> B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(df, <span class="at">C =</span> A <span class="sc">+</span> B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in mutate(df, C = A + B): no se pudo encontrar la función "mutate"</code></pre>
 </div>
 </div>
 <p>So in order to use the package you must load it each time you open a new session with the function <code>library()</code> writing the package’s name within <code>" "</code> as follows</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Attaching package: 'dplyr'</code></pre>
@@ -752,7 +802,7 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <p>Now if you want to use the <code>dplyr</code>’s function <code>mutate</code> it will work</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(df, <span class="at">C =</span> A <span class="sc">+</span> B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(df, <span class="at">C =</span> A <span class="sc">+</span> B)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  A B C
 1 1 4 5
@@ -763,14 +813,14 @@ Attaching package: 'dplyr'</code></pre>
 <p>Is highly recommended that the load of the package be included in your script for reproducibility of your code.</p>
 <p>A situation that you may encounter in your <code>R</code> work is that sometimes you may want to use two packages that have different functions with the same name. As an example if you see the message that <code>R</code> print when you loaded <code>dplyr</code> package this says “<em>The following objects are masked from ‘package:stats’:</em>” and next it points the functions <code>filter</code> and <code>lag</code>, this message means that the package <code>stats</code> -one of the automatically installed and loaded by <code>R</code>- also has functions with the names <code>filter</code> and <code>lag</code>, but when you use them <code>R</code> will use the <code>dplyr</code>’s functions. For example the next code use <code>dplyr</code>’s <code>lag</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lag</span>(df<span class="sc">$</span>A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lag</span>(df<span class="sc">$</span>A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA  1  2</code></pre>
 </div>
 </div>
 <p>But in order to use the masked functions you can use the syntaxis <code>package::function</code>, following the previous example, to use <code>stats</code>’s <code>lag</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">::</span><span class="fu">lag</span>(df<span class="sc">$</span>A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">::</span><span class="fu">lag</span>(df<span class="sc">$</span>A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 2 3
 attr(,"tsp")
@@ -783,21 +833,21 @@ attr(,"tsp")
 <p>In this section we review how to import classical data formats as <code>csv</code>, <code>txt</code>, <code>excel</code> and <code>dta</code>. The first doesn’t need specific packages to work well, but the latters do.</p>
 <p>For <code>csv</code> and <code>txt</code> data <code>R</code> comes with the functions <code>read.csv</code>, <code>read.csv2</code>, <code>read.delim</code> and <code>read.delim2</code>. If you see the help documentation you will see that the four of them belongs to the family of the <code>read.table</code> function and has a very similar usage, being the basic usage:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.table</span>(<span class="at">file =</span> <span class="st">"Path/To/Your/File.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read.table</span>(<span class="at">file =</span> <span class="st">"Path/To/Your/File.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Note that the example is made with <code>csv</code> but is the same for <code>txt</code>. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates if the first row should be taken as a header row, what is the separation between columns, the decimal separator and others.</p>
 <p>For <code>excel</code> files you count with a variety of packages such as <code>readxl</code>, <code>openxlsx</code> and <code>xlsx</code>. Each package has their function and allows different tasks as read or write depending on the package. As this section is focused on import data, we present an example of the <code>readxl</code> package’s family of functions <code>read_xls</code>, <code>read_xlsx</code> and <code>read_excel</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_xlsx</span>(<span class="at">path =</span> <span class="st">"Path/To/Your/File.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_xlsx</span>(<span class="at">path =</span> <span class="st">"Path/To/Your/File.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to impor, an specific range, use or not the first row as column names, between others.</p>
 <p>Finally in order to import <code>dta</code> files the package will be <code>haven</code> and the functions <code>read_stata</code> or <code>read_dta</code>, both with the basic usage as follows</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_dta</span>(<span class="at">file =</span> <span class="st">"Path/To/Your/File.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_dta</span>(<span class="at">file =</span> <span class="st">"Path/To/Your/File.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Until now all examples only import data but not store it in any object, an action that doesn’t make much sense because probably you import data to work with it. Now we are going to import an internal dataset from the package <code>wooldridge</code>, that contains 115 data sets from the book “Introductory Econometrics: A Modern Approach”, 7th Edition by Jeffrey Wooldridge, in order to show how manipulate this data sets</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="ot">&lt;-</span> wooldridge<span class="sc">::</span>mroz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="ot">&lt;-</span> wooldridge<span class="sc">::</span>mroz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This dataset contains the data from T. A. Mroz (1987), “The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions”, Econometrica 55, 765-799.</p>
 </section>
@@ -805,14 +855,14 @@ attr(,"tsp")
 <h3 class="anchored" data-anchor-id="tyding-data">Tyding data</h3>
 <p>In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(mroz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(mroz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "data.frame"</code></pre>
 </div>
 </div>
 <p>Along with this section you will see the use of the <code>head</code> function, this function shows us the first rows of an object in order to prevent a data frame being totally printed. Previously we mentioned the existence of <em>tibbles</em> that are a widely used structure similar to data frames but with a few differences like don’t consider rownames or don’t interpret strings as factors by default. We introduce this because with the use of some functions from <code>dplyr</code> package a data frame becomes automatically a tibble. For example, consider de <code>mroz</code> data frame, if we apply the combination of <code>group_by</code> and <code>summarise</code> functions to get the mean of the number of kids with less than 6 years by labor situation of the women:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ungroup</span>(<span class="fu">summarise</span>(<span class="fu">group_by</span>(mroz, inlf), <span class="at">meankidslt6 =</span> <span class="fu">mean</span>(kidslt6)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ungroup</span>(<span class="fu">summarise</span>(<span class="fu">group_by</span>(mroz, inlf), <span class="at">meankidslt6 =</span> <span class="fu">mean</span>(kidslt6)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
    inlf meankidslt6
@@ -823,8 +873,8 @@ attr(,"tsp")
 </div>
 <p>As you can see the result is a tibble. Now that you have an example of the use of <code>dplyr</code> you can see how easily is to get confused by using too many functions at once, a really nice operator that comes with <code>dplyr</code> is the pipe operator <code>%&gt;%</code> that allows to apply functions without writing all together. As an example the next code replicates the previous example:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(inlf) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">meankidslt6 =</span> <span class="fu">mean</span>(kidslt6)) <span class="sc">%&gt;%</span></span>
-<span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(inlf) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">meankidslt6 =</span> <span class="fu">mean</span>(kidslt6)) <span class="sc">%&gt;%</span></span>
+<span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
    inlf meankidslt6
@@ -836,7 +886,7 @@ attr(,"tsp")
 <p>Note that this works as: to the object at the left of the pipe operator, apply the function to the right. Another thing you can note is the use of the <code>group_by</code>, <code>summarise</code> and <code>ungroup</code> combo, where <code>group_by</code> as the name says allows to group by the variable(s) indicated, <code>summarise</code> calculate a descriptive statistic that can be <code>mean</code>, <code>sd</code>, <code>min</code>, <code>max</code>, <code>median</code>, <code>quantile</code> and others, in order to know them all you should consult the help documentation of <code>summarise</code> function.</p>
 <p>Other functionalities of <code>dplyr</code> package are the use of <code>sql</code> functions like <code>sql_join</code> that allows to merge two data frames or tibbles, apply functions to every column or specific ones, among others. Another famous package for data manipulation is <code>tidyverse</code>, a package that comes along with other package as <code>dplyr</code>, <code>tibble</code>, <code>tidyr</code> and others like <code>ggplot2</code> for plots, <code>lubridate</code> for dates, <code>stringr</code> for strings. This fact became <code>tidyverse</code> as one of the must have package for data manipulation but with the caution that it takes up more memory.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ forcats   1.0.0     ✔ readr     2.1.4
@@ -851,8 +901,8 @@ attr(,"tsp")
 </div>
 <p>Once loaded <code>tidyverse</code> package, you can use all the tools in the packages that are loaded with <code>tidyverse</code>. So let’s now try to make a join between two data frames (tibbles), first create the mean as previous examples and next join this mean to the mroz dataset by the column inlf</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(inlf) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">MeanKidslt6 =</span> <span class="fu">mean</span>(kidslt6)) <span class="sc">%&gt;%</span></span>
-<span id="cb136-2"><a href="#cb136-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> <span class="fu">right_join</span>(mroz, <span class="at">by =</span> <span class="st">"inlf"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(inlf) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">MeanKidslt6 =</span> <span class="fu">mean</span>(kidslt6)) <span class="sc">%&gt;%</span></span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> <span class="fu">right_join</span>(mroz, <span class="at">by =</span> <span class="st">"inlf"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 753 × 23
     inlf MeanKidslt6 hours kidslt6 kidsge6   age  educ  wage repwage hushrs
@@ -875,7 +925,7 @@ attr(,"tsp")
 </div>
 <p>Note that the result of this procedure hasn’t been store in any object, so it can’t be accessed later. Other convenient tools that you will apply on this book are selecting some rows or some columns from the dataset, from <code>filter</code> function we can filter rows that meet certain condition and from the use of <code>select</code> we can filter specific columns:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="sc">%&gt;%</span> <span class="fu">select</span>(kidslt6, hours) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(kidslt6 <span class="sc">&gt;</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="sc">%&gt;%</span> <span class="fu">select</span>(kidslt6, hours) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(kidslt6 <span class="sc">&gt;</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  kidslt6 hours
 1       3     0
@@ -885,8 +935,8 @@ attr(,"tsp")
 </div>
 <p>In previous section has been shown the use of <code>mutate</code> function to create new variables, in tibbles as in data frames the use of <code>$</code> operator also creates new variables:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>mroz<span class="sc">$</span>exper2 <span class="ot">&lt;-</span> mroz<span class="sc">$</span>exper<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mroz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a>mroz<span class="sc">$</span>exper2 <span class="ot">&lt;-</span> mroz<span class="sc">$</span>exper<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mroz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  inlf hours kidslt6 kidsge6 age educ   wage repwage hushrs husage huseduc
 1    1  1610       1       0  32   12 3.3540    2.65   2708     34      12
@@ -913,7 +963,7 @@ attr(,"tsp")
 </div>
 <p>Another function to create variables is <code>transmute</code>, but this function doesn’t mantain old variables, in fact it replace all the data for the new one</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mroz <span class="sc">%&gt;%</span> <span class="fu">transmute</span>(<span class="at">expersquared =</span> exper<span class="sc">^</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mroz <span class="sc">%&gt;%</span> <span class="fu">transmute</span>(<span class="at">expersquared =</span> exper<span class="sc">^</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  expersquared
 1          196
@@ -929,10 +979,10 @@ attr(,"tsp")
 </div>
 <p>So it must be used with caution. Finally the last tool that we introduce for data manipulation is transform data from wide format to long format and reverse. Consider the next data frame</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a>Data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Zone =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>), </span>
-<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">Year =</span> <span class="fu">c</span>(<span class="dv">2021</span>, <span class="dv">2022</span>, <span class="dv">2021</span>, <span class="dv">2022</span>),</span>
-<span id="cb144-3"><a href="#cb144-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">Sales =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">115</span>, <span class="dv">98</span>, <span class="dv">106</span>))</span>
-<span id="cb144-4"><a href="#cb144-4" aria-hidden="true" tabindex="-1"></a>Data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a>Data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Zone =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>), </span>
+<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">Year =</span> <span class="fu">c</span>(<span class="dv">2021</span>, <span class="dv">2022</span>, <span class="dv">2021</span>, <span class="dv">2022</span>),</span>
+<span id="cb146-3"><a href="#cb146-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">Sales =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">115</span>, <span class="dv">98</span>, <span class="dv">106</span>))</span>
+<span id="cb146-4"><a href="#cb146-4" aria-hidden="true" tabindex="-1"></a>Data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Zone Year Sales
 1    A 2021   100
@@ -943,9 +993,9 @@ attr(,"tsp")
 </div>
 <p>This format is the long format, you have multiple observations for one unit (zone in this example), to transform it in wide format</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a>Data <span class="ot">=</span> <span class="fu">pivot_wider</span>(<span class="at">data =</span> Data, <span class="at">id_cols =</span> Zone, <span class="at">names_from =</span> Year,</span>
-<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">values_from =</span> Sales)</span>
-<span id="cb146-3"><a href="#cb146-3" aria-hidden="true" tabindex="-1"></a>Data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb148"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>Data <span class="ot">=</span> <span class="fu">pivot_wider</span>(<span class="at">data =</span> Data, <span class="at">id_cols =</span> Zone, <span class="at">names_from =</span> Year,</span>
+<span id="cb148-2"><a href="#cb148-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">values_from =</span> Sales)</span>
+<span id="cb148-3"><a href="#cb148-3" aria-hidden="true" tabindex="-1"></a>Data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 3
   Zone  `2021` `2022`
@@ -956,9 +1006,9 @@ attr(,"tsp")
 </div>
 <p>As you can see now there is one observation per unit. Lets get it back to long format</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb148"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>Data <span class="ot">=</span> <span class="fu">pivot_longer</span>(<span class="at">data =</span> Data, <span class="at">names_to =</span> <span class="st">"Year"</span>, <span class="at">values_to =</span> <span class="st">"Sales"</span>,</span>
-<span id="cb148-2"><a href="#cb148-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cols =</span> <span class="sc">-</span>Zone)</span>
-<span id="cb148-3"><a href="#cb148-3" aria-hidden="true" tabindex="-1"></a>Data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb150"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a href="#cb150-1" aria-hidden="true" tabindex="-1"></a>Data <span class="ot">=</span> <span class="fu">pivot_longer</span>(<span class="at">data =</span> Data, <span class="at">names_to =</span> <span class="st">"Year"</span>, <span class="at">values_to =</span> <span class="st">"Sales"</span>,</span>
+<span id="cb150-2"><a href="#cb150-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cols =</span> <span class="sc">-</span>Zone)</span>
+<span id="cb150-3"><a href="#cb150-3" aria-hidden="true" tabindex="-1"></a>Data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 3
   Zone  Year  Sales
@@ -978,83 +1028,83 @@ attr(,"tsp")
 <h3 class="anchored" data-anchor-id="basic-plots">Basic Plots</h3>
 <p>The basic function to make a plot in <code>R</code> is the plot function, this function maps pairs of points in the <span class="math inline">\((x,y)\)</span> coordinate axis. Let <span class="math inline">\(x\)</span> be a sequence of integers between -5 and 5</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb150"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a href="#cb150-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">5</span><span class="sc">:</span><span class="dv">5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb152"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a href="#cb152-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">5</span><span class="sc">:</span><span class="dv">5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now consider <span class="math inline">\(y = x^2\)</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">=</span> x<span class="sc">^</span><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">=</span> x<span class="sc">^</span><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><code>plot</code> function by default maps a point plot</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb152"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a href="#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x,y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-62-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>If you access help documentation for plot you can see how add elements to the graph</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x,y, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">main =</span> <span class="st">"Plot Example"</span>, <span class="at">xlab =</span> <span class="st">"Variable X"</span>,</span>
-<span id="cb153-2"><a href="#cb153-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Variable Y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb154"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href="#cb154-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x,y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-63-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>If you access help documentation for plot you can see how add elements to the graph</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x,y, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">main =</span> <span class="st">"Plot Example"</span>, <span class="at">xlab =</span> <span class="st">"Variable X"</span>,</span>
+<span id="cb155-2"><a href="#cb155-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Variable Y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-64-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 <p>A widely used package for make more custom graphs is <code>ggplot2</code>, as <code>tidyverse</code> has been loaded previous, in this case we don’t need to load <code>ggplot2</code>, but if you haven’t load it remember that with the next code you can do it</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb154"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href="#cb154-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb156"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href="#cb156-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The first step in <code>ggplot</code> is to define the plot</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-65-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>This define a blank canvas where you can add elements, as an example a line object (<em>geom</em>) is added</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb156"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href="#cb156-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-66-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Until now we haven’t added data so <code>ggplot2</code> is not mapping any pair of points, now specify the data, this must be done inside the <code>aes</code> function</p>
+<p>This define a blank canvas where you can add elements, as an example a line object (<em>geom</em>) is added</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-67-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Note that in order to add elements to the graph we have been using <code>+</code> unlike when using multiple variables where were used the pipe operator <code>%&gt;%</code>. With this syntax you can add more elements to the graph</p>
+<p>Until now we haven’t added data so <code>ggplot2</code> is not mapping any pair of points, now specify the data, this must be done inside the <code>aes</code> function</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="fu">aes</span>(x , y)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(x, y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb159"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-68-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>When you use a data frame you can also define <code>aes</code> inside <code>ggplot</code> function</p>
+<p>Note that in order to add elements to the graph we have been using <code>+</code> unlike when using multiple variables where were used the pipe operator <code>%&gt;%</code>. With this syntax you can add more elements to the graph</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb159"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mroz, <span class="fu">aes</span>(<span class="at">x =</span> exper, <span class="at">y =</span> lwage)) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="fu">aes</span>(x , y)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(x, y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-69-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Here you can manipulate different overall themes for your plot and elements characteristics such as color or size</p>
+<p>When you use a data frame you can also define <code>aes</code> inside <code>ggplot</code> function</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mroz, <span class="fu">aes</span>(<span class="at">x =</span> exper, <span class="at">y =</span> lwage)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb160-2"><a href="#cb160-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mroz, <span class="fu">aes</span>(<span class="at">x =</span> exper, <span class="at">y =</span> lwage)) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-70-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Here you can manipulate different overall themes for your plot and elements characteristics such as color or size</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb162"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mroz, <span class="fu">aes</span>(<span class="at">x =</span> exper, <span class="at">y =</span> lwage)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb162-2"><a href="#cb162-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-71-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 <p>In this way you can add a variety of elements such as an OLS regression line</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mroz, <span class="fu">aes</span>(<span class="at">x =</span> exper, <span class="at">y =</span> lwage)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb161-2"><a href="#cb161-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb163"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb163-1"><a href="#cb163-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mroz, <span class="fu">aes</span>(<span class="at">x =</span> exper, <span class="at">y =</span> lwage)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb163-2"><a href="#cb163-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-71-1.png" class="img-fluid" width="672"></p>
+<p><img src="01_01_IntroductionR_files/figure-html/unnamed-chunk-72-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>As said before, this introductory section of this chapter doesn’t intend to be a comprehensive tutorial of <code>R</code>, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.</p>

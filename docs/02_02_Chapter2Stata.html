@@ -84,6 +84,24 @@ ul.task-list li input[type="checkbox"] {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Microeconometrics: Methods and Applications</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/damiancclarke" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Download" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="./Microeconometrics--Methods-and-Applications.pdf">
+            <i class="bi bi-bi-file-pdf pe-1"></i>
+          Download PDF
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="./Microeconometrics--Methods-and-Applications.epub">
+            <i class="bi bi-bi-journal pe-1"></i>
+          Download ePub
+          </a>
+        </li>
+    </ul>
+</div>
     </div>
       </div>
       <div class="mt-2 flex-shrink-0 align-items-center">
@@ -148,7 +166,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata</span></a>
+  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -165,7 +183,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./06_references.html" class="sidebar-item-text sidebar-link">References</a>
+  <a href="./06_references.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">References</span></a>
   </div>
 </li>
     </ul>
@@ -173,7 +191,13 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#block-2.1" id="toc-block-2.1" class="nav-link active" data-scroll-target="#block-2.1">Block 2.1</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -195,9 +219,39 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>Here will be the Chapter 2 excersises and examples.</p>
+<section id="block-2.1" class="level3">
+<h3 class="anchored" data-anchor-id="block-2.1">Block 2.1</h3>
+<p>To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al.&nbsp;(2021).</p>
+<ol type="1">
+<li><p><strong>Loading the Data</strong>: We start by loading the household data from a specified location.</p>
+<pre><code>
+use "C:\\Users\\maria\\Desktop\\Proyecto\\Data.dta", clear
+</code></pre></li>
+<li><p><strong>Simple Regression</strong>: We run a simple regression of the variable <strong><code>ind_fin_el1</code></strong> on the treatment variable, filtering the data to only include observations where <strong><code>el1 == 1</code></strong>.</p>
+<pre><code>
+reg ind_fin_el1 treatment if el1==1
+</code></pre>
+<p>We note down the coefficient for the treatment variable for later comparison.</p></li>
+<li><p><strong>Mean for the Treatment Group</strong>: We calculate the mean of <strong><code>ind_fin_el1</code></strong> for the treatment group.</p>
+<pre><code>
+summarize ind_fin_el1 if treatment==1 &amp; el1==1
+scalar mean_treatment = r(mean)
+</code></pre></li>
+<li><p><strong>Mean for the Control Group</strong>: Similarly, we calculate the mean of <strong><code>ind_fin_el1</code></strong> for the control group.</p>
+<pre><code>
+summarize ind_fin_el1 if treatment==0 &amp; el1==1
+scalar mean_control = r(mean)
+</code></pre></li>
+<li><p><strong>Difference in Means</strong>: We then calculate the difference in means between the treatment and control groups.</p>
+<pre><code>
+scalar diff_means = mean_treatment - mean_control
+display "Difference in means (Treatment - Control): " diff_means
+</code></pre></li>
+</ol>
+<p>By following these steps, we can empirically verify that in a binary regression set-up, the coefficient for the treatment variable in a simple OLS regression is equivalent to the difference in means between the treatment and control groups. This serves as a useful check for the validity of our regression model and strengthens the causal interpretation of the treatment effect.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -336,7 +390,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./02_01_IntroductionStata.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Introduction to Stata</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

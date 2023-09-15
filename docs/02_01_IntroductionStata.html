@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Microeconometrics: Methods and Applications - 6&nbsp; Introduction to Stata</title>
+<title>Microeconometrics: Methods and Applications - 6&nbsp; Introduction to Stata and Basic Tools Required for this book</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -124,6 +124,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 }</script>
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -133,7 +134,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
     <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"><span class="chapter-title">Introduction to Stata</span></h1>
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -147,6 +148,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Microeconometrics: Methods and Applications</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/damiancclarke" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Download" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="./Microeconometrics--Methods-and-Applications.pdf">
+            <i class="bi bi-bi-file-pdf pe-1"></i>
+          Download PDF
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="./Microeconometrics--Methods-and-Applications.epub">
+            <i class="bi bi-bi-journal pe-1"></i>
+          Download ePub
+          </a>
+        </li>
+    </ul>
+</div>
     </div>
       </div>
       <div class="mt-2 flex-shrink-0 align-items-center">
@@ -211,7 +230,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Introduction to Stata</span></a>
+  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -228,7 +247,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./06_references.html" class="sidebar-item-text sidebar-link">References</a>
+  <a href="./06_references.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">References</span></a>
   </div>
 </li>
     </ul>
@@ -236,14 +255,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#an-introduction-to-language-and-data-types" id="toc-an-introduction-to-language-and-data-types" class="nav-link active" data-scroll-target="#an-introduction-to-language-and-data-types">An introduction to language and data types</a></li>
+  <li><a href="#managing-packages" id="toc-managing-packages" class="nav-link" data-scroll-target="#managing-packages">Managing packages</a></li>
+  <li><a href="#loading-and-viewing-data" id="toc-loading-and-viewing-data" class="nav-link" data-scroll-target="#loading-and-viewing-data">Loading and viewing data</a></li>
+  <li><a href="#tyding-data" id="toc-tyding-data" class="nav-link" data-scroll-target="#tyding-data">Tyding data</a></li>
+  <li><a href="#basic-plots" id="toc-basic-plots" class="nav-link" data-scroll-target="#basic-plots">Basic Plots</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block"><span class="chapter-title">Introduction to Stata</span></h1>
+<h1 class="title d-none d-lg-block"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></h1>
 </div>
 
 
@@ -258,37 +287,794 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<p>Here will be the introduction to <code>Stata</code>. Now an example of code visualization:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Statamarkdown)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'Statamarkdown' was built under R version 4.2.3</code></pre>
+
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Stata found at C:/Program Files/Stata16/StataMP-64.exe</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The 'stata' engine is ready to use.</code></pre>
-</div>
-</div>
+<p>From the moment you open Stata you are into an Stata session until the moment you close it, from now on understand a session as this time between you open and close Stata. A good idea when working with Stata is to use Stata Projects who allows you to organize into a better way your enviroment in a self-contained folder, where all the documents (input or output) by default will be in that folder unless you define subfolders or specify the entire path in your computer to other folders, for more information you may consult <a href="https://www.stata.com/features/overview/project-manager/">Stata webpage</a>. In order to execute code you should input the code in your Stata command window, that is the place where Stata receive instructions and execute them, so if you input in your command window</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span> <span class="ot">all</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">set</span> <span class="kw">obs</span> 10000</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">gen</span> x = -3 + 6/(_N-1)*(<span class="dt">_n</span> - 1)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">gen</span> <span class="fu">y</span> = <span class="fu">normalden</span>(x)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">line</span> <span class="fu">y</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 4 + 4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>number of observations (_N) was 0, now 10,000</code></pre>
+<pre><code>8</code></pre>
+</div>
+</div>
+<p>Stata will understand the instruction that you want to add 4 plus 4 and show the result, latter in this chapter we will explain more about mathematical operations and the different Stata data types. Another example of Stata execution is that if you type in your console:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pwd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Microeconome
+&gt; triaCausalidad\Ejemplo_QuartoBook</code></pre>
+</div>
+</div>
+<p>Stata will show you the path to the current working directory, the folder where Stata understand is working. If you want to change this directory you must use the command <code>cd "Path/to/the/directory/you/want/to/use"</code> with the path written between <code>" "</code> in order to Stata understand that is a character, again a topic that will be seen deeper latter. Another important thing is that you should type path with <code>/</code> because some operative systems don’t recognize backslash <code>\</code>.</p>
+<p>Commands is also a topic we are going to see latter. Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in <code>Do Files</code>. What are do files? Are text files that Stata understands it like code to execute, all you write in a do file, Stata will interpret it as code to execute unless you have the <code>*</code> character at the beginning of the line or the characters <code>//</code> between code and this plain text. For example if you type in your script</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"Hello World"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hello World</code></pre>
+</div>
+</div>
+<p><code>R</code> will understand that you are giving the instruction to print the character <em>Hello World</em>, but instead if you type</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>* <span class="kw">print</span>(<span class="st">"Hello World"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Stata will do nothing because interpret all the line that begins with <code>*</code> as plain text and not code with instructions to follow. Note that was also pointed the use of <code>//</code>, this can be used in the same line as code</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"Hello World"</span> <span class="co">// All to the right, plain text</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hello World</code></pre>
+</div>
+</div>
+<p>As you can see it executes the instruction to the left of <code>//</code> but ignores all to the right, this plain text is known as comment and is always a good practice in programming to include a few comments in your script explaining in general terms what are you doing. The previous idea helps you when revise old scripts and when share your code work with others.</p>
+<section id="an-introduction-to-language-and-data-types" class="level3">
+<h3 class="anchored" data-anchor-id="an-introduction-to-language-and-data-types">An introduction to language and data types</h3>
+<p>Until now we have executed some code in Stata, some of this code can made internal changes as the <code>cd</code> command and other just execute an action showing its results as <code>display 4 + 4</code>, but just doing and showing it, not storing this result. In order to store a result you must follow the syntaxis <code>command name = value</code>, where the command will be specific of the object type, the name will be whatever you want to call the result you are storing and the value can be an specific value or the result of an operation, now we introduce a variety of object types in Stata and we explore further the topic of the data types this objects store in the next subsection.</p>
+<p>The most common objects to work in Stata are scalars, matrices and the datasets. Scalars are objects that store a single value, this value can be either a string or a number, data types we will analyze latter, and can be defined as follow</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scalar</span> x1 = <span class="st">"Hello World"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> x1</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scalar</span> <span class="kw">x2</span> = 4 + 4</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">x2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hello World
+
+
+8</code></pre>
+</div>
+</div>
+<p>This code succesfully store the string <em>Hello World</em> in the scalar named <code>x1</code> and 8 (as the result of 4 plus 4) in the scalar <code>x2</code>. This scalars can also be used in future operations</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scalar</span> x3 = <span class="kw">x2</span> + 4</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> x3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>12</code></pre>
+</div>
+</div>
+<p>Matrices can store only numbers and works like usual algebraic matrices, in order to create a matrix you must use</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matrix</span> input A = (1, 2 \ 3, 4)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">matrix</span> input B = (5, 6 \ 7, 8)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In order to see this matrices</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matrix</span> <span class="ot">list</span> A</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">matrix</span> <span class="ot">list</span> B</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>A[2,2]
+    c1  c2
+r1   1   2
+r2   3   4
+
+
+B[2,2]
+    c1  c2
+r1   5   6
+r2   7   8</code></pre>
+</div>
+</div>
+<p>This matrices are stored and we can operate with them latter</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matrix</span> <span class="kw">define</span> C = A * B</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">matrix</span> <span class="ot">list</span> C</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>C[2,2]
+    c1  c2
+r1  19  22
+r2  43  50</code></pre>
+</div>
+</div>
+<p>Finally in datasets the data is organized as rectangular table where each column is understand as a variable and each row is understand as an observation. This datasets can be imported from externals files, there are some internals and also can be accessed from the web, a topic we will see deeper latter, for now as an example we use one of the Stata internals datasets in order to show you how they work. With the following code you will charge the dataset <code>auto.dta</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">sysuse</span> auto</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If you use the <code>browse</code> command, Stata will deploy a new window where will show you this data set</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>browse</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In this window you can see that each column represent a different variable and each row is a different observation. Also you can see data in different color, some columns in black (numeric), other in red (string) and other in blue (numeric, but labeled), a topic we will see latter when talk about data types. As you can see this kind of object allows to store different data types and multiple variables, so is very useful.</p>
+<p>In one of the recent versions of Stata (specifically the version 16) were introduced the Frames objects, this are data frames that allows to store multiple data sets simultaneously in the memory of Stata and switch between them whenever you want. For example now that you have imported the dataset <code>auto.dta</code> you can see that there is a current data frame named default</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>frame</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In order to chante this data frame name you can use <code>frame rename oldname newname</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>frame <span class="kw">rename</span> <span class="kw">default</span> auto</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we will create a new data frame with <code>frame create name</code> and change to that data frame with <code>cwf name</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>frame create secondframe</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>cwf secondframe</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As you can see the dataset that were stored previously is no longer seeable in your interface, but if you use</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>frames <span class="ot">dir</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You will see how there is two data frames and the one named <code>auto</code> has the data set stored previously. If you go back to this data frame with</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>cwf auto</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You will see available again the <code>auto</code> dataset. Now we show you how can have multiple datasets simultaneously in Stata with this data frame. First go back to the data frame <code>second</code> with <code>cwf</code> and then we import other internal dataset named <code>lifeexp</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>cwf second</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">sysuse</span> lifeexp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You can see that the dataset has changed and you have new data in your dataset, now you can change between this datasets with <code>cwf name</code> and check how the data that is shown in your dataset changes.</p>
+<p>For further information about the objects we have seen you can consult the help documentation with the <code>help</code> command. For example to see more about frames you can use</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">help</span> frames</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You will see that Stata has deployed a new window with the help documentation for this topic that will show you a lot of information as syntax, descriptions, examples and links to other sections of Stata’s help documentation.</p>
+<section id="data-types" class="level4">
+<h4 class="anchored" data-anchor-id="data-types">Data Types</h4>
+<p>Now that you know how to store values in different objects, you should know that Stata has different data types for this objects, some of them are strings and other numerics. Different types of data allows different ways to operate with it, for example characters must be specified between <code>" "</code>, otherwise Stata will understand them as object’s names and will return an error as don’t recognize them. For example if you want to display <em>Hello World</em> the next try will give you an error:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> Hello World</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hello not found
+r(111);
+
+end of do-file
+r(111);</code></pre>
+</div>
+</div>
+<p>In change, the next code understands that is a character:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"Hello World"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hello World</code></pre>
+</div>
+</div>
+<p>Numeric data doesn’t need to be inputted between <code>" "</code>, in fact if is inputted between <code>" "</code> Stata will understand it as a character instead a number. For example if you type just <code>2</code> the output will be a number, and if you type <code>"2"</code> the output will be printed as 2</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 2</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"2"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2
+
+2</code></pre>
+</div>
+</div>
+<p>Visually there is no difference with display, but if you try to operate with both of them it will return an error</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"2"</span> * 2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2*2 invalid name
+r(198);
+
+end of do-file
+r(198);</code></pre>
+</div>
+</div>
+</section>
+<section id="basic-operations" class="level4">
+<h4 class="anchored" data-anchor-id="basic-operations">Basic Operations</h4>
+<p>At this point we have made a few examples with some mathematical operations, now we introduce a list of a variety of operators that Stata understand for each type of data. We start with the arithmetic ones:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Symbol</th>
+<th style="text-align: center;">Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>+</code></td>
+<td style="text-align: center;">Addition</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>-</code></td>
+<td style="text-align: center;">Subtraction</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>*</code></td>
+<td style="text-align: center;">Multiplication</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>/</code></td>
+<td style="text-align: center;">Division</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>^</code></td>
+<td style="text-align: center;">Power</td>
+</tr>
+</tbody>
+</table>
+<p>A few examples</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 10 + 3</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 10 - 3</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 10 * 3</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 10 / 3</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 10 ^ 3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>13
+
+7
+
+30
+
+3.3333333
+
+1000</code></pre>
+</div>
+</div>
+<p>Also when you combine different operators it respect the PEMDAS order, first solve Parenthesis, second solve Exponents, third Multiplication, fourth Division, fifth Addition and sixth Substraction. For example in order to solve <span class="math display">\[-\frac{5 + 3^{5-3}}{5\times 3}\]</span> You should use the code</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> -(5+3^(5-3))/(5*3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>-.93333333</code></pre>
+</div>
+</div>
+<p>When you work with strings there are also operators that works, these are <code>+</code> and <code>*</code>. Stata automatically identifies when you use <code>+</code> if you are adding numerical values or concatenating strings, in this case you must use the same data type. When you use <code>*</code> to operate with strings you must specify a string and a number, because Stata will repeat the string as many times as the number indicates</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scalar</span> x1 = <span class="st">"Hello "</span> + <span class="st">"World"</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">scalar</span> <span class="kw">x2</span> = 2 + 2</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scalar</span> x3 = <span class="st">"Hello"</span> * 2</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> x1</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">x2</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> x3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hello World
+
+4
+
+HelloHello</code></pre>
+</div>
+</div>
+<p>Stata also has relational and logical operators that returns a numerical value associated with the truth value of an expression (0 for False and 1 for True) pointing if the statement is true or false. This operators are:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Symbol</th>
+<th style="text-align: center;">Comparison</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>==</code></td>
+<td style="text-align: center;">Equals</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>!=</code></td>
+<td style="text-align: center;">Difference</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>&gt;</code></td>
+<td style="text-align: center;">Greater</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>&gt;=</code></td>
+<td style="text-align: center;">Greater or Equal</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>&lt;</code></td>
+<td style="text-align: center;">Less</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>&lt;=</code></td>
+<td style="text-align: center;">Less or Equal</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>|</code></td>
+<td style="text-align: center;">Or</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>&amp;</code></td>
+<td style="text-align: center;">And</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>!</code> or <code>~</code></td>
+<td style="text-align: center;">Negation</td>
+</tr>
+</tbody>
+</table>
+<p>A few examples</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 4 == 3</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 4 != 3</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 4 &gt; 3</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 4 &gt;= 3</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 4 &lt; 3</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> 4 &lt;= 3</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> (4 == 3) | (4 != 3)</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> (4 == 3) &amp; (4 != 3)</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> ~(4 == 3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0
+
+1
+
+1
+
+1
+
+0
+
+0
+
+1
+
+0
+
+1</code></pre>
+</div>
+</div>
+<p>As many softwares Stata hase some basic commands that make specific tasks, for example if you want to calculate some descriptive statistic of a variable in a dataset you don´t need to calculate one-by-one the statistics, you can use the command <code>summarize</code>. As an example, for the dataset <code>auto</code> if you want to get the descriptive statistics of the <code>mpg</code> variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">summarize</span> mpg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         mpg |         74     21.2973    5.785503         12         41</code></pre>
+</div>
+</div>
+<p>In order to use this commands the syntaxis in Stata is the command’s name followed by its arguments (variable names, conditionals for a subset of observations and other requirements) and its specific options, separated by a comma the arguments from the options. To know better how a command works is always a good idea to read the help document that comes along with Stata, something that you can make with the <code>help</code> command. As an example if you type <code>help summarize</code> you will see the help documentation for this command, in sepecific note that the syntax will point</p>
+<p><code>&lt;ins&gt;su&lt;/ins&gt;mmarize [varlist] [if] [in] [weight] [, options]</code></p>
+<p>The first you can note is that the name of the command has a few letters underline, this means that you can abbreviate the command name to those letters and Stata will understand that you want to use that command. As an example if you type</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>su mpg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         mpg |         74     21.2973    5.785503         12         41</code></pre>
+</div>
+</div>
+<p>Then you can see it has some elements between <code>[ ]</code>, this means those are optional arguments. In the case of <em>varlist</em> you can specify a list of variables in order to get their descriptive statistics or you can leave it in blank in order to get all variables descriptive statistics</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>su price mpg</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"-------------- Line to separate outputs --------------"</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>su</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       price |         74    6165.257    2949.496       3291      15906
+         mpg |         74     21.2973    5.785503         12         41
+
+-------------- Line to separate outputs --------------
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        make |          0
+       price |         74    6165.257    2949.496       3291      15906
+         mpg |         74     21.2973    5.785503         12         41
+       rep78 |         69    3.405797    .9899323          1          5
+    headroom |         74    2.993243    .8459948        1.5          5
+-------------+---------------------------------------------------------
+       trunk |         74    13.75676    4.277404          5         23
+      weight |         74    3019.459    777.1936       1760       4840
+      length |         74    187.9324    22.26634        142        233
+        turn |         74    39.64865    4.399354         31         51
+displacement |         74    197.2973    91.83722         79        425
+-------------+---------------------------------------------------------
+  gear_ratio |         74    3.014865    .4562871       2.19       3.89
+     foreign |         74    .2972973    .4601885          0          1</code></pre>
+</div>
+</div>
+<p><em>if</em> and <em>in</em> is to apply the command for a subset of observations, in the case of <em>if</em> you must specify a condition. For example we will summarize the price of those those observations with a <code>mpg</code> greater than its mean</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>su price <span class="kw">if</span> mpg &gt; 21.2973</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       price |         31    4879.968    1344.659       3299       9735</code></pre>
+</div>
+</div>
+<p>As you see the number of observations and the other indicators has changed. The use of <em>in</em> is similar, but instead of specify a condition you must specify the position as rows number. For example get the summarize of the price for the first 20 observations</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>su price <span class="kw">in</span> 1/20</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       price |         20     6359.15    3710.311       3299      15906</code></pre>
+</div>
+</div>
+<p>Also you can see the <em>weigth</em> that is useful when you have weighted data, in that case you should specify a way for deal with the weights from a list of frequency weights, sampling weights, analytic weights or importance weights. To know more of this weights and its mean you should read the help documentation of weights with <code>help weights</code>.</p>
+<p>Final element of the help documentation syntax for the command you will see <em>[, options]</em> and further down the documentation a table listing the options with their description. As an example in the summarize help documentation you can see the detail option and its description that says “display additional statistics” so if we use this (note the underline d)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>su price, <span class="kw">d</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+                            Price
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         3291           3291
+ 5%         3748           3299
+10%         3895           3667       Obs                  74
+25%         4195           3748       Sum of Wgt.          74
+
+50%       5006.5                      Mean           6165.257
+                        Largest       Std. Dev.      2949.496
+75%         6342          13466
+90%        11385          13594       Variance        8699526
+95%        13466          14500       Skewness       1.653434
+99%        15906          15906       Kurtosis       4.819188</code></pre>
+</div>
+</div>
+<p>Showing how now has been displayed additional statistics as percentiles, the smallest and largest values, and others.</p>
+<p>Until now we have show you the use of command, but those aren’t the only method Stata have to make some specific procedures, Stata also count with functions. Functions has a different syntax that is <code>functioname(arguments)</code>. An example is the next</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="fu">sqrt</span>(4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2</code></pre>
+</div>
+</div>
+<p>You must know that there are very useful commands and functions that doesn’t come along with Stata and comes with extra packages that you must download from different sources. In the next section we talk about how you can download and install those packages from one of this sources.</p>
+</section>
+</section>
+<section id="managing-packages" class="level3">
+<h3 class="anchored" data-anchor-id="managing-packages">Managing packages</h3>
+<p>What are packages? Packages is a group of commands and code that develop specifics tasks. In order to install a package you have some alternatives depending on what is the package’s source, but no matter the option is the case, the procedure must be done only once in your system. Now is explained how to do it from Statistical Software Components (SSC) Archive by using the command <code>ssc install packagename</code>. As an example, in order to install <code>outreg2</code> -that is one of the most famous Stata’s packages for arrange regression outputs into an illustrative table- you must execute the following code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ssc</span> install outreg2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now that the package is installed you doesn’t need to install it again. In Stata is enough to install once a package for use it all the times you want. Once you install it you can use it.</p>
+<p>There are other sources such as the <a href="https://www.stata-journal.com/">Stata Journal</a> or simply an URL, in both cases the command <code>net</code> will provide the tools for search and install packages, so is highly recommendable to consult <code>net</code>’s help documentation.</p>
+</section>
+<section id="loading-and-viewing-data" class="level3">
+<h3 class="anchored" data-anchor-id="loading-and-viewing-data">Loading and viewing data</h3>
+<p>In this section we review how to import classical data formats as <code>csv</code>, <code>txt</code>, <code>excel</code> and <code>dta</code>. For <code>csv</code> and <code>txt</code> the command is <code>import delimited</code>. If you see the help documentation you will see that the basic usage is:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>import delimited <span class="st">"Path/To/Your/File.csv"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Note that the example is made with <code>csv</code> but is the same for <code>txt</code>. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates options such as the row to use as variable names, what is the separation between columns, the decimal separator and others.</p>
+<p>For <code>excel</code> files the command is <code>import excel</code>. If you see the help documentation you will see that the basic usage is:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>import excel <span class="st">"Path/To/Your/File.xls"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Note that the example is made with <code>xls</code> but is the same for <code>xlsx</code>. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates options such as if the row should be used as variable names, the range of cells, the sheet name and others.</p>
+<p>Finally in order to import <code>dta</code> files how this comes from Stata format you only need to use the command <code>use</code> with the basic usage as follows</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="st">"Path/To/Your/File.dta"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Be aware that you can import datasets from other sources such as webpages or internal repository of Stata, as was shown previously for the dataset <code>auto.dta</code> where was used the command <code>sysuse</code>.</p>
+</section>
+<section id="tyding-data" class="level3">
+<h3 class="anchored" data-anchor-id="tyding-data">Tyding data</h3>
+<p>In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. We will use the already loaded dataset <code>auto.dta</code>.</p>
+<p>Along with this section you will see the use of the <code>list</code> command, this command shows us the first rows of a dataset in order, a tool that will help us to show the results of some procedures we will do.</p>
+<p>Until now you know how to obtain descriptive statistics with the <code>summarize</code> command, now we show you how acces to that results and operate with them. One option is to do the summarize and then see the <code>return list</code> as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>su mpg</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">return</span> <span class="ot">list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         mpg |         74     21.2973    5.785503         12         41
+
+
+scalars:
+                  r(N) =  74
+              r(sum_w) =  74
+               r(mean) =  21.2972972972973
+                r(Var) =  33.47204738985561
+                 r(sd) =  5.785503209735141
+                r(min) =  12
+                r(max) =  41
+                r(sum) =  1576</code></pre>
+</div>
+</div>
+<p>Here you can see that there is a group of scalars that are automatically generated by Stata once the summarize command is executed. You can freely operate with this scalars</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">as</span> <span class="bn">text</span> <span class="st">"Pearson's Variation Coefficient is "</span> <span class="kw">as</span> result <span class="fu">r</span>(<span class="fu">sd</span>)/<span class="fu">abs</span>(<span class="fu">r</span>(<span class="kw">mean</span>))</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>NA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         mpg |         74     21.2973    5.785503         12         41
+
+Pearson's Variation Coefficient is .27165434</code></pre>
+</div>
+</div>
+<p>Now we show you how to create new variables with the command <code>generate</code>, this command allows to combine mathematical operators, functions and other variables values, among others. As an example we create the variable <code>mpg_meandev</code> <span class="math display">\[mpg_i - \overline{mpg}\]</span> Where <span class="math inline">\(\overline{mpg}\)</span> is the mean of <code>mpg</code> variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>su mpg</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="kw">generate</span> mpg_meandev = mpg - <span class="fu">r</span>(<span class="kw">mean</span>)</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span> mpg mpg_meandev <span class="kw">in</span> 1/5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         mpg |         74     21.2973    5.785503         12         41
+
+     +-----------------+
+     | mpg   mpg_mea~v |
+     |-----------------|
+  1. |  22    .7027027 |
+  2. |  17   -4.297297 |
+  3. |  22    .7027027 |
+  4. |  20   -1.297297 |
+  5. |  15   -6.297297 |
+     +-----------------+</code></pre>
+</div>
+</div>
+<p>As you can see in the list output (also you can check it with <code>browse</code>) there is a new variable named <code>mpg_meandev</code> with the deviations to the mean values of <code>mpg</code> variable. Note that is not necessary to use de <code>summarize</code> command each time we want to access the <code>return list</code> values, we do that to visually help to see the result of the variable.</p>
+<p>Stata also allows to replace values of this variables in the dataset, as an example we create a variable named <code>mpg_zscore</code> as <span class="math display">\[\frac{mpg - \overline{mpg}}{\widehat{\sigma}_{mpg}}\]</span> Where <span class="math inline">\(\widehat{\sigma}_{mpg}\)</span> is the sample standard deviation of <code>mpg</code> variable. First we create this variable with missing values <code>.</code> and then replace this missing values with the formula</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>su mpg</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="kw">generate</span> mpg_zscore = .</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="kw">replace</span> mpg_zscore = (mpg - <span class="fu">r</span>(<span class="kw">mean</span>)) / <span class="fu">r</span>(<span class="fu">sd</span>)</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span> mpg mpg_zscore <span class="kw">in</span> 1/5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         mpg |         74     21.2973    5.785503         12         41
+
+(74 missing values generated)
+
+(74 real changes made)
+
+     +-----------------+
+     | mpg   mpg_zsc~e |
+     |-----------------|
+  1. |  22    .1214592 |
+  2. |  17   -.7427698 |
+  3. |  22    .1214592 |
+  4. |  20   -.2242324 |
+  5. |  15   -1.088462 |
+     +-----------------+</code></pre>
+</div>
+</div>
+<p>Note that Stata also says you how many changes has done.</p>
+<p>Others very useful commands are those who allows us to add more information to our dataset, this information can be more variables for each observation (<code>merge</code> command) or more observations for each variable (<code>append</code>). Another famous command for data manipulation is <code>collapse</code>, this command allows to create a dataset of summary statistics. As an example we calculate a series of statistics for the variable <code>price</code> using the <code>by</code> option of the command to group this summary statistics by the <code>foreign</code> variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="kw">collapse</span> (<span class="kw">mean</span>) mean_price = price (<span class="fu">sd</span>) sd_price = price, <span class="kw">by</span>(foreign)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(1978 Automobile Data)
+
+     +--------------------------------+
+     |  foreign   mean_p~e   sd_price |
+     |--------------------------------|
+  1. | Domestic    6,072.4    3,097.1 |
+  2. |  Foreign    6,384.7    2,621.9 |
+     +--------------------------------+</code></pre>
+</div>
+</div>
+<p>Note that we follow the syntax</p>
+<p><code>collapse (stat) newname = varname (stat) newname = varname ..., by(groupvariable)</code></p>
+<p>Where the use of <code>...</code> is to denote that we could add more stats to this collapse.</p>
+<p>Now we are going to clear all the Stata memory for latter input mannually some data for our next example:</p>
+<div class="cell" data-collectcode="true">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span> <span class="ot">all</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>input str20 Zone Year Sales</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="st">"A"</span> 2021 100</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="st">"A"</span> 2022 115</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="st">"B"</span> 2021 98</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="st">"B"</span> 2022 106</span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     Zone       Year      Sales
+  1. "A" 2021 100
+  2. "A" 2022 115
+  3. "B" 2021 98
+  4. "B" 2022 106
+  5. end
+
+     +---------------------+
+     | Zone   Year   Sales |
+     |---------------------|
+  1. |    A   2021     100 |
+  2. |    A   2022     115 |
+  3. |    B   2021      98 |
+  4. |    B   2022     106 |
+     +---------------------+</code></pre>
+</div>
+</div>
+<p>You could note the addition of <code>str20</code> before the Zone variable name, this says to Stata that the variable Zone will be inputed as a string, if not specified Stata assumes that variables are numeric ones.</p>
+<p>Now we are going to show you how filter some data with the use of <code>keep</code> and <code>drop</code>, but also the use of <code>preserve</code> and <code>restore</code>. With <code>preserve</code> Stata internally store the actual status of the dataset and allows to make any change we want and go back to the stored status with <code>restore</code>. As an example first we are going to delete the variable <code>Year</code> with the drop command and next restore to its previous status</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"This is the result before drop, is saved by preserve"</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="kw">preserve</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="kw">drop</span> Year</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"This is the result after drop"</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a><span class="kw">restore</span></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="st">"This is the result after restore"</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . display "This is the result before drop, is saved by preserve"
+This is the result before drop, is saved by preserve
+
+
+
+This is the result after drop
+
+     +--------------+
+     | Zone   Sales |
+     |--------------|
+  1. |    A     100 |
+  2. |    A     115 |
+  3. |    B      98 |
+  4. |    B     106 |
+     +--------------+
+
+
+This is the result after restore
+
+     +---------------------+
+     | Zone   Year   Sales |
+     |---------------------|
+  1. |    A   2021     100 |
+  2. |    A   2022     115 |
+  3. |    B   2021      98 |
+  4. |    B   2022     106 |
+     +---------------------+</code></pre>
+</div>
+</div>
+<p>As you can see the combination of <code>preserve</code> and <code>restore</code> allows to modify the dataset and go back, while <code>drop</code> remove what we specify, in the example was a variable but also can be observations in specific positions specifying <em>in</em> or depending on a condition specifying <em>if</em>. <code>keep</code> command works opposite to <code>drop</code>, as <code>drop</code> remove only what is specified, <code>keep</code> mantains only the specified and remove everything else.</p>
+<p>Finally in this subsection we review the <code>reshape</code> command that allows to transform the dataset from a <em>wide</em> format to a <em>long</em> format or backwards. Understand a <em>long</em> dataset as how our dataset is actually, it has multiple observations with the same value for an unit in one or more variables. In this case both zones A and B has more than one observation, one for year 2021 and one for year 2022 as you can see both observation for each zone has the same value in the variable Zone.</p>
+<p>In order to transform this dataset to a <em>wide</em> format the code is</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="kw">reshape</span> <span class="kw">wide</span> Sales, i(Zone) j(Year)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . reshape wide Sales, i(Zone) j(Year)
+(note: j = 2021 2022)
+
+Data                               long   -&gt;   wide
+-----------------------------------------------------------------------------
+Number of obs.                        4   -&gt;       2
+Number of variables                   3   -&gt;       3
+j variable (2 values)              Year   -&gt;   (dropped)
+xij variables:
+                                  Sales   -&gt;   Sales2021 Sales2022
+-----------------------------------------------------------------------------
+
+     +----------------------------+
+     | Zone   Sal~2021   Sal~2022 |
+     |----------------------------|
+  1. |    A        100        115 |
+  2. |    B         98        106 |
+     +----------------------------+</code></pre>
+</div>
+</div>
+<p>As you can see now the dataset has one observation for each zone and no repeated values for a variable. With this we conclude this subsection and move on to the basic plots.</p>
+</section>
+<section id="basic-plots" class="level3">
+<h3 class="anchored" data-anchor-id="basic-plots">Basic Plots</h3>
+<p>There is a variety of plots that you can create in Stata, and each plot has his own syntax, so we encourage to review the respective help documentation for each graph. In this subsection we are going to show you two basic plots: (i) line plot and (ii) scatter plot, in the latter we will review how to add a linea prediction plot.</p>
+<p>In Stata the command to do a line plot is the <code>line</code> command, this command maps pairs of points in the <span class="math inline">\((x,y)\)</span> coordinate axis and draw a line connecting this points. Let <span class="math inline">\(x\)</span> be a sequence of integers between -5 and 5</p>
+<div class="cell" data-collectcode="true">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span> <span class="ot">all</span> </span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="kw">set</span> <span class="kw">obs</span> 11</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="kw">generate</span> x = -6 + <span class="dt">_n</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . clear all 
+
+number of observations (_N) was 0, now 11</code></pre>
+</div>
+</div>
+<p>In this code first we clear the Stata memory, then we set the observations in the dataset to 11, with this Stata understands that there is a dataset, empty for the moment, that have 11 observations (rows). Finally it creates a variable named <code>x</code> that will have the value of add to -6 the row number (<code>_n</code>) in the dataset</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span> x <span class="kw">in</span> 1/4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . list x in 1/4
+
+     +----+
+     |  x |
+     |----|
+  1. | -5 |
+  2. | -4 |
+  3. | -3 |
+  4. | -2 |
+     +----+</code></pre>
+</div>
+</div>
+<p>Next we create <span class="math inline">\(y = x^2\)</span> as follows</p>
+<div class="cell" data-collectcode="true">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="kw">generate</span> <span class="fu">y</span> = x^2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . generate y = x^2</code></pre>
+</div>
+</div>
+<p>Now with <code>line</code> function we create the line plot</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="kw">line</span> <span class="fu">y</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . line y x
+
+(file LinePlotExample.png written in PNG format)</code></pre>
 </div>
 </div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="NormalDensity.png" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Normal Density</figcaption><p></p>
+<p><img src="LinePlotExample.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Line Plot Example</figcaption><p></p>
 </figure>
 </div>
+<p>In the help documentation you can see a series of option that allows to modify the graph aspect. Now we show you how to graph a scatter plot, for that we are going to simulate with <code>rnormal()</code> 100 pseudo-random numbers from a standard normal distribution in a variable <code>error</code>, then in a variable <code>x</code> we simulate another 100 pseudo-random numbers from a standard normal distribution and finally we create <span class="math display">\[y_i = 10 + 3*x_i + error_i\]</span></p>
+<div class="cell" data-collectcode="true">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span> <span class="ot">all</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="kw">set</span> <span class="kw">obs</span> 100</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a><span class="kw">gen</span> <span class="kw">error</span> = rnormal()</span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a><span class="kw">gen</span> x = rnormal()</span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a><span class="kw">gen</span> <span class="fu">y</span> = 10 + 3*x + <span class="kw">error</span></span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a><span class="kw">scatter</span> <span class="fu">y</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . clear all
+
+number of observations (_N) was 0, now 100
 
 
+
+
+
+(note: file ScatterPlotExample.png not found)
+(file ScatterPlotExample.png written in PNG format)</code></pre>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="ScatterPlotExample.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Scatter Plot Example</figcaption><p></p>
+</figure>
+</div>
+<p>If you access help documentation for <code>scatter</code> you can see how add elements to the graph, now particularly we show how to fit a linear regression line with <code>lfit</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="kw">scatter</span> <span class="fu">y</span> x || <span class="kw">lfit</span> <span class="fu">y</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running C:\Users\Usuario\Desktop\Prim_2023\Ayudantias\Investigación\Clarke_Micr
+&gt; oeconometriaCausalidad\Ejemplo_QuartoBook\profile.do . scatter y x || lfit y x
+
+(note: file LfitPlotExample.png not found)
+(file LfitPlotExample.png written in PNG format)</code></pre>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="LfitPlotExample.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Lfit Plot Example</figcaption><p></p>
+</figure>
+</div>
+<p>As said before, this introductory section of this chapter doesn’t intend to be a comprehensive tutorial of Stata, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.</p>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

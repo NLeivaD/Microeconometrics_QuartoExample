@@ -22,7 +22,7 @@ getwd()
 cat("Hello \nWorld")
 ```
 
-Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute core in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
+Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
 
 ```{r}
 print("Hello World")
@@ -60,10 +60,10 @@ With the use of `->` or `<-` is clearly how `R` assign the value, but with the u
 4 = x
 ```
 
-All the way long in your sessions you could see this type of messages, this messages points you different types of details:  
-- `Error`: This kind of messages are telling you that something gone wrong and `R` couldn't execute the code you type. Usually they include a brief explanation of the error for you to debugging it.  
-- `Warning`: This kind of message are telling you that something that may cause you problems occured. `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.  
-- `Message`: This kind of message are only providing information about the execution, `R` telling something is considered good to know. Not necessary are errors or warnings, sometimes just comunicate of procedures.  
+All the way long in your sessions you could see this type of messages, this messages points you different types of details:\
+- `Error`: This kind of messages are telling you that something gone wrong and `R` couldn't execute the code you type. Usually they include a brief explanation of the error for you to debugging it.\
+- `Warning`: This kind of message are telling you that something that may cause you problems occured. `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.\
+- `Message`: This kind of message are only providing information about the execution, `R` telling something is considered good to know. Not necessary are errors or warnings, sometimes just comunicate of procedures.
 
 #### Data Types
 
@@ -97,6 +97,7 @@ Numeric data doesn't need to be inputted between `" "` or `' '`, in fact if is i
 2
 "2"
 ```
+
 You can check also with the `class` function
 
 ```{r}
@@ -153,7 +154,7 @@ l <- list(Character = c("Hello", "World"), Number = c(1, 2, 3, 4),
 
 #### Subset Multidimensional Elements
 
-As you see previously, there is elements as data frames or lists that stores multiple elements. Sometimes you  will want to work with a subset of this multidimensional data types instead the entire object. In data frames, or lists, you can easily access to an entire column, or object, by using `$` followed by the column, or object, name:
+As you see previously, there is elements as data frames or lists that stores multiple elements. Sometimes you will want to work with a subset of this multidimensional data types instead the entire object. In data frames, or lists, you can easily access to an entire column, or object, by using `$` followed by the column, or object, name:
 
 ```{r}
 df$A
@@ -172,7 +173,7 @@ This syntax allows also to access more than one object by combining it with a ve
 df$A[c(1, 3)]
 ```
 
-In case of multidimensional elements as an entire data frame or arrays you should use `[row,column]` syntax, if you want an entire row just left in blank the row position 
+In case of multidimensional elements as an entire data frame or arrays you should use `[row,column]` syntax, if you want an entire row just left in blank the row position
 
 ```{r}
 df[,1]
@@ -207,15 +208,15 @@ l[["DataFrame"]][2,"B"]
 
 Now that you know how to store data, and the different objects where you can store the data, you must know the basic operations to do with that data. `R` has the next basic mathematical operations:
 
-| Symbol | Operation |
-|:------:|:------:|
-| `+` | Addition |
-| `-` | Subtraction |
-| `*` | Multiplication |
-| `/` | Division |
-| `**` or `^` | Power |
-| `%%` | Modulus |
-| `%/%` | Integer Division |
+|   Symbol    |    Operation     |
+|:-----------:|:----------------:|
+|     `+`     |     Addition     |
+|     `-`     |   Subtraction    |
+|     `*`     |  Multiplication  |
+|     `/`     |     Division     |
+| `**` or `^` |      Power       |
+|    `%%`     |     Modulus      |
+|    `%/%`    | Integer Division |
 
 A few examples
 
@@ -230,19 +231,25 @@ A few examples
 10 %/% 3
 ```
 
+Also when you combine different operators it respect the PEMDAS order, first solve Parenthesis, second solve Exponents, third Multiplication, fourth Division, fifth Addition and sixth Substraction. For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
+
+```{r}
+-(5+3^(5-3))/(5*3)
+```
+
 `R` also has logical operatos that returns a boolean value (`TRUE` or `FALSE`, also abbreviated as `T` or `F`) pointing if the statement is true or false. This operators are:
 
-| Symbol | Comparison |
-|:------:|:------:|
-| `==` | Equals |
-| `!=` | Difference |
-| `>` | Greater |
-| `>=` | Greater or Equal |
-| `<` | Less than |
-| `<=` | Less than or Equal |
-| `%in%` | If it is in |
-| `|` | Or |
-| `&` | And |  
+| Symbol |     Comparison     |
+|:------:|:------------------:|
+|  `==`  |       Equals       |
+|  `!=`  |     Difference     |
+|  `>`   |      Greater       |
+|  `>=`  |  Greater or Equal  |
+|  `<`   |     Less than      |
+|  `<=`  | Less than or Equal |
+| `%in%` |    If it is in     |
+|  `|`   |         Or         |
+|  `&`   |        And         |
 
 A few examples
 
@@ -258,7 +265,7 @@ TRUE | FALSE
 TRUE & FALSE
 ```
 
-This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows to work with them numerically and is useful when you want to check a series of conditions.  
+This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows to work with them numerically and is useful when you want to check a series of conditions.
 
 The logical and mathematical operators are useful when making operations between different objects, it can be an object of a single valur or an object with multiple values. As many software `R` came with some basic functions that make specific tasks, for example if you want to add all the values in a vector you don´t need to type one-by-one all those values, you can use the function `sum`:
 
@@ -312,8 +319,7 @@ Now if you want to use the `dplyr`'s function `mutate` it will work
 mutate(df, C = A + B)
 ```
 
-
-Is highly recommended that the load of the package be included in your script for reproducibility of your code.  
+Is highly recommended that the load of the package be included in your script for reproducibility of your code.
 
 A situation that you may encounter in your `R` work is that sometimes you may want to use two packages that have different functions with the same name. As an example if you see the message that `R` print when you loaded `dplyr` package this says "*The following objects are masked from 'package:stats':*" and next it points the functions `filter` and `lag`, this message means that the package `stats` -one of the automatically installed and loaded by `R`- also has functions with the names `filter` and `lag`, but when you use them `R` will use the `dplyr`'s functions. For example the next code use `dplyr`'s `lag`
 
@@ -327,9 +333,9 @@ But in order to use the masked functions you can use the syntaxis `package::func
 stats::lag(df$A)
 ```
 
-### Loading and viewing data  
+### Loading and viewing data
 
-In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`. The first doesn't need specific packages to work well, but the latters do.  
+In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`. The first doesn't need specific packages to work well, but the latters do.
 
 For `csv` and `txt` data `R` comes with the functions `read.csv`, `read.csv2`, `read.delim` and `read.delim2`. If you see the help documentation you will see that the four of them belongs to the family of the `read.table` function and has a very similar usage, being the basic usage:
 
@@ -337,7 +343,7 @@ For `csv` and `txt` data `R` comes with the functions `read.csv`, `read.csv2`, `
 read.table(file = "Path/To/Your/File.csv")
 ```
 
-Note that the example is made with `csv` but is the same for `txt`. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates if the first row should be taken as a header row, what is the separation between columns, the decimal separator and others.  
+Note that the example is made with `csv` but is the same for `txt`. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates if the first row should be taken as a header row, what is the separation between columns, the decimal separator and others.
 
 For `excel` files you count with a variety of packages such as `readxl`, `openxlsx` and `xlsx`. Each package has their function and allows different tasks as read or write depending on the package. As this section is focused on import data, we present an example of the `readxl` package's family of functions `read_xls`, `read_xlsx` and `read_excel`
 
@@ -345,7 +351,7 @@ For `excel` files you count with a variety of packages such as `readxl`, `openxl
 read_xlsx(path = "Path/To/Your/File.xlsx")
 ```
 
-If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to impor, an specific range, use or not the first row as column names, between others.  
+If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to impor, an specific range, use or not the first row as column names, between others.
 
 Finally in order to import `dta` files the package will be `haven` and the functions `read_stata` or `read_dta`, both with the basic usage as follows
 
@@ -361,7 +367,7 @@ mroz <- wooldridge::mroz
 
 This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799.
 
-### Tyding data  
+### Tyding data
 
 In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame
 
@@ -382,9 +388,9 @@ mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6)) %>%
   ungroup()
 ```
 
-Note that this works as: to the object at the left of the pipe operator, apply the function to the right. Another thing you can note is the use of the `group_by`, `summarise` and `ungroup` combo, where `group_by` as the name says allows to group by the variable(s) indicated, `summarise` calculate a descriptive statistic that can be `mean`, `sd`, `min`, `max`, `median`, `quantile` and others, in order to know them all you should consult the help documentation of `summarise` function.  
+Note that this works as: to the object at the left of the pipe operator, apply the function to the right. Another thing you can note is the use of the `group_by`, `summarise` and `ungroup` combo, where `group_by` as the name says allows to group by the variable(s) indicated, `summarise` calculate a descriptive statistic that can be `mean`, `sd`, `min`, `max`, `median`, `quantile` and others, in order to know them all you should consult the help documentation of `summarise` function.
 
-Other functionalities of `dplyr` package are the use of `sql` functions like `sql_join` that allows to merge two data frames or tibbles, apply functions to every column or specific ones, among others. Another famous package for data manipulation is `tidyverse`, a package that comes along with other package as `dplyr`, `tibble`, `tidyr` and others like `ggplot2` for plots, `lubridate` for dates, `stringr` for strings. This fact became `tidyverse` as one of the must have package for data manipulation but with the caution that it takes up more memory.  
+Other functionalities of `dplyr` package are the use of `sql` functions like `sql_join` that allows to merge two data frames or tibbles, apply functions to every column or specific ones, among others. Another famous package for data manipulation is `tidyverse`, a package that comes along with other package as `dplyr`, `tibble`, `tidyr` and others like `ggplot2` for plots, `lubridate` for dates, `stringr` for strings. This fact became `tidyverse` as one of the must have package for data manipulation but with the caution that it takes up more memory.
 
 ```{r}
 library(tidyverse)
