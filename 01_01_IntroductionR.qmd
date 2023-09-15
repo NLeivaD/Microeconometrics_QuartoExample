@@ -19,25 +19,23 @@ Here, R code can be entered directly following a prompt which is the `>` symbol 
 4 + 4
 ```
 
-As you can see, `R` has understand the instruction that you want to add 4 plus 4 and show the result, which is output directly below the code in the `R` console.  Later in this chapter we will properly explain these mathematical operations and the different `R` data types. Another example of `R` execution is that if you type in your console:
+As you can see, `R` has understood the instruction that you want to add 4 plus 4 and show the result, which is evaluated, and output directly below the code in the `R` console.  Later in this chapter we will properly explain these mathematical operations and the different `R` data types. Beyond evaluating such simple mathematical operations, R has a host of in-built functions which can be invoked at the command line.  While we will interact with this in more detail later, a simple example is the following, which you can type in your R console:
 
 ```{r}
 getwd()
 ```
 
-`R` will show you the path to the current working directory, the folder where `R` understand is working. If you want to change this directory you must use the function `setwd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to `R` understand that is a character, again a topic that will be seen deeper latter. Another important thing is that you must type path with `/` because interprets some backslash `\` followed by certains letters as escape characters that executes some specific order, as `\n` when used into certains function:
-
-```{r}
-cat("Hello \nWorld")
-```
+This function which can be understood as "get working directory" will show you the path on your computer where `R` is currently working.  Thus, any files saved will be exported there, and `R` will search for any thing to import from this directory. If you want to change this directory you must use the function `setwd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to `R` understand that is a character, again a topic that will be seen deeper latter.  It is important to note that paths should be separated with the slash character: `/` rather than the backlash `\`, and this will work on any operating system.  Indeed, if you try to set directoris with a backslash, you will see that `R` returns an error.
 
 Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute core in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
+
+![An R Script and Output in RStudio](sourceR.png)
 
 ```{r}
 print("Hello World")
 ```
 
-`R` will understan that you are giving the instruction to print the character *Hello World*, but instead if you type
+`R` will understand that you are giving the instruction to print the character *Hello World*, but instead if you type
 
 ```{r}
 # print("Hello World")
