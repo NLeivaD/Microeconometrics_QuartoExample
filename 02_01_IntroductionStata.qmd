@@ -1,6 +1,19 @@
+<<<<<<< HEAD
 ```{r echo = FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 library(Statamarkdown)
+=======
+---
+title: "Introduction to Stata"
+execute:
+  echo: false
+---
+
+Here will be the introduction to `Stata`. Now an example of code visualization:
+
+```{r}
+ suppressMessages(library(Statamarkdown))
+>>>>>>> dbe35270cfd7dd3e5f83fe22b2fec243fcc914a2
 ```
 
 ## Introduction to Stata and Basic Tools Required for this book
