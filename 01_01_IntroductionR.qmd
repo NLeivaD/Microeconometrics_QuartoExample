@@ -9,7 +9,7 @@ knitr::opts_chunk$set(warning = FALSE)
 
 # Preliminaries
 We will assume that when you are reading this you have downloaded R and have been able to access R in some way.  This may be via the command line, but most likely we imagine you will have some GUI which allows you to see a number of windows including a space for graphical output, a description of the contents of your R Environment (for example any data you have loaded), potentially a place to write your code in R, and, most importantly, a "shell", or R interface, which looks like the following:
-```{bash}
+```{bash eval = FALSE}
 R --no-save
 ```
 

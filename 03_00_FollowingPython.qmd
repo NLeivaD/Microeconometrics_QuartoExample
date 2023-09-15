@@ -3,10 +3,9 @@ title: "Following Along with Python"
 engine: knitr
 ---
 
-In this chapter we show you how to follow the book's examples with Python. What is Python? Give a Python definition...  
+In this chapter we show you how to follow the book's examples with Python. What is Python? Give a Python definition...
 
-
-```{bash}
+```{bash eval = FALSE}
 ipython
 ```
 
