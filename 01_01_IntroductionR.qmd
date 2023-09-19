@@ -55,29 +55,25 @@ We will return to discuss functions in more detail a bit later on.  For now you 
 ![An R Script and Output in RStudio](sourceR.png)
 
 
- 
-
-Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
+You may notice something strange about the code and the output in the `R` console.  The R script has 7 distinct lines of text, but the console only produces two lines of output.  The reason for this is because we have included comments, or messages for human eyes, but not for the computer to interpret.  Any time that the `#` character is included in code, `R` understands that this is a comment, and hence is ignored in executing the code.  So, for example, when we write:
 
 ```{r}
-print("Hello World")
+print("Hello World!")
 ```
 
-
-
-`R` will understand that you are giving the instruction to print the character *Hello World*, but instead if you type
-
+in our code, the `R` console correctly echoes *Hello World!* back at us.  However, if we enter precisely the same code, but begin the line with a comment symbol, `R` will not do anything given that it interprets everythin to the right of `#` as plain text which should be ignored:
 ```{r}
 # print("Hello World")
 ```
 
-`R` will do nothing because interpret all to the right from the `#` as plain text and not code with instructions to follow. Note that is said "all to the right from the `#`", this implies that it can be used in the same line as code
-
+Similarly, comments can be used within lines:
 ```{r}
 print("Hello World") # To the left of # code, all to the right, plain text
 ```
 
-As you can see it executes the instruction to the left from `#` but ignores all to the right, this plain text is known as comment and is always a good practice in programming to include a few comments in your script explaining in general terms what are you doing. The previous idea helps you when revise old scripts and when share your code work with others.
+As you can, this lines has executed the instruction to the left of `#` but ignores all those to the right.  It is good practice to comment code extensively, both for sharing code with other users, but also for sharing code with yourself in the future, where you may not remember precisely what you were thinking when you originally wrote your code!
+
+One final thing to note from this `R` script is that the output from the final line of code (`4+4`) was not printed in the console.  In R, when you type `4+4` at the command line, you get immediate output because R is operating in an interactive mode. In interactive mode, R evaluates expressions as soon as you enter them and displays the result to the console.  However, when you write `4+4` in a script and then run the script, there is no automatic output to the console.  However, it is important to note that the calculation *is* conducted. You can confirm this yourself if you'd like by explicitly requesting that `R`provide this output when it runs the code, replacing `4+4` in the code with `print(4+4)`.
 
 ### An introduction to language and data types
 
