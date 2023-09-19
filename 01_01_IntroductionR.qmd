@@ -10,8 +10,31 @@ knitr::opts_chunk$set(warning = FALSE)
 # Preliminaries
 We will assume that when you are reading this you have downloaded R and have been able to access R in some way.  This may be via the command line, but most likely we imagine you will have some GUI which allows you to see a number of windows including a space for graphical output, a description of the contents of your R Environment (for example any data you have loaded), potentially a place to write your code in R, and, most importantly, a "shell", or R interface, which looks like the following:
 ```{bash eval = FALSE}
-R --no-save
+R 
 ```
+
+```
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+>
+```
+
 
 Here, R code can be entered directly following a prompt which is the `>` symbol at the bottom of the window above. From the moment you open `R` you are in an `R` session until the moment you close it, from now on understand a session as this time between you open and close `R`. The most simple way to execute code in `R`is to simply input commands into your `R` console.  So, for example, you could write the following at to the right of the `>` symbol, and R will evaluate this code:
 
@@ -25,15 +48,22 @@ As you can see, `R` has understood the instruction that you want to add 4 plus 4
 getwd()
 ```
 
-This function which can be understood as "get working directory" will show you the path on your computer where `R` is currently working.  Thus, any files saved will be exported there, and `R` will search for any thing to import from this directory. If you want to change this directory you must use the function `setwd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to `R` understand that is a character, again a topic that will be seen deeper latter.  It is important to note that paths should be separated with the slash character: `/` rather than the backlash `\`, and this will work on any operating system.  Indeed, if you try to set directoris with a backslash, you will see that `R` returns an error.
+This function which can be understood as "get working directory" will show you the path on your computer where `R` is currently working.  Thus, any files saved will be exported there, and `R` will search for any thing to import from this directory. If you want to change this directory you must use the function `setwd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to `R` understand that is a character, again a topic that will be seen deeper latter.  It is important to note that paths should be separated with the slash character: `/` rather than the backlash `\`, and this will work on any operating system.  Indeed, if you try to set directories with a backslash, you will see that `R` returns an error.
 
-Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
+We will return to discuss functions in more detail a bit later on.  For now you will note that we have simply been typing instructions to `R` directly into the console, and `R` has been providing us with output.  Generally, we will not work this way in an empirical research project, as we will want to develop code over time, and be able to return to R and replicate code in the future.  For this reason, generally we will work in R scripts, or files named as `something.R` (where `something` will be logical name for the file).  We will use these scripts to store the commands which we require for particular processes or routines, and can then save them to the disk of our computer before running them in `R`.  These scripts can be generated in any type of text editor, and then can be run in `R` using the `source()` command.  For example, below, you can see a screenshot of a sessin on R Studio where we have a basic R script named `firstRscript.R`, and below this, in the R console we see that the script is run using `source` and output is provided.
 
 ![An R Script and Output in RStudio](sourceR.png)
+
+
+ 
+
+Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
 
 ```{r}
 print("Hello World")
 ```
+
+
 
 `R` will understand that you are giving the instruction to print the character *Hello World*, but instead if you type
 
