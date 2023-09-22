@@ -54,13 +54,11 @@ We will return to discuss functions in more detail a bit later on.  For now you 
 
 ![An R Script and Output in RStudio](sourceR.png)
 
-
 You may notice something strange about the code and the output in the `R` console.  The R script has 7 distinct lines of text, but the console only produces two lines of output.  The reason for this is because we have included comments, or messages for human eyes, but not for the computer to interpret.  Any time that the `#` character is included in code, `R` understands that this is a comment, and hence is ignored in executing the code.  So, for example, when we write:
 
 ```{r}
 print("Hello World!")
 ```
-
 in our code, the `R` console correctly echoes *Hello World!* back at us.  However, if we enter precisely the same code, but begin the line with a comment symbol, `R` will not do anything given that it interprets everythin to the right of `#` as plain text which should be ignored:
 ```{r}
 # print("Hello World")
@@ -77,7 +75,7 @@ One final thing to note from this `R` script is that the output from the final l
 
 ### An introduction to language and data types
 
-Until now we have executed some code in `R`, some of this code can made internal changes as the `setwd` function, some of this code show an specific result as `print` function and other just execute an action and show result as `4 + 4`, but just doing and showing it, not storing this result. In order to store the results of your procedures you can define a variable or an object using one of the next symbols: `->`, `=` or `<-`. Now is shown an example where is asigned a variable named `x` with different numbers:
+Until now we have executed some code in `R` and seem some specific functions which print output, but we have never stored any results for later use within our code.  Generally we *will* want to store the output of intermediate steps in our code for later use.  This can be done in `R` using any of the following assignment symbols: `->`, `=` or `<-` (though `->` is generally preferred). For example, below we store a number of values as a variable which we define, arbitrarily named `x`:
 
 ```{r}
 x <- 1
@@ -87,15 +85,20 @@ x
 3 -> x
 ```
 
-With the use of `->` or `<-` is clearly how `R` assign the value, but with the use of `=` you must be cautelous of do it the way `name = value`, if not, there will be an error:
+With the use of `->` or `<-` the arrows make clear that we are assigning some particular value (or values) to a named variable, where the named variable is indicated by the arrow head.  However, with the use of `=` the assignment must respect `name = value`.  If, instead, we try to assign some variable as `value=name` an error will occur:
 
 ```{r error=TRUE}
 4 = x
 ```
 
-All the way long in your sessions you could see this type of messages, this messages points you different types of details:\
-- `Error`: This kind of messages are telling you that something gone wrong and `R` couldn't execute the code you type. Usually they include a brief explanation of the error for you to debugging it.\
-- `Warning`: This kind of message are telling you that something that may cause you problems occured. `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.\
+This error implies that the code has not been executed, and if we inspect the contents of `x` we will see that its prior value remains.
+```{r}
+x
+```
+In general, a command can produce a number of conditions which contain important messages for us.  These are:
+
+- `Error`: These kinds of messages tell you that something has gone wrong and `R` couldn't execute your code. Usually error messages include a brief explanation of what has gone wrong, to help you diagnose and fix your code.
+- `Warning`: These kinds of message indicate that somes has occurred that could potentially cause problems, but is not critical for code execution. In these cases, `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.\
 - `Message`: This kind of message are only providing information about the execution, `R` telling something is considered good to know. Not necessary are errors or warnings, sometimes just comunicate of procedures.
 
 #### Data Types
