@@ -10,7 +10,7 @@ The goal of this site is not to provide you with a comprehensive introduction to
 
 Information on how to download R is available on the [R website](https://www.r-project.org/), and further support can be found searching the web. In general, we recommend that you install an Integrated Development Environment (IDE) such as RStudio. RStudio provides a user-friendly interface for R, allowing you to view any elements that you have generated in the memory in R, output like graphics, help documentation, and so forth. An example of what RStudio looks like is provided below, where you can see that code is visible, as well as graphical output, and information about what is in the your "environment". For further information on installing RStudio, see the [RStudio website](https://posit.co/download/rstudio-desktop/#download). You are of course welcome to use R however you prefer, and you may prefer to edit code in your favourite text editor and execute code from the command line. Throughout the rest of these resources, we will assume that you have R installed on your computer and have some way to interact with it, either via an IDE or some other work flow that suits you.
 
-![RStudio screenshot](rstudio-panes-labeled.jpeg)
+![RStudio screenshot](Rstudio.png)
 
 ## Further Resources
 

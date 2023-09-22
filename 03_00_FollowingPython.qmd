@@ -3,14 +3,30 @@ title: "Following Along with Python"
 engine: knitr
 ---
 
-In this chapter we show you how to follow the book's examples with Python. What is Python? Give a Python definition...
+### Introduction
+In this section we will provide a primer in [Python](https://www.python.org/), which seeks to provide you with the necessary tools to explore the microeconometric methods introduced throughout the book. Python was developed in the late 1980s by Guido van Rossum, and is an open source language which has gained considerable traction with users and developers, meaning that a diverse array of packages now exist to expand the base language. Like R, it has an active community providing online support on forums such as [Stack Overflow](https://stackoverflow.com/questions/tagged/python), and a lot of online code available. It provides you with the large majority of tools you will need throughout this course, as well as the programming environment necessary to extend available tools where required. Python has had a number of major version upgrades throughout its history, but now versions 3 and above of Python are widely adopted. I recommend working with some version greater than 3 when you install Python, as code written in version 2 will not necessarily work in version 3.
+
+The goal of this site is not to provide you with a comprehensive introduction to the language, but instead we it seeks to provide you with an overview of the basic tools to understand the required tools that we will use to get up and running in this book. In the first section we will focus on a brief rundown of some principal elements of Python without yet getting into the empirical methods discussed in the textbook. Thereafter, we will focus on causal econometric methods, but in each section will also introduce any further tools required to complete key analyses or end-of-chapter questions. The goal of this resource is that after following along with these sections you will be sufficiently well-versed in Python that you will comfortably be able to work with real data and econometric implementations. Nevertheless, below we point you to further resources if you are seeking a comprehensive overview of Python as a language.
+
+### Installing and Working with Python
+Information on how to install Python can be found at the Python [website](https://www.python.org/about/gettingstarted/), which has a brief wiki discussing installation on various operating systems.  Once you have Python installed in your operating system you could work directly with Python from the command line by typing "Python" and you may see output like the below.
 
 ```{bash eval = FALSE}
-ipython
+python
+```
+```
+Python 3.8.10 (default, May 26 2023, 14:05:08)
+[GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
 ```
 
-We recommend to work in an IDE like Spyder.
+I recommend that along with Python, you install in Integrated Development Environment (IDE).  There are many IDEs which can be used with Python, see for example the list [here](https://wiki.python.org/moin/IntegratedDevelopmentEnvironments).   I can recommend Spyder (see below for a screen shot of what this looks like).  The value of having this IDE is that you can easily view any elements that you have generated in the memory in Python, output like graphics, help documentation, and so forth. An example of what Spyder looks like is provided below, where you can see that code is visible on the left, as well as graphical output, and calls to the command line on the right.  You can also display other pieces of information such as documentation and information about what is in the your "environment". For further information on installing Spyder, see the [Spyder website](https://docs.spyder-ide.org/current/installation.html). You are of course welcome to use Python however you prefer, and you may prefer to edit code in your favourite text editor and execute code from the command line. Throughout the rest of these resources, we will assume that you have Python installed on your computer and have some way to interact with it, either via an IDE or some other work flow that suits you.  
 
 ![Spyder screenshot](spyder.png)
 
-The rest of this chapter is organized as follow: First is shown an introduction to the language as a tutorial focused in giving the tools to following along the book's material and procedures, next there is a series of sections focused on follow the book's examples and make the applications in Python.
+
+### Further Resources
+A number of broader resources are available about Python.  A very nice free online text book is:
+
+- McKinney, Wes (2023) [Python for Data Analysis](https://wesmckinney.com/book/). O'Reilly Media, 3rd Edition.
+
