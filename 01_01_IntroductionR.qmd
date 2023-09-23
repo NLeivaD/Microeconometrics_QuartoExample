@@ -10,8 +10,31 @@ knitr::opts_chunk$set(warning = FALSE)
 # Preliminaries
 We will assume that when you are reading this you have downloaded R and have been able to access R in some way.  This may be via the command line, but most likely we imagine you will have some GUI which allows you to see a number of windows including a space for graphical output, a description of the contents of your R Environment (for example any data you have loaded), potentially a place to write your code in R, and, most importantly, a "shell", or R interface, which looks like the following:
 ```{bash eval = FALSE}
-R --no-save
+R 
 ```
+
+```
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+>
+```
+
 
 Here, R code can be entered directly following a prompt which is the `>` symbol at the bottom of the window above. From the moment you open `R` you are in an `R` session until the moment you close it, from now on understand a session as this time between you open and close `R`. The most simple way to execute code in `R`is to simply input commands into your `R` console.  So, for example, you could write the following at to the right of the `>` symbol, and R will evaluate this code:
 
@@ -25,33 +48,34 @@ As you can see, `R` has understood the instruction that you want to add 4 plus 4
 getwd()
 ```
 
-This function which can be understood as "get working directory" will show you the path on your computer where `R` is currently working.  Thus, any files saved will be exported there, and `R` will search for any thing to import from this directory. If you want to change this directory you must use the function `setwd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to `R` understand that is a character, again a topic that will be seen deeper latter.  It is important to note that paths should be separated with the slash character: `/` rather than the backlash `\`, and this will work on any operating system.  Indeed, if you try to set directoris with a backslash, you will see that `R` returns an error.
+This function which can be understood as "get working directory" will show you the path on your computer where `R` is currently working.  Thus, any files saved will be exported there, and `R` will search for any thing to import from this directory. If you want to change this directory you must use the function `setwd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to `R` understand that is a character, again a topic that will be seen deeper latter.  It is important to note that paths should be separated with the slash character: `/` rather than the backlash `\`, and this will work on any operating system.  Indeed, if you try to set directories with a backslash, you will see that `R` returns an error.
 
-Functions is also a topic we are going to see deeper latter. Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `R Scripts`. What are scripts? Are text files that `R` understands it like code to execute, all you write in a script `R` will interpret it as code to execute unless you have the `#` character to the left. For example if you type in your script
+We will return to discuss functions in more detail a bit later on.  For now you will note that we have simply been typing instructions to `R` directly into the console, and `R` has been providing us with output.  Generally, we will not work this way in an empirical research project, as we will want to develop code over time, and be able to return to R and replicate code in the future.  For this reason, generally we will work in R scripts, or files named as `something.R` (where `something` will be logical name for the file).  We will use these scripts to store the commands which we require for particular processes or routines, and can then save them to the disk of our computer before running them in `R`.  These scripts can be generated in any type of text editor, and then can be run in `R` using the `source()` command.  For example, below, you can see a screenshot of a sessin on R Studio where we have a basic R script named `firstRscript.R`, and below this, in the R console we see that the script is run using `source` and output is provided.
 
 ![An R Script and Output in RStudio](sourceR.png)
 
+You may notice something strange about the code and the output in the `R` console.  The R script has 7 distinct lines of text, but the console only produces two lines of output.  The reason for this is because we have included comments, or messages for human eyes, but not for the computer to interpret.  Any time that the `#` character is included in code, `R` understands that this is a comment, and hence is ignored in executing the code.  So, for example, when we write:
+
 ```{r}
-print("Hello World")
+print("Hello World!")
 ```
-
-`R` will understand that you are giving the instruction to print the character *Hello World*, but instead if you type
-
+in our code, the `R` console correctly echoes *Hello World!* back at us.  However, if we enter precisely the same code, but begin the line with a comment symbol, `R` will not do anything given that it interprets everythin to the right of `#` as plain text which should be ignored:
 ```{r}
 # print("Hello World")
 ```
 
-`R` will do nothing because interpret all to the right from the `#` as plain text and not code with instructions to follow. Note that is said "all to the right from the `#`", this implies that it can be used in the same line as code
-
+Similarly, comments can be used within lines:
 ```{r}
 print("Hello World") # To the left of # code, all to the right, plain text
 ```
 
-As you can see it executes the instruction to the left from `#` but ignores all to the right, this plain text is known as comment and is always a good practice in programming to include a few comments in your script explaining in general terms what are you doing. The previous idea helps you when revise old scripts and when share your code work with others.
+As you can, this lines has executed the instruction to the left of `#` but ignores all those to the right.  It is good practice to comment code extensively, both for sharing code with other users, but also for sharing code with yourself in the future, where you may not remember precisely what you were thinking when you originally wrote your code!
+
+One final thing to note from this `R` script is that the output from the final line of code (`4+4`) was not printed in the console.  In R, when you type `4+4` at the command line, you get immediate output because R is operating in an interactive mode. In interactive mode, R evaluates expressions as soon as you enter them and displays the result to the console.  However, when you write `4+4` in a script and then run the script, there is no automatic output to the console.  However, it is important to note that the calculation *is* conducted. You can confirm this yourself if you'd like by explicitly requesting that `R`provide this output when it runs the code, replacing `4+4` in the code with `print(4+4)`.
 
 ### An introduction to language and data types
 
-Until now we have executed some code in `R`, some of this code can made internal changes as the `setwd` function, some of this code show an specific result as `print` function and other just execute an action and show result as `4 + 4`, but just doing and showing it, not storing this result. In order to store the results of your procedures you can define a variable or an object using one of the next symbols: `->`, `=` or `<-`. Now is shown an example where is asigned a variable named `x` with different numbers:
+Until now we have executed some code in `R` and seem some specific functions which print output, but we have never stored any results for later use within our code.  Generally we *will* want to store the output of intermediate steps in our code for later use.  This can be done in `R` using any of the following assignment symbols: `->`, `=` or `<-` (though `->` is generally preferred). For example, below we store a number of values as a variable which we define, arbitrarily named `x`:
 
 ```{r}
 x <- 1
@@ -61,15 +85,20 @@ x
 3 -> x
 ```
 
-With the use of `->` or `<-` is clearly how `R` assign the value, but with the use of `=` you must be cautelous of do it the way `name = value`, if not, there will be an error:
+With the use of `->` or `<-` the arrows make clear that we are assigning some particular value (or values) to a named variable, where the named variable is indicated by the arrow head.  However, with the use of `=` the assignment must respect `name = value`.  If, instead, we try to assign some variable as `value=name` an error will occur:
 
 ```{r error=TRUE}
 4 = x
 ```
 
-All the way long in your sessions you could see this type of messages, this messages points you different types of details:\
-- `Error`: This kind of messages are telling you that something gone wrong and `R` couldn't execute the code you type. Usually they include a brief explanation of the error for you to debugging it.\
-- `Warning`: This kind of message are telling you that something that may cause you problems occured. `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.\
+This error implies that the code has not been executed, and if we inspect the contents of `x` we will see that its prior value remains.
+```{r}
+x
+```
+In general, a command can produce a number of conditions which contain important messages for us.  These are:
+
+- `Error`: These kinds of messages tell you that something has gone wrong and `R` couldn't execute your code. Usually error messages include a brief explanation of what has gone wrong, to help you diagnose and fix your code.
+- `Warning`: These kinds of message indicate that somes has occurred that could potentially cause problems, but is not critical for code execution. In these cases, `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.\
 - `Message`: This kind of message are only providing information about the execution, `R` telling something is considered good to know. Not necessary are errors or warnings, sometimes just comunicate of procedures.
 
 #### Data Types
