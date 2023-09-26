@@ -124,7 +124,7 @@ class(my_var)
 ```
 
 ##### Numeric Data
-Numeric data is entered without any special behaviour, simply entering the number in the case of scalar values.  Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data.  For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.  
+Numeric data is entered without any special behaviour, simply writing the number in the case of scalar values.  Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data.  For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.  
 
 ```{r}
 num1<-2
@@ -154,6 +154,17 @@ A precaution to note here is related to mixing of data types in objects that com
 class(c(1,2))
 class(c(1,"2"))
 ```
+
+This behaviour can be overruled using `as.` which allows for specific data types to be indicated.  For example, if we take the previous vector of a number and a character, we can ensure that the result is numerica as follows:
+```{r}
+as.numeric(c(1,"2"))
+```
+However, note that this does has limits if the underlying object cannot be converted to that data type! 
+```{r warning=TRUE}
+as.numeric(c(1,"A"))
+```
+In the above, the inclusion of a string which cannot be logically converted to a number implies that `R` has issued a warning and converted this element to `NA`.  `NA` is `R`'s Not available or missing value indentifier.  We will discuss a bit later on about how to deal with this in code. 
+
 
 You can also create arrays with the `matrix` function, this allows you to get objects in two dimensiones, rows and columns
 
