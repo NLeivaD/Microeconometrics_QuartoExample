@@ -97,64 +97,58 @@ x
 ```
 In general, a command can produce a number of conditions which contain important messages for us.  These are:
 
-- `Error`: These kinds of messages tell you that something has gone wrong and `R` couldn't execute your code. Usually error messages include a brief explanation of what has gone wrong, to help you diagnose and fix your code.
-- `Warning`: These kinds of message indicate that somes has occurred that could potentially cause problems, but is not critical for code execution. In these cases, `R` will still execute the code and give the result, but warning you that not everything is in order and may cause inaccurate results o future problems. Some times this messages are something that you can ignore and get your results correctly but some other times it may cause you problem, so you should give a minute to read it, understand it and evaluate if is necessary to fix it.\
-- `Message`: This kind of message are only providing information about the execution, `R` telling something is considered good to know. Not necessary are errors or warnings, sometimes just comunicate of procedures.
+- `Error`: These kinds of messages tell you that something has gone wrong and `R` couldn't execute your code. Usually error messages include a brief explanation of what has gone wrong, to help you diagnose and fix your code.  Any expected results from your command will not be assigned. 
+- `Warning`: These kinds of message indicate that somes has occurred that could potentially cause problems, but is not critical for code execution. In these cases, `R` will still execute the code and give the result, but warn you that not everything is in order and this may cause inaccurate results or future problems. At times this messages can be ignored without further issues, but warnings can also be a sign of peril, and so time should be taken to review warnings and understand whether they are problematic.
+- `Message`: This kinds of messages simply provide information about the execution of your command, and `R` is providing you with some piece of information which is useful for you to know.  This will not affect the output of your code, and does not generally indicate an error with your code.
 
 #### Data Types
-
-Now that you know how to store a value in an object and some of the messages you can get, you should know that `R` has different data types for this objects, some of them are character, numeric, arrays, data frames and lists as an example. Different types of data allows different ways to operate with it, for example characters must be specified between `" "`, or `' '`, otherwise `R` will understand them as variables names. For example if you want to write *Hello World* the next try will give you an error:
+##### Text (String) Data
+To get up and running with `R`, it is useful to understand the different ways which data can be stored.  `R` can hold a number of different types of objects in its working memory, and it is important that `R` understands what type of information we are passing or storing.  Among others, R allows for information to be stored as characters, numeric, arrays, data frames and lists. Different types of data allow different types of operations, and should be stored in different ways.  Characters are perhaps the conceptually simplest type of data.  Characters are simply strings of text, and should be specified between `" "`, or `' '`.  We have seen the use of characters when printing "Hello world" previously.  If characters are not indicated between strings, `R` will understand that they refer to variable names.  For example, returning to *Hello World*, if this is entered without quotes, an error will appear:
 
 ```{r error=TRUE}
 Hello World
 ```
 
-In change, the next code understands that is a character:
+Indeed, if we look carefully at the error message we may see that the error has occurred when `R` arrives to *World*.  This is because it assumes that *Hello* is a variable name, but this must be followed by some valid assignment.  For example, had we written ```Hello<-"world"``` this would have been perfectly fine!  Alternatively, if we do actually want to write this as characters, we can do so simply by enclosing the text in quotes:
 
 ```{r}
 "Hello World"
 ```
 
-A function that allows you to know which data type is an object is `class`, for example if you type `class("Hello World")` it will return `"character"`
+We can confirm that this is effectively understood to be character data by using the `class()` function.  This function indicates the type of data of the argument it receives, as we can see below.  Note also that if we generate some variable using the assignment operators discussed above, `class()` will return to us the type of  data that the variable contains:
 
 ```{r}
 class("Hello World")
+my_var <- "Hello World"
+class(my_var)
 ```
 
-As previous, if you don't input the between `" "` it will return an error pointing that the object doesn't exists
-
-```{r error=TRUE}
-class(Hello World)
-```
-
-Numeric data doesn't need to be inputted between `" "` or `' '`, in fact if is inputted between `" "` or `' '`, `R` will understand it as a character instead a number. For example if you type just `2` the output will be a number, instead if you type `"2"` the output will be printed between `" "`, pointing that element is a character
+##### Numeric Data
+Numeric data is entered without any special behaviour, simply entering the number in the case of scalar values.  Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data.  For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.  
 
 ```{r}
-2
-"2"
+num1<-2
+num2<-"2"
+class(num1)
+class(num2)
 ```
 
-You can check also with the `class` function
+If you try to perform numerical operations based on the above variables (more on this below), you will see that `num1` can be involved in such calculations, while `num2` cannot.
 
-```{r}
-class(2)
-class("2")
-```
-
-Other option of obecjts are vectors or arrays, this types allows to create objectis with multiple elements and an easy way to create them is with the function `c`, that stands for combine. For example if you want to produce an object with two elements if you just type them without the `c` function will be an error
-
-```{r error=TRUE}
-1 2 
-1,2
-```
-
-Instead, if you use the `c` function it will create an object with multiple elements
-
+##### Vectors and Arrays
+Generally, we will be dealing with more than a single number in our work, and for this reason need ways	to collect groups of numbers.  Vectors and arrays (or matrices) provide some ways to do this.  An easy way to create vectors or arrays is via the `c()` function, which stands for "combine".  This allows for numbers to be combined in a vector.  For example,
 ```{r}
 c(1,2)
 ```
+This is required to group numbers.  If we simply write a series of numbers without wrapping them in the `c` function, error will occur:
+```{r error=TRUE}
+1 2 
+```
+```{r error=TRUE}
+1,2
+```
 
-A precaution is how you mix other data types in the objects that combine different elements because different data types will influence the way this combination works. For example vectors will coerce to the most restrictive data type, if you mix characters with numbers in a vector, `R` will coerce the vector type to a character
+A precaution to note here is related to mixing of data types in objects that combine different elements because different data types will influence the way this combination works. For example vectors will coerce all data to the most restrictive data type, if you mix characters with numbers in a vector, `R` will coerce the vector type to a character:
 
 ```{r}
 class(c(1,2))
@@ -173,6 +167,7 @@ An inconvenient from arrays is that, as vectors do, coerce to the more restricti
 matrix(c(1,2,3,"4"), nrow = 2)
 ```
 
+##### Data frames
 One of the data types that works along with mutliple othe types are data frames, this allows to create a standard data base as you tipically know with multiple rows and columns, where an entire column will coerce to the most restrictive data type but you can have different data types in different columns. As an example we create a data frame named `df` that will use later in other examples
 
 ```{r}
