@@ -163,7 +163,7 @@ However, note that this does has limits if the underlying object cannot be conve
 ```{r warning=TRUE}
 as.numeric(c(1,"A"))
 ```
-In the above, the inclusion of a string which cannot be logically converted to a number implies that `R` has issued a warning and converted this element to `NA`.  `NA` is `R`'s Not available or missing value indentifier.  We will discuss a bit later on about how to deal with this in code. 
+In the above, the inclusion of a string which cannot be logically converted to a number implies that `R` has issued a warning and converted this element to `NA`.  `NA` is `R`'s "Not available" or missing value indentifier.  We will discuss a bit later on about how to deal with this in your programming. 
 
 
 You can also create arrays with the `matrix` function, this allows you to get objects in two dimensiones, rows and columns
@@ -172,83 +172,83 @@ You can also create arrays with the `matrix` function, this allows you to get ob
 matrix(c(1,2,3,4), nrow = 2)
 ```
 
-An inconvenient from arrays is that, as vectors do, coerce to the more restrictive data type
-
+It is worth noting a couple of potentially important details with these matrices.  A first point which we already have come across is related to coercion of types.  For example, if passing a vector via the matrix command, `R` will coerce the matrix to the more restrictive data type:
 ```{r}
 matrix(c(1,2,3,"4"), nrow = 2)
 ```
+A second, potentially more surprising behaviour is the "recycling" of values if matrices are not of the correct length.  For example, as you can see below, if we add a 5th element to the vector, this can no longer correctly fit in two rows.  So `R`'s default behaviour is to begin "recylcing" values from the beginning until the matrix is full, and so it returns to the first element of the vector and fills in the "missing" cell.  If, however, you actually want this to be an `NA` value, you need to instruct `R` about this, as in the second case below.
+```{r}
+matrix(c(1,2,3,4,5), nrow = 2)
+matrix(c(1,2,3,4,5,NA), nrow = 2)
+```
+
 
 ##### Data frames
-One of the data types that works along with mutliple othe types are data frames, this allows to create a standard data base as you tipically know with multiple rows and columns, where an entire column will coerce to the most restrictive data type but you can have different data types in different columns. As an example we create a data frame named `df` that will use later in other examples
+Likely the type of object which we will be working with the most in our analysis in `R` are data frames.  Data frames allow us to mix mutliple other types of data, viewing the collection of variables and observations as a database with multiple rows and columns.  Within data frames, we can easily subset to certain rows (observations), columns (variables), and conduct univariate and multivariate analysis.  It will likely be the starting point for much of your work when you import a standard dataset into `R`. As an example we create a data frame named `df` that will use later in other examples:
 
 ```{r}
 df <- data.frame(A = c(1, 2, 3), B = c(4, 5, 6), 
                  C = c("XXX", "YYY", "ZZZ"))
 df
 ```
+As we have entered the data frame, we have three columns named "A", "B" and "C".  Each column consists of three observations, and when the data frame is printed, we see that `R` has helpfully assigned observation numbers in the left-most side of the data frame.  Shortly we will see more about how to manipulate and work with data frames.
 
-Later we will introduce a data type named *tibble* that is very similar to data frames, with a few differences, and is common to work with it in the *tidyverse* that will be explained later. The last data type of this section will be lists, this one allows to store any data type you imagine, you can combine in one object characters, numbers or data frame, within other objects, and is that the reason multiple functions that will explore later will return it results as a list or an object created from a list. An example of this lists are the next one, where we create an object named `l` that is a list we will use later in other examples.
+The last data type we will briefly introduce in this section are lists.  Lists allow us a very flexible way to group things together, allowing us to store any data type we need.  For example, as we see below in a single object we are combining characters, numbers and a data frame, all in a single "container" called a list.  The flexibility of lists to contain many data types is why many functions that we will work with later on return their results as lists or as objects created from lists.  As in data frames, in lists, each element is given its own name, and when printed are referred to by this name:
 
 ```{r}
-l <- list(Character = c("Hello", "World"), Number = c(1, 2, 3, 4),
+l <- list(Character = c("Hello", "World"),
+     	  Number = c(1, 2, 3, 4),
           DataFrame = df)
+l
 ```
 
 #### Subset Multidimensional Elements
-
-As you see previously, there is elements as data frames or lists that stores multiple elements. Sometimes you will want to work with a subset of this multidimensional data types instead the entire object. In data frames, or lists, you can easily access to an entire column, or object, by using `$` followed by the column, or object, name:
+As we saw in data frames and lists, often we will work with objects that store multiple elements. Sometimes we may want to work with a subset of this multidimensional data instead the entire object. In data frames, or lists, you can easily access an entire column, or element, by using `$` followed by the column, or object, name:
 
 ```{r}
 df$A
 l$Character
 ```
 
-But sometimes you may want to access more, or less, than one entire column or object, so the more generally way to access to the elements are with the use of `[ ]`. One dimension objects like vectors or a column of a data frame, allows to access its elements by using the number of the element position between `[ ]`
-
+But sometimes you may want to access more, or less, than one entire column or object, so the more general way to access to the elements are with the use of `[ ]` to subset. For one dimensional objects like vectors or a column of a data frame, we can access elements by using the number of the element position between `[ ]`. For example, for a column "A" in our data frame:
 ```{r}
 df$A[1]
 ```
+Identical nomenclature is used for vectors.
 
-This syntax allows also to access more than one object by combining it with a vector
-
+This syntax work to access more than a single object by combining it with a vector, for example as follows to access the first and third element of `df$A`:
 ```{r}
 df$A[c(1, 3)]
 ```
 
-In case of multidimensional elements as an entire data frame or arrays you should use `[row,column]` syntax, if you want an entire row just left in blank the row position
-
+In the case of multidimensional elements such as an entire data frame or array you should use the `[row,column]` syntax to control subsetting. If you would like to access an entire row, this can be requested by just leaving the row position blank:
 ```{r}
 df[,1]
 ```
-
-And the same for an entire row
-
+with the same logic holding to access an entire column:
 ```{r}
 df[1,]
 ```
 
-You can also mix a single element and more than one row, or column
+Similarly, all of the above can be mixed to grab multiple rows or columns.
 
 ```{r}
 df[2,2]
 df[c(1,3), 2]
 ```
 
-In lists you must use a slight syntax, first you must access the object with double `[ ]` and then once you access the object it works like the object do. For example, now we show how to access the data frame that is the third object of the list, and then the element of the second row and second column
-
+In lists the syntax is slightly different given the way that lists are internally stored.  In this case,  first you must access the object of interst with a double `[ ]` and then once you access the object it behaves in the same way that we saw above. For example, if we wanted to access the second row and second column of our data frame `df` stored in the list `l`, we can do so as follows, noting that the data frame is stored as the third item in the list:
 ```{r}
 l[[3]][2,2]
 ```
 
-Between `[ ]` you can also use the elements names when calling an object inside a list of a column in a data frame. The next code replicates the previous example
-
+Alternatively, between the first brackets you can also use the element's name to select it for later processing.  The following code exactly replicates the previous example, however arguably is less error prone, because it is clear precisely which elements we wish to select ("DataFrame" from the list, and column "B" from the data frame):
 ```{r}
 l[["DataFrame"]][2,"B"]
 ```
 
 #### Basic Operations
-
-Now that you know how to store data, and the different objects where you can store the data, you must know the basic operations to do with that data. `R` has the next basic mathematical operations:
+The standard mathematical operations in `R` likely work how you would expect.  Basic mathematical operations are as follows, with an example of their use below:
 
 |   Symbol    |    Operation     |
 |:-----------:|:----------------:|
@@ -273,10 +273,17 @@ A few examples
 10 %/% 3
 ```
 
-Also when you combine different operators it respect the PEMDAS order, first solve Parenthesis, second solve Exponents, third Multiplication, fourth Division, fifth Addition and sixth Substraction. For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
+Also when you combine different operators it respects the PEMDAS order, first resolving Parentheses, second solve Exponents, third Multiplication and Division, fourth Addition and Substraction.  Both multiplication and division, and addition and substraction are evaluated left to right, rather than sequentially by operation, so it is important to indicate to `R` explicitly what you need using parentheses in certain cases.  For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
 
 ```{r}
 -(5+3^(5-3))/(5*3)
+```
+
+Specifically in the case of matrices, mathematical operations are assumed to refer to cell by cell calculations.  If, instead, you would like to undertake matrix multiplication, this must be requested with `%*%`.  For example, consider the two operations below and why they differ, also noting the `t()` is the matrix transpose operation.
+```{r}
+a=matrix(c(1,2,3,4,5,6), nrow=2)
+a*a
+a%*%t(a)
 ```
 
 `R` also has logical operatos that returns a boolean value (`TRUE` or `FALSE`, also abbreviated as `T` or `F`) pointing if the statement is true or false. This operators are:
@@ -307,7 +314,7 @@ TRUE | FALSE
 TRUE & FALSE
 ```
 
-This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows to work with them numerically and is useful when you want to check a series of conditions.
+This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows you work with them numerically and is useful when you want to check a series of conditions.
 
 The logical and mathematical operators are useful when making operations between different objects, it can be an object of a single valur or an object with multiple values. As many software `R` came with some basic functions that make specific tasks, for example if you want to add all the values in a vector you don´t need to type one-by-one all those values, you can use the function `sum`:
 
@@ -416,6 +423,9 @@ In this section we are covering how to manipulate data, specifically how to make
 ```{r}
 class(mroz)
 ```
+
+FROM ABOVE TO INCORPORATE
+Later we will introduce a data type named *tibble* that is very similar to data frames, with a few differences, and is common to work with it in the *tidyverse* that will be explained later.
 
 Along with this section you will see the use of the `head` function, this function shows us the first rows of an object in order to prevent a data frame being totally printed. Previously we mentioned the existence of *tibbles* that are a widely used structure similar to data frames but with a few differences like don't consider rownames or don't interpret strings as factors by default. We introduce this because with the use of some functions from `dplyr` package a data frame becomes automatically a tibble. For example, consider de `mroz` data frame, if we apply the combination of `group_by` and `summarise` functions to get the mean of the number of kids with less than 6 years by labor situation of the women:
 
