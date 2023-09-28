@@ -73,7 +73,7 @@ As you can, this lines has executed the instruction to the left of `#` but ignor
 
 One final thing to note from this `R` script is that the output from the final line of code (`4+4`) was not printed in the console.  In R, when you type `4+4` at the command line, you get immediate output because R is operating in an interactive mode. In interactive mode, R evaluates expressions as soon as you enter them and displays the result to the console.  However, when you write `4+4` in a script and then run the script, there is no automatic output to the console.  However, it is important to note that the calculation *is* conducted. You can confirm this yourself if you'd like by explicitly requesting that `R`provide this output when it runs the code, replacing `4+4` in the code with `print(4+4)`.
 
-### An introduction to language and data types
+# An introduction to the language and data types
 
 Until now we have executed some code in `R` and seem some specific functions which print output, but we have never stored any results for later use within our code.  Generally we *will* want to store the output of intermediate steps in our code for later use.  This can be done in `R` using any of the following assignment symbols: `->`, `=` or `<-` (though `->` is generally preferred). For example, below we store a number of values as a variable which we define, arbitrarily named `x`:
 
@@ -101,8 +101,8 @@ In general, a command can produce a number of conditions which contain important
 - `Warning`: These kinds of message indicate that somes has occurred that could potentially cause problems, but is not critical for code execution. In these cases, `R` will still execute the code and give the result, but warn you that not everything is in order and this may cause inaccurate results or future problems. At times this messages can be ignored without further issues, but warnings can also be a sign of peril, and so time should be taken to review warnings and understand whether they are problematic.
 - `Message`: This kinds of messages simply provide information about the execution of your command, and `R` is providing you with some piece of information which is useful for you to know.  This will not affect the output of your code, and does not generally indicate an error with your code.
 
-#### Data Types
-##### Text (String) Data
+## Data Types
+### Text (String) Data
 To get up and running with `R`, it is useful to understand the different ways which data can be stored.  `R` can hold a number of different types of objects in its working memory, and it is important that `R` understands what type of information we are passing or storing.  Among others, R allows for information to be stored as characters, numeric, arrays, data frames and lists. Different types of data allow different types of operations, and should be stored in different ways.  Characters are perhaps the conceptually simplest type of data.  Characters are simply strings of text, and should be specified between `" "`, or `' '`.  We have seen the use of characters when printing "Hello world" previously.  If characters are not indicated between strings, `R` will understand that they refer to variable names.  For example, returning to *Hello World*, if this is entered without quotes, an error will appear:
 
 ```{r error=TRUE}
@@ -123,7 +123,7 @@ my_var <- "Hello World"
 class(my_var)
 ```
 
-##### Numeric Data
+### Numeric Data
 Numeric data is entered without any special behaviour, simply writing the number in the case of scalar values.  Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data.  For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.  
 
 ```{r}
@@ -135,7 +135,7 @@ class(num2)
 
 If you try to perform numerical operations based on the above variables (more on this below), you will see that `num1` can be involved in such calculations, while `num2` cannot.
 
-##### Vectors and Arrays
+### Vectors and Arrays
 Generally, we will be dealing with more than a single number in our work, and for this reason need ways	to collect groups of numbers.  Vectors and arrays (or matrices) provide some ways to do this.  An easy way to create vectors or arrays is via the `c()` function, which stands for "combine".  This allows for numbers to be combined in a vector.  For example,
 ```{r}
 c(1,2)
@@ -183,7 +183,7 @@ matrix(c(1,2,3,4,5,NA), nrow = 2)
 ```
 
 
-##### Data frames
+### Data frames
 Likely the type of object which we will be working with the most in our analysis in `R` are data frames.  Data frames allow us to mix mutliple other types of data, viewing the collection of variables and observations as a database with multiple rows and columns.  Within data frames, we can easily subset to certain rows (observations), columns (variables), and conduct univariate and multivariate analysis.  It will likely be the starting point for much of your work when you import a standard dataset into `R`. As an example we create a data frame named `df` that will use later in other examples:
 
 ```{r}
@@ -202,7 +202,7 @@ l <- list(Character = c("Hello", "World"),
 l
 ```
 
-#### Subset Multidimensional Elements
+## Subsetting Multidimensional Elements
 As we saw in data frames and lists, often we will work with objects that store multiple elements. Sometimes we may want to work with a subset of this multidimensional data instead the entire object. In data frames, or lists, you can easily access an entire column, or element, by using `$` followed by the column, or object, name:
 
 ```{r}
@@ -247,7 +247,7 @@ Alternatively, between the first brackets you can also use the element's name to
 l[["DataFrame"]][2,"B"]
 ```
 
-#### Basic Operations
+## Basic Operations
 The standard mathematical operations in `R` likely work how you would expect.  Basic mathematical operations are as follows, with an example of their use below:
 
 |   Symbol    |    Operation     |
@@ -313,15 +313,19 @@ A few examples
 TRUE | FALSE
 TRUE & FALSE
 ```
-
 This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows you work with them numerically and is useful when you want to check a series of conditions.
 
-The logical and mathematical operators are useful when making operations between different objects, it can be an object of a single valur or an object with multiple values. As many software `R` came with some basic functions that make specific tasks, for example if you want to add all the values in a vector you don´t need to type one-by-one all those values, you can use the function `sum`:
-
+## Functions
+Between these logical and mathematical operators, `R` comes with a large suite of built in functions which perform specific tasks, as well as a large number of user-contributed functions (discussed below) which can extend the basic functionality.  A basic installation of `R` comes with a range of packages.  The functions included in `R`'s base package can be consulted by typing the following at your `R` console:
+```{r}
+library(help="base")
+```
+Functions are designed to perform specific tasks, potentially accepting input (known as "arguments"), and returning output which you can interact with.  We have already seen a number of functions above such as `getwd()` which we used without arguments, and `print()` which we have used with specific arguments such as "Hello World!".  Understanding how packages work, including the arguments they accept and the objects they return is key.  This can be found by consulting the help file.  If you know the function you wish to use all these details can be found by typing `help(function_name)` or simply `?function_name`.  For example, if we type `help(getwd)` we will see a section entitled "Arguments" which explains to us the arguments the function accepts, as well as the elements returned under the heading "Value".  In certain cases if we are not sure exactly what function we need we can type `??search_term` and `R` will advise us of any functions which may do what we're after.  For example, if we type `?? sum`, we see a range of functions, including one called `sum`.  We can then consult the help file to see if this is precisely what we are after.  Reading the help file we see that the function "returns the sum of all the values present in its arguments", and accepts numerical vectors.  We can confirm that this is the case by applying this function to our data:
 ```{r}
 sum(df$A)
 ```
 
+UP TO HERE...
 In order to use this functions the syntaxis in `R` is the function's name followed by parenthesis `( )` and between the parenthesis the function's arguments separated by comma `,`. To know better how a function works is always a good idea to read the help document that comes along with `R`, some that you can make with `?` symbol. For an example if you type `?sum` you will see how `sum` function works and its arguments, where you can see an argument `na.rm = FALSE`, this points that the default value of the argument is `FALSE` and if you keep reading a little forward you can see that the documentation indicates for this argument: *logical. Should missing values (including NaN) be removed?* telling you the type of value that you can use and what is the functionality. Let `x` be a vector with a *missing value* `NA`
 
 ```{r}
@@ -342,7 +346,7 @@ sum(x, na.rm = TRUE)
 
 As the `sum` function, `R` comes with a lot of functions in their base environment as functions to get descriptive statistics, work with dates and others. This functions are sufficient to take along any task manually but not necesarilly optimally. There are very useful functions and data types that doesn't come with base enviroment and comes with packages.
 
-### Managing packages
+## Managing packages
 
 What are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your R enviroment. Now is explained how to do it from CRAN by using the function `install.packages()` writing within `" "` the package name. As an example, in order to install `dplyr` -that is one of the most famous `R`'s packages for data manipulation- you must execute the following code:
 
@@ -382,7 +386,8 @@ But in order to use the masked functions you can use the syntaxis `package::func
 stats::lag(df$A)
 ```
 
-### Loading and viewing data
+# Working with Data
+## Loading and viewing data
 
 In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`. The first doesn't need specific packages to work well, but the latters do.
 
@@ -416,7 +421,7 @@ mroz <- wooldridge::mroz
 
 This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799.
 
-### Tyding data
+## Tidying data
 
 In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame
 
@@ -509,7 +514,7 @@ Now that you know the basics of data manipulation, the next step is to learn how
 rm(list = setdiff(ls(), "mroz"))
 ```
 
-### Basic Plots
+# Basic Plots
 
 The basic function to make a plot in `R` is the plot function, this function maps pairs of points in the $(x,y)$ coordinate axis. Let $x$ be a sequence of integers between -5 and 5
 
