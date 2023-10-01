@@ -325,7 +325,7 @@ Functions are designed to perform specific tasks, potentially accepting input (k
 sum(df$A)
 ```
 
-If you consult the help file to `sum` you will note quite prominently the option for  "na.rm", with the explanation *Should missing values (including ‘NaN’) be removed?*.  You will also note that in the "Usage" section of the help file, "na.rm = FALSE" is explicitly indicated.  Here we have encountered two particularly important new elements: firstly, the concept of `NA`, and secondly the use of default options in functions.  We will discuss these in turn. `NA` formally refers to Not available, or missing data.  Similar concepts exist in other languages, such as NaN in Matlab, "." in Stata, and so forth.  Frequently we may encounter data where certain individuals have no information for certain variables.  In `R`, these missing values can be recorded as `NA`.  Functions must know how to deal with values which are recorded as `NA`.  This is what `sum`  does with its `na.rm` option.  If `na.rm = TRUE`, values of NA will be removed prior to processing.  Otherwise, vales of NA will remain in the data when processing.  What's more, the fact that in its "Usage" section the help file tells us `na.rm = FALSE` implies that `FALSE` is the default behaviour.  Should we not say anything, `R` understands that as us accepting this default.  To see how this works, we will define a vector `x` below with a *missing value* `NA`
+If you consult the help file to `sum` you will note quite prominently the option for  "na.rm", with the explanation *Should missing values (including ‘NaN’) be removed?*.  You will also note that in the "Usage" section of the help file, "na.rm = FALSE" is explicitly indicated.  Here we have encountered two particularly important elements: firstly, the concept of `NA` which we briefly mentioned above, and secondly the use of default options in functions.  We will discuss these in turn. `NA` formally refers to Not available, or missing data.  Similar concepts exist in other languages, such as NaN in Matlab, "." in Stata, and so forth.  Frequently we may encounter data where certain individuals have no information for certain variables.  For example, we may have a data with some individuals who participate in the labour market and some who do not, where the hourly wage is a variable.  For individuals who do not participate in the labour market, it probably makes most sense for their hourly wage to be recorded as `NA`. In `R`, these missing values can be recorded as `NA`.  Functions must know how to deal with values which are recorded as `NA`.  This is what `sum`  does with its `na.rm` option.  If `na.rm = TRUE`, values of NA will be removed prior to processing.  Otherwise, vales of NA will remain in the data when processing.  What's more, the fact that in its "Usage" section the help file tells us `na.rm = FALSE` implies that `FALSE` is the default behaviour.  Should we not say anything, `R` understands that as us accepting this default.  To see how this works, we will define a vector `x` below with a *missing value* `NA`
 
 ```{r}
 x <- c(1, 2, NA)
@@ -346,7 +346,7 @@ Along with the `sum` function, `R` comes with a considerable range of functions 
 
 ## Managing packages
 
-What are packages? Packages are XXXXX a group of functions and data types that works withi them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on how the package is distributed, though installing a package is a process which you only need to do once, and from then on this package will be avaialble to you should you wish to load it and use it.  The majority of stable `R` packages are stored on the CRAN (XXXXX), which is a repository from which packages can be installed.  By far the most frequent way to install `R` packages is to install them from CRAN.  This can be done quite simply, using the  `install.packages()` function.  This function accepts as an argument the name of the package you wish to install.  For example, to install  `dplyr`, a package we will work with beloe for data manipulation, you simply execute the following code:
+What are packages? Packages are a collection of functions, help files, and potentially data, which allow for the implementation of some group of procedures.  These are add-on elements to `R`, which can significantly ease certain routines which are not a part of base R.   In order to install a package you have several alternatives depending on how the package is distributed, though installing a package is a process which you only need to do once, and from then on this package will be avaialble to you should you wish to load it and use it.  The majority of stable `R` packages are stored on the CRAN (the Comprehensive R Archive Network), which is a repository from which packages can be installed directly into your version of `R`.  By far the most frequent way to install `R` packages is to install them from CRAN.  This can be done quite simply, using the  `install.packages()` function.  This function accepts as an argument the name of the package you wish to install.  For example, to install  `dplyr`, a package we will work with beloe for data manipulation, you simply execute the following code:
 
 ```{r eval=FALSE}
 install.packages("dplyr")
@@ -431,86 +431,92 @@ Depending on the way that we are working with `R`, we can also explore the data 
 
 
 ## Tidying data
-Once we have loaded data in `R`, we will likely want to manipulate the data in a number of ways.  This can include relatively simple things like subsetting to certain columns or rows (which we have already encountered above), but also more complicated things like aggregating data to a higher level, calculating means for one variable over another variable, joining together a number of datasets, or "reshaping" data in certain ways.  Here we will provide a very brief overview of these procedures, and introduce other things as we need them thoughout the book.
+Once we have loaded data in `R`, we will likely want to manipulate the data in a number of ways.  This can include relatively simple things like sub-setting to certain columns or rows (which we have already encountered above), but also more complicated things like aggregating data to a higher level, calculating statistics for one or mutliple variable(s) over other variables, joining together a number of datasets, or "reshaping" data in certain ways.  Here we will provide a very brief overview of these procedures, and introduce other things as we need them thoughout the book.
 
 
-
-
-In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame
-
-
-FROM ABOVE TO INCORPORATE
-Later we will introduce a data type named *tibble* that is very similar to data frames, with a few differences, and is common to work with it in the *tidyverse* that will be explained later.
-
-Along with this section you will see the use of the `head` function, this function shows us the first rows of an object in order to prevent a data frame being totally printed. Previously we mentioned the existence of *tibbles* that are a widely used structure similar to data frames but with a few differences like don't consider rownames or don't interpret strings as factors by default. We introduce this because with the use of some functions from `dplyr` package a data frame becomes automatically a tibble. For example, consider de `mroz` data frame, if we apply the combination of `group_by` and `summarise` functions to get the mean of the number of kids with less than 6 years by labor situation of the women:
-
-```{r}
-ungroup(summarise(group_by(mroz, inlf), meankidslt6 = mean(kidslt6)))
-```
-
-As you can see the result is a tibble. Now that you have an example of the use of `dplyr` you can see how easily is to get confused by using too many functions at once, a really nice operator that comes with `dplyr` is the pipe operator `%>%` that allows to apply functions without writing all together. As an example the next code replicates the previous example:
-
-```{r}
-mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6)) %>%
-  ungroup()
-```
-
-Note that this works as: to the object at the left of the pipe operator, apply the function to the right. Another thing you can note is the use of the `group_by`, `summarise` and `ungroup` combo, where `group_by` as the name says allows to group by the variable(s) indicated, `summarise` calculate a descriptive statistic that can be `mean`, `sd`, `min`, `max`, `median`, `quantile` and others, in order to know them all you should consult the help documentation of `summarise` function.
-
-Other functionalities of `dplyr` package are the use of `sql` functions like `sql_join` that allows to merge two data frames or tibbles, apply functions to every column or specific ones, among others. Another famous package for data manipulation is `tidyverse`, a package that comes along with other package as `dplyr`, `tibble`, `tidyr` and others like `ggplot2` for plots, `lubridate` for dates, `stringr` for strings. This fact became `tidyverse` as one of the must have package for data manipulation but with the caution that it takes up more memory.
+While these things can all be done in Base `R`, an increasingly common way to do such tasks is via a group of functions known as the *tidyverse*.  These packages seek to provide a common logic for data manipulation (and other) tasks, and includes packages such as `dplyr` (data manipulation), `tibble` (a simplified version of data frames), `tidyr` (tidying or otherwise "wrangling" data) and others like `ggplot2` for plots, `lubridate` for dates and `stringr` for strings.  We will discuss some of these libraries below.  As with other packages, the `tidyverse` can be loaded from the CRAN, though note that this will install a range of packages and so may a quite memory-heavy operation.  Provided that we have installed the `tidyverse`, we can load it as standard:
 
 ```{r}
 library(tidyverse)
 ```
 
-Once loaded `tidyverse` package, you can use all the tools in the packages that are loaded with `tidyverse`. So let's now try to make a join between two data frames (tibbles), first create the mean as previous examples and next join this mean to the mroz dataset by the column inlf
+### Aggregating Data
+To start with some basic data manipulations, we can return to the `dplyr` package discussed previously.  By typing `help(package="dplyr")` we can see a full index of the range of functions included.  For example, imagine that we wished to turn our individual level data frame we imported as `mroz` above into some group-level averages.  We can do this using `dplyr`'s `summarise` function.  Below, we will calculate the mean number of children aged less than six:
+```{r}
+summarise(mroz, mean(kidslt6))
+```
+Indeed, here with summarise we have requested that it provide us with the mean of this variable, but we could just as easily request some other statistic such as `sd`, `min`, `max`, `median`, `quantile` etc.
+It is quite simple to concatenate operations to conduct a range of operations.  For example, imagine that if instead of wishing to simply know the mean number of children less than 6 in our data, we wanted to know this for women in the labour market and those out of the labour market.  We could easily add this distinction using `dplyr`'s `group_by` function.  We will also name the resulting average "meankidslt6":
+```{r}
+summarise(group_by(mroz, inlf), meankidslt6 = mean(kidslt6))
+```
+
+As we will see below, these operations can become somewhat complex and a bit tricky to follow, and so `dplyr` allows for an alternative way to write these commands, essentially breaking out the functions into a series of steps, where the output of each step is "piped" into the next step.  This is by using the "pipe operator", written as %>%.  To see what this looks like, consider the previous command, and note that we can alternatively write it as follows:
+```{r}
+mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6))
+```
+You will see that the output is identical, though potentially the input is easier to follow.  In some examples further below, we will see that when the number of functions in a pipe grows, it is likely easier to follow in pipe notation than as a single nested function.
+
+You may have noticed that the output of these commands was a type of data which we have not come across before.  This is a `tidyverse`-specific construct known as a "tibble", essentially a modified data frame including features including enhanced printing (refer to `help(tibble)` for full information).  However, if you actually *did* prefer to generate a standard data frame, we could certainly do this, either via piping or just enclosing everything in a `data.frame()` function.  For example, in the below line we will save the output from the above pipe in a data frame named *kids*:
+```{r}
+kids<- mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6)) %>%
+  data.frame()
+```
+Note that the only addition to the pipe is the last step converting output to a data frame.
+
+### Merging/Joining Data
+We will also, at times, wish to join two (or more) pieces of data together, for example "merging" data frames or tibbles by a column or columns.  For example, it may be that we have a survey where each individuals surveyed belongs to a household, where all of the individual-level questions in the data are stored as an individual-level file (along with the individual's household ID), while the household level measures are stored in another file at the household level.  If we wish to work with information on the individual *and* their household characteristics, we will need to "join", or "merge" the file using the household ID.
+
+We can see an example of this using a series of joining functions included as part of `dplyr`.  A simple example is if we would like to take the grouped-level statistics generated previously, and join them back into our original `mroz` data.  What we want to do then, is for each individual who is in the labour force (`inlf==1`), join the information on the mean number of children under 6 in this group to their row of data, and similarly, for individuals *not* in the labour force (`inlf==0`), incorporate the group-level value to their row.
 
 ```{r}
 mroz %>% group_by(inlf) %>% summarise(MeanKidslt6 = mean(kidslt6)) %>%
-  ungroup() %>% right_join(mroz, by = "inlf")
+   left_join(mroz, by = "inlf")
 ```
+You will note that the only new part of the pipe is the addition of `left_join()` where we state that we wish to join the output of our pipe with the original `mroz` data, joining by the variable `inlf`.  It would be exceedingly easy to generalise this, for example if we wished to insted have the aggregates by labour market status *and* the individual's age:
+```{r}
+mroz %>% group_by(inlf,age) %>% summarise(MeanKidslt6 = mean(kidslt6)) %>%
+   left_join(mroz, by = c("inlf", "age"))
+```
+Here we have used the function `left_join()` to conduct our merge.  In this **particular** setting, we could have used any if `inner_join`, `left_join`, `right_join` or `full_join`.  This is because in this case, all of the levels of "inlf" or "inlf" and "age" which are in one set of data are also in the other set of data.  In many cases this may not be the case, and we may have observations in one dataset that are not in the other.  In this case, we must be careful to indicate whether we wish to keep observations that appear in both sets of data (`inner_join`), keep those that only appear in the left-hand side of the pipe (`left_join`), those that only appear in the right-hand side of the pipe (`right_join`), or those appearing in either data set (`full_join`). 
 
-Note that the result of this procedure hasn't been store in any object, so it can't be accessed later. Other convenient tools that you will apply on this book are selecting some rows or some columns from the dataset, from `filter` function we can filter rows that meet certain condition and from the use of `select` we can filter specific columns:
+
+### Filtering Data
+Previously we have discussed how to select particular columns or rows of data, however we can also filter on observation values.  This is straightforward, and can be incorporated in pipes using the `filter` function. Additionally, if we wish to use the standardised syntax of `tidyverse` we can use the `select` function to choose certain variables or groups of variables.   For example, below we will subset our data first to a pair of variables by using `select`, and then keep only individuals with at least 2 children under 6 years of age using the `filter` function:
 
 ```{r}
 mroz %>% select(kidslt6, hours) %>% filter(kidslt6 > 2)
 ```
 
-In previous section has been shown the use of `mutate` function to create new variables, in tibbles as in data frames the use of `$` operator also creates new variables:
-
+### Generating variables
+Above we have briefly introduced the idea of generating variables using the `mutate` function.  In tibbles as well as in data frames the use of `$` operator also creates new variables:
 ```{r}
 mroz$exper2 <- mroz$exper^2
 head(mroz)
 ```
-
-Another function to create variables is `transmute`, but this function doesn't mantain old variables, in fact it replace all the data for the new one
-
-```{r}
-head(mroz %>% transmute(expersquared = exper^2))
-```
+This is the standard way that we will generate variables in `R`, and it can work with any of the mathematical or logical operations, as well as many numerical outputs from functions discussed above.  
 
 ```{r echo=FALSE}
 rm(list = setdiff(ls(), "mroz"))
 ```
 
-So it must be used with caution. Finally the last tool that we introduce for data manipulation is transform data from wide format to long format and reverse. Consider the next data frame
+### Reshaping Data
+Finally the last tool that we introduce for data manipulation is the idea of "reshaping" or transforming data from a wide format to a long format (and *vice versa*).  We refer to data in a **long** format if for each observation we have multiple rows of data, covering different levels of some other variable.  For example, a classic example of this would be a panel of data over countries and years.  On the other hand, we refer to data as being in a **wide** format if for each observation we have multiple columns (or variables) which cover different levels of some other variable.  In certain settings we will wish to work with data in one format, and in other settings we may find it more convenient to work with data in another format.  To make this a bit clearer, consider the below data frame:
 
 ```{r}
-Data <- data.frame(Zone = c("A", "A", "B", "B"), 
-                   Year = c(2021, 2022, 2021, 2022),
-                   Sales = c(100, 115, 98, 106))
+Data <- data.frame(Zone = c("A", "A", "A", "B", "B", "B"), 
+                   Year = c(2020, 2021, 2022, 2020, 2021, 2022),
+                   Sales = c(90, 100, 115, 82, 98, 106))
 Data
 ```
-
-This format is the long format, you have multiple observations for one unit (zone in this example), to transform it in wide format
-
+Here we can see that data is in the long format, with multiple observations for one unit (zone in this example) over a number of years.  To convert this data to wide format we can use the `pivot_wider` function, as follows: 
 ```{r}
 Data = pivot_wider(data = Data, id_cols = Zone, names_from = Year,
                    values_from = Sales)
 Data
 ```
 
-As you can see now there is one observation per unit. Lets get it back to long format
+As you can see now there is now one observation per unit, where each observation has three resulting columns (one for each year). Now, if we wish to return to the long format we can do so with the similar `pivot_longer` function:
 
 ```{r}
 Data = pivot_longer(data = Data, names_to = "Year", values_to = "Sales",
@@ -518,87 +524,84 @@ Data = pivot_longer(data = Data, names_to = "Year", values_to = "Sales",
 Data
 ```
 
-Now that you know the basics of data manipulation, the next step is to learn how make some basic plots.
+In practice, we will generally use these commands with a considerably larger number of units, but the basic principles are the same regardless.
 
 ```{r echo=FALSE}
 rm(list = setdiff(ls(), "mroz"))
 ```
 
 # Basic Plots
-
-The basic function to make a plot in `R` is the plot function, this function maps pairs of points in the $(x,y)$ coordinate axis. Let $x$ be a sequence of integers between -5 and 5
-
+To end this initial introduction, we will briefly explore the generation of basic plots in `R`.
+The basic function to make a plot in `R` is, perhaps unsurprisingly, the `plot` function.  This function maps pairs of points in the $(x,y)$ coordinate axis and places them on a graph. For example, let's consider a case where $x$ is a sequence of integers between -5 and 5.  This can be generated as below:
 ```{r}
 x <- -5:5
 ```
 
-Now consider $y = x^2$
+Now consider the variable $y = x^2$
 
 ```{r}
 y = x^2
 ```
 
-`plot` function by default maps a point plot
-
+`plot`, by default generates a scatter plot of points, making reasonable decisions for axes and labelling:
 ```{r}
 plot(x,y)
 ```
 
-If you access help documentation for plot you can see how add elements to the graph
+If you access help documentation for `plot` you can see how to add further elements to the graph.  For example, below we will request a line plot instead of a scatter plot (`type="l"`), and add a title and some axis labels:
 
 ```{r}
 plot(x,y, type = "l", main = "Plot Example", xlab = "Variable X",
      ylab = "Variable Y")
 ```
 
-A widely used package for make more custom graphs is `ggplot2`, as `tidyverse` has been loaded previous, in this case we don't need to load `ggplot2`, but if you haven't load it remember that with the next code you can do it
+There are many ways to further customise graphics in `R`, and indeed, we will see a range of other plots throughout the remainder of these pages.  One widely-used package to allow for the customisation of graphis in `R` is the `ggplot2` package, incorporated as part of the `tidyverse`.  Given that we have previously loaded the `tidyverse` we do not need to load `ggplot2` again, but if you haven't loaded it, remember that with the below code you can do so:
 
 ```{r}
 library(ggplot2)
 ```
 
-The first step in `ggplot` is to define the plot
+The `ggplot2` package consists of a graphs which can be built up in a step by step fashion.  To see this, we will first define an employ plot region:
 
 ```{r}
 ggplot()
 ```
 
-This define a blank canvas where you can add elements, as an example a line object (*geom*) is added
+This provices us with a blank canvas where we can add elements, as an example, below we add a line object using the *geom_line()* function:
 
 ```{r}
 ggplot() + geom_line()
 ```
-
-Until now we haven't added data so `ggplot2` is not mapping any pair of points, now specify the data, this must be done inside the `aes` function
+However, so far we have not added any data, so `ggplot2` is still generating a blank canvas.  Now we can add a pair of points, which is done inside the `aes` mapping, which refers to "aesthetic mappings" we will add to our graphs.
 
 ```{r}
 ggplot() + geom_line(aes(x = x, y = y))
 ```
-
-Note that in order to add elements to the graph we have been using `+` unlike when using multiple variables where were used the pipe operator `%>%`. With this syntax you can add more elements to the graph
+We can continue to add elements if we would like, concatenating additional portions of the plot using a `+` symbol.  
 
 ```{r}
 ggplot() + geom_line(aes(x , y)) + geom_point(aes(x, y))
 ```
 
-When you use a data frame you can also define `aes` inside `ggplot` function
+If using a data frame, which will often be the case when graphing, you can include this is an argument to `ggplot`, and then directly define `aes` inside `ggplot` function, as follows:
 
 ```{r warning=FALSE}
 ggplot(mroz, aes(x = exper, y = lwage)) + geom_point()
 ```
 
-Here you can manipulate different overall themes for your plot and elements characteristics such as color or size
+Further editing graphs is quite simple, allowing alternative themes, colours, and so forth:
 
 ```{r warning=FALSE}
 ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
   theme_minimal()
 ```
 
-In this way you can add a variety of elements such as an OLS regression line
+This results in plots which can be built up piece by piece, for example the below plot will be extended to include an OLS regression line and 95% confidence intervals using the `geom_smooth()` function, and additionally adding axis labels:
 
 ```{r warning=FALSE}
 ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
-  theme_minimal() + geom_smooth(method = "lm", color = "blue")
+  theme_minimal() + geom_smooth(method = "lm", color = "blue") +
+  xlab("Years of Experience") + ylab("ln(Wage)")
 ```
 
-As said before, this introductory section of this chapter doesn't intend to be a comprehensive tutorial of `R`, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.
+We will take forward many of the examples laid out on this page in the chapters ahead.  For now, this introductory session aims to provide you with a sufficient overview to get up and running in `R`, and apply your knowledge to microeconometric methods introduced in the book.
