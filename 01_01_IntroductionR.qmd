@@ -316,118 +316,128 @@ TRUE & FALSE
 This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows you work with them numerically and is useful when you want to check a series of conditions.
 
 ## Functions
-Between these logical and mathematical operators, `R` comes with a large suite of built in functions which perform specific tasks, as well as a large number of user-contributed functions (discussed below) which can extend the basic functionality.  A basic installation of `R` comes with a range of packages.  The functions included in `R`'s base package can be consulted by typing the following at your `R` console:
+Beyond these logical and mathematical operators, `R` comes with a large suite of built in functions which perform specific tasks, as well as a large number of user-contributed functions (discussed below) which can extend the basic functionality.  A basic installation of `R` comes with a range of packages.  The functions included in `R`'s base package can be consulted by typing the following at your `R` console:
 ```{r}
 library(help="base")
 ```
-Functions are designed to perform specific tasks, potentially accepting input (known as "arguments"), and returning output which you can interact with.  We have already seen a number of functions above such as `getwd()` which we used without arguments, and `print()` which we have used with specific arguments such as "Hello World!".  Understanding how packages work, including the arguments they accept and the objects they return is key.  This can be found by consulting the help file.  If you know the function you wish to use all these details can be found by typing `help(function_name)` or simply `?function_name`.  For example, if we type `help(getwd)` we will see a section entitled "Arguments" which explains to us the arguments the function accepts, as well as the elements returned under the heading "Value".  In certain cases if we are not sure exactly what function we need we can type `??search_term` and `R` will advise us of any functions which may do what we're after.  For example, if we type `?? sum`, we see a range of functions, including one called `sum`.  We can then consult the help file to see if this is precisely what we are after.  Reading the help file we see that the function "returns the sum of all the values present in its arguments", and accepts numerical vectors.  We can confirm that this is the case by applying this function to our data:
+Functions are designed to perform specific tasks, potentially accepting input (known as "arguments"), and returning output which you can interact with.  We have already seen a number of functions above such as `getwd()` which we used without arguments, and `print()` which we have used with specific arguments such as "Hello World!".  Arguments are simply the contents we provide the function inside the parentheses.  Understanding how packages work, including the arguments they accept and the objects they return is key.  This can be found by consulting the help file.  If you know the function you wish to use, all these details can be found by typing `help(function_name)` or simply `?function_name`.  For example, if we type `help(getwd)` we will see a section entitled "Arguments" which explains to us the arguments the function accepts, as well as the elements returned under the heading "Value".  In certain cases if we are not sure exactly what function we need we can type `??search_term` and `R` will advise us of any functions which may do what we're after.  For example, if we type `?? sum`, we see a range of functions, including one called `sum`.  We can then consult the help file to see if this is precisely what we are after.  Reading the help file we see that the function "returns the sum of all the values present in its arguments", and accepts numerical vectors.  We can confirm that this is the case by applying this function to our data:
 ```{r}
 sum(df$A)
 ```
 
-UP TO HERE...
-In order to use this functions the syntaxis in `R` is the function's name followed by parenthesis `( )` and between the parenthesis the function's arguments separated by comma `,`. To know better how a function works is always a good idea to read the help document that comes along with `R`, some that you can make with `?` symbol. For an example if you type `?sum` you will see how `sum` function works and its arguments, where you can see an argument `na.rm = FALSE`, this points that the default value of the argument is `FALSE` and if you keep reading a little forward you can see that the documentation indicates for this argument: *logical. Should missing values (including NaN) be removed?* telling you the type of value that you can use and what is the functionality. Let `x` be a vector with a *missing value* `NA`
+If you consult the help file to `sum` you will note quite prominently the option for  "na.rm", with the explanation *Should missing values (including ‘NaN’) be removed?*.  You will also note that in the "Usage" section of the help file, "na.rm = FALSE" is explicitly indicated.  Here we have encountered two particularly important new elements: firstly, the concept of `NA`, and secondly the use of default options in functions.  We will discuss these in turn. `NA` formally refers to Not available, or missing data.  Similar concepts exist in other languages, such as NaN in Matlab, "." in Stata, and so forth.  Frequently we may encounter data where certain individuals have no information for certain variables.  In `R`, these missing values can be recorded as `NA`.  Functions must know how to deal with values which are recorded as `NA`.  This is what `sum`  does with its `na.rm` option.  If `na.rm = TRUE`, values of NA will be removed prior to processing.  Otherwise, vales of NA will remain in the data when processing.  What's more, the fact that in its "Usage" section the help file tells us `na.rm = FALSE` implies that `FALSE` is the default behaviour.  Should we not say anything, `R` understands that as us accepting this default.  To see how this works, we will define a vector `x` below with a *missing value* `NA`
 
 ```{r}
 x <- c(1, 2, NA)
 ```
-
-If you use the sum function you will get an `NA` value
+Now, if we use the sum function this will return to us an `NA` value, given that we can't logically sum  over a vector containing `NA`, because NA has no mathematical value:
 
 ```{r}
 sum(x)
 ```
-
-But if you use the `na.rm` argument you will get the sum of the valid values
+However, if we explicitly tell `R` that we wish to remove the `NA`s prior to processing, it will, returning us the sum of the remaining two elements:
 
 ```{r}
 sum(x, na.rm = TRUE)
 ```
+This behaviour ensures that we will know if our vectors contain `NA`, and in effect `R` makes us confirm to it that we are happy with this to return numerical values.
 
-As the `sum` function, `R` comes with a lot of functions in their base environment as functions to get descriptive statistics, work with dates and others. This functions are sufficient to take along any task manually but not necesarilly optimally. There are very useful functions and data types that doesn't come with base enviroment and comes with packages.
+Along with the `sum` function, `R` comes with a considerable range of functions in the base environment, including functions to generate descriptive statistics, work with dates, conduct statistical modelling, amond many other things.  These functions are sufficient to do nearly anything we will need to do, but are not necesarily optimal for all our tasks. As we will see now, there are a large number of useful functions and data types that don't come with base `R`, but are avaialble as packages which be installed externally.
 
 ## Managing packages
 
-What are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your R enviroment. Now is explained how to do it from CRAN by using the function `install.packages()` writing within `" "` the package name. As an example, in order to install `dplyr` -that is one of the most famous `R`'s packages for data manipulation- you must execute the following code:
+What are packages? Packages are XXXXX a group of functions and data types that works withi them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on how the package is distributed, though installing a package is a process which you only need to do once, and from then on this package will be avaialble to you should you wish to load it and use it.  The majority of stable `R` packages are stored on the CRAN (XXXXX), which is a repository from which packages can be installed.  By far the most frequent way to install `R` packages is to install them from CRAN.  This can be done quite simply, using the  `install.packages()` function.  This function accepts as an argument the name of the package you wish to install.  For example, to install  `dplyr`, a package we will work with beloe for data manipulation, you simply execute the following code:
 
 ```{r eval=FALSE}
 install.packages("dplyr")
 ```
 
-Now that the package is installed you doesn't need to install it again unless you want to update the package. That a package is installed doesn't mean that `R` automatically loads the package along with their functions and data types, for example if you want to use the `dplyr`'s function `mutate` to create a new variable in your data frame it will be an error if you haven't load the `dplyr` package:
+Now that we have installed this package, it is available to you in the future and you don't need to install it again unless you wish to update the package. However, that a package is installed doesn't mean that `R` automatically loads the package (along with its functions and data types).  You must instruct `R` in every session that you wish to use load the package.  For example, if you want to use the function `mutate` which is a function available as part of the `dplyr` package that allows you generate new columns as functions of old columns in data, you cannot unless you first tell `R` that you wish to load `dplyr`.  For example, below we try to conduct a valid operation with `mutate` without having loaded `dplyr`:
 
 ```{r error=TRUE}
 mutate(df, C = A + B)
 ```
 
-So in order to use the package you must load it each time you open a new session with the function `library()` writing the package's name within `" "` as follows
-
+To avoid such errors, we must simply load the package with `R`'s `library()` function:
 ```{r}
 library(dplyr)
 ```
 
-Now if you want to use the `dplyr`'s function `mutate` it will work
+Now if you want to use `dplyr`'s function `mutate` it will work
 
 ```{r}
 mutate(df, C = A + B)
 ```
+To avoid unexpected errors, it is important to ensure that packages are correctly lodad each time you use `R`.  Generally, the best practice is to simply load the packages that you require in the R script that you are working on, as then each time you run the script you will be sure that you have the correct packages loaded.
 
-Is highly recommended that the load of the package be included in your script for reproducibility of your code.
-
-A situation that you may encounter in your `R` work is that sometimes you may want to use two packages that have different functions with the same name. As an example if you see the message that `R` print when you loaded `dplyr` package this says "*The following objects are masked from 'package:stats':*" and next it points the functions `filter` and `lag`, this message means that the package `stats` -one of the automatically installed and loaded by `R`- also has functions with the names `filter` and `lag`, but when you use them `R` will use the `dplyr`'s functions. For example the next code use `dplyr`'s `lag`
+At first glance, it may seem like failing to load a package is not so serious, because `R` will not find the package and simply produce an error, which you can then remedy by loading the package. But this is not necessarily the case!  At times, different packages may have functions named *in exactly the same way*, and if you fail to tell `R` you are using a particular package, it may find another function with the same name, that does not necessarily do the same thing.  This can lead to considerable confusion, hence the importance of being careful with your loading of packages.  As a matter of fact, this is something that we have seen when we loaded the `dplyr` package!  If you note above, a Message was printed when we loaded `dplyr` to draw our attention to some functions which exist in `dplyr`, and also in base `R`.  When we load a package, these pre-existing functions will be masked, implying that `R` will use the newly loaded functions, and not the masked versions.  To see why this matters, consider the first message above: "*The following objects are masked from 'package:stats':*".  And note what happens when we use  `dplyr`'s `lag` function:
 
 ```{r}
+df$A
 lag(df$A)
 ```
-
-But in order to use the masked functions you can use the syntaxis `package::function`, following the previous example, to use `stats`'s `lag`
+In this case, we see it produces a vector which takes, for each observation, the observation one unit prior in the vector.  However, we can also see what the function does with the `stats` package by using the syntax `package::function`, without first loading the package:
 
 ```{r}
 stats::lag(df$A)
 ```
+Here, the same function produces a different result: namely for each observation it takes the mathematical value one below it.  In many cases such clashes in function names will not occur, but we note the importance of this so that you can be cautious to always load the packages you need, and if in some strange case you do *actually* need two functions with the same name in different packages, that you have the knowledge that you can "unmask" functions by pre-empting the function name with the package name.
 
 # Working with Data
 ## Loading and viewing data
+In most -- if not all -- of our research projects, we will not actually type in data to `R` by hand which is a cumbersome and highly error-prone activity, but rather we will wish to read in data which we have stored on our disk in one or a number of files.  Such data may be stored in many formats; among others this may be free formats such as `csv` or `txt`, or even proprietry formats such as `excel` or `dta`. The first such formats do not require specific packages to be loaded into R, but the latter do.
 
-In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`. The first doesn't need specific packages to work well, but the latters do.
-
-For `csv` and `txt` data `R` comes with the functions `read.csv`, `read.csv2`, `read.delim` and `read.delim2`. If you see the help documentation you will see that the four of them belongs to the family of the `read.table` function and has a very similar usage, being the basic usage:
+For data stored as `csv` (comma seperated values) or `txt` formats `R` comes with the functions `read.csv`, `read.csv2`, `read.delim` and `read.delim2`. If you consult the help documentation, which is something I would recommend anytime you come across a new function, you will see that the four of these functions belons to the family of the `read.table` function and have a very similar usage, along the lines of the following:
 
 ```{r eval=FALSE}
-read.table(file = "Path/To/Your/File.csv")
+read.csv(file="Path/To/Your/File.csv")
 ```
 
-Note that the example is made with `csv` but is the same for `txt`. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates if the first row should be taken as a header row, what is the separation between columns, the decimal separator and others.
+Note that you could do this all directly with the `read.table` function, but would just need to make clear any file-specific details, such as the characters which indicate column breaks, whether a header is included, and so forth.  So, for a file where columns are separated by commas and which variable names are included, we could mimic the above behaviour by typing:
 
-For `excel` files you count with a variety of packages such as `readxl`, `openxlsx` and `xlsx`. Each package has their function and allows different tasks as read or write depending on the package. As this section is focused on import data, we present an example of the `readxl` package's family of functions `read_xls`, `read_xlsx` and `read_excel`
+```{r eval=FALSE}
+read.table(file="Path/To/Your/File.csv", header=TRUE, sep=",")
+```
+Similar such procedures can be followed for other data stored in flat formats such as .txt or others, as laid out in the help file. 
+
+In the case of files which are stored in other formats, more specialised packages are likely required.  For example, for `excel` files you could consider one of a number of packages available from CRAN, such as `readxl`, `openxlsx` and `xlsx`. Each package provides functions to deal with data stored in xlsx format, along with different options such as reading or writing files depending on the particular package.  Once again, in general the basic syntax is simple, and further control can be achieved as desired following instructions in the help fules.  For example, if we have installed and loaded the `readxl` library, we can use functions such as `read_xls`, `read_xlsx` and `read_excel` as follows.
 
 ```{r eval=FALSE}
 read_xlsx(path = "Path/To/Your/File.xlsx")
 ```
+In practice the syntax can be more complex as you may wish to import only some specific sheet, or some specific range of rows or columns.
 
-If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to impor, an specific range, use or not the first row as column names, between others.
-
-Finally in order to import `dta` files the package will be `haven` and the functions `read_stata` or `read_dta`, both with the basic usage as follows
+Finally if you wish to import other proprietry data formats such as Stata's `dta` files, you could install the `haven` package, and use the functions `read_stata` or `read_dta`, both with the basic usage as follows
 
 ```{r eval=FALSE}
 read_dta(file = "Path/To/Your/File.dta")
 ```
 
-Until now all examples only import data but not store it in any object, an action that doesn't make much sense because probably you import data to work with it. Now we are going to import an internal dataset from the package `wooldridge`, that contains 115 data sets from the book "Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge, in order to show how manipulate this data sets
+The examples so far have been to illustrate basic syntax, though imported data has not been stored in any particular object for later manipulation.  In general we will of course want to go on to *use* the data we load, which is why we loaded it in the first place.  This can be done in the same way as any other assignment in `R`.  Below we will import a particular dataset which is available internally in `R` (ie you will not have to download anything), to have some data to work with below.  In particular, we will load a dataset from the package `wooldridge`, that contains 115 data sets from Wooldridge's undergraduate Econometrics Textbook ("Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge):
 
 ```{r}
 mroz <- wooldridge::mroz
 ```
 
-This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799.
-
-## Tidying data
-
-In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame
-
+This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799, and we have stored it as an object called `mroz`.  We can inspect this element to see how the data has been imported:
 ```{r}
 class(mroz)
 ```
+seeing that, conveniently, it has been stored as a data frame.  We can also look at a quick snapshot of the data by using the `head()` command, which will print just the first few rows of our data:
+```{r}
+head(mroz)
+```
+Depending on the way that we are working with `R`, we can also explore the data more interactively using the `View()` function.
+
+
+## Tidying data
+Once we have loaded data in `R`, we will likely want to manipulate the data in a number of ways.  This can include relatively simple things like subsetting to certain columns or rows (which we have already encountered above), but also more complicated things like aggregating data to a higher level, calculating means for one variable over another variable, joining together a number of datasets, or "reshaping" data in certain ways.  Here we will provide a very brief overview of these procedures, and introduce other things as we need them thoughout the book.
+
+
+
+
+In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame
+
 
 FROM ABOVE TO INCORPORATE
 Later we will introduce a data type named *tibble* that is very similar to data frames, with a few differences, and is common to work with it in the *tidyverse* that will be explained later.
