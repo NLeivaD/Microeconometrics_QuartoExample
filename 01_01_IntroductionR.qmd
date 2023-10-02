@@ -73,7 +73,7 @@ As you can, this lines has executed the instruction to the left of `#` but ignor
 
 One final thing to note from this `R` script is that the output from the final line of code (`4+4`) was not printed in the console.  In R, when you type `4+4` at the command line, you get immediate output because R is operating in an interactive mode. In interactive mode, R evaluates expressions as soon as you enter them and displays the result to the console.  However, when you write `4+4` in a script and then run the script, there is no automatic output to the console.  However, it is important to note that the calculation *is* conducted. You can confirm this yourself if you'd like by explicitly requesting that `R`provide this output when it runs the code, replacing `4+4` in the code with `print(4+4)`.
 
-### An introduction to language and data types
+# An introduction to the language and data types
 
 Until now we have executed some code in `R` and seem some specific functions which print output, but we have never stored any results for later use within our code.  Generally we *will* want to store the output of intermediate steps in our code for later use.  This can be done in `R` using any of the following assignment symbols: `->`, `=` or `<-` (though `->` is generally preferred). For example, below we store a number of values as a variable which we define, arbitrarily named `x`:
 
@@ -101,8 +101,8 @@ In general, a command can produce a number of conditions which contain important
 - `Warning`: These kinds of message indicate that somes has occurred that could potentially cause problems, but is not critical for code execution. In these cases, `R` will still execute the code and give the result, but warn you that not everything is in order and this may cause inaccurate results or future problems. At times this messages can be ignored without further issues, but warnings can also be a sign of peril, and so time should be taken to review warnings and understand whether they are problematic.
 - `Message`: This kinds of messages simply provide information about the execution of your command, and `R` is providing you with some piece of information which is useful for you to know.  This will not affect the output of your code, and does not generally indicate an error with your code.
 
-#### Data Types
-##### Text (String) Data
+## Data Types
+### Text (String) Data
 To get up and running with `R`, it is useful to understand the different ways which data can be stored.  `R` can hold a number of different types of objects in its working memory, and it is important that `R` understands what type of information we are passing or storing.  Among others, R allows for information to be stored as characters, numeric, arrays, data frames and lists. Different types of data allow different types of operations, and should be stored in different ways.  Characters are perhaps the conceptually simplest type of data.  Characters are simply strings of text, and should be specified between `" "`, or `' '`.  We have seen the use of characters when printing "Hello world" previously.  If characters are not indicated between strings, `R` will understand that they refer to variable names.  For example, returning to *Hello World*, if this is entered without quotes, an error will appear:
 
 ```{r error=TRUE}
@@ -123,8 +123,8 @@ my_var <- "Hello World"
 class(my_var)
 ```
 
-##### Numeric Data
-Numeric data is entered without any special behaviour, simply entering the number in the case of scalar values.  Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data.  For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.  
+### Numeric Data
+Numeric data is entered without any special behaviour, simply writing the number in the case of scalar values.  Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data.  For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.  
 
 ```{r}
 num1<-2
@@ -135,7 +135,7 @@ class(num2)
 
 If you try to perform numerical operations based on the above variables (more on this below), you will see that `num1` can be involved in such calculations, while `num2` cannot.
 
-##### Vectors and Arrays
+### Vectors and Arrays
 Generally, we will be dealing with more than a single number in our work, and for this reason need ways	to collect groups of numbers.  Vectors and arrays (or matrices) provide some ways to do this.  An easy way to create vectors or arrays is via the `c()` function, which stands for "combine".  This allows for numbers to be combined in a vector.  For example,
 ```{r}
 c(1,2)
@@ -155,89 +155,100 @@ class(c(1,2))
 class(c(1,"2"))
 ```
 
+This behaviour can be overruled using `as.` which allows for specific data types to be indicated.  For example, if we take the previous vector of a number and a character, we can ensure that the result is numerica as follows:
+```{r}
+as.numeric(c(1,"2"))
+```
+However, note that this does has limits if the underlying object cannot be converted to that data type! 
+```{r warning=TRUE}
+as.numeric(c(1,"A"))
+```
+In the above, the inclusion of a string which cannot be logically converted to a number implies that `R` has issued a warning and converted this element to `NA`.  `NA` is `R`'s "Not available" or missing value indentifier.  We will discuss a bit later on about how to deal with this in your programming. 
+
+
 You can also create arrays with the `matrix` function, this allows you to get objects in two dimensiones, rows and columns
 
 ```{r}
 matrix(c(1,2,3,4), nrow = 2)
 ```
 
-An inconvenient from arrays is that, as vectors do, coerce to the more restrictive data type
-
+It is worth noting a couple of potentially important details with these matrices.  A first point which we already have come across is related to coercion of types.  For example, if passing a vector via the matrix command, `R` will coerce the matrix to the more restrictive data type:
 ```{r}
 matrix(c(1,2,3,"4"), nrow = 2)
 ```
+A second, potentially more surprising behaviour is the "recycling" of values if matrices are not of the correct length.  For example, as you can see below, if we add a 5th element to the vector, this can no longer correctly fit in two rows.  So `R`'s default behaviour is to begin "recylcing" values from the beginning until the matrix is full, and so it returns to the first element of the vector and fills in the "missing" cell.  If, however, you actually want this to be an `NA` value, you need to instruct `R` about this, as in the second case below.
+```{r}
+matrix(c(1,2,3,4,5), nrow = 2)
+matrix(c(1,2,3,4,5,NA), nrow = 2)
+```
 
-##### Data frames
-One of the data types that works along with mutliple othe types are data frames, this allows to create a standard data base as you tipically know with multiple rows and columns, where an entire column will coerce to the most restrictive data type but you can have different data types in different columns. As an example we create a data frame named `df` that will use later in other examples
+
+### Data frames
+Likely the type of object which we will be working with the most in our analysis in `R` are data frames.  Data frames allow us to mix mutliple other types of data, viewing the collection of variables and observations as a database with multiple rows and columns.  Within data frames, we can easily subset to certain rows (observations), columns (variables), and conduct univariate and multivariate analysis.  It will likely be the starting point for much of your work when you import a standard dataset into `R`. As an example we create a data frame named `df` that will use later in other examples:
 
 ```{r}
 df <- data.frame(A = c(1, 2, 3), B = c(4, 5, 6), 
                  C = c("XXX", "YYY", "ZZZ"))
 df
 ```
+As we have entered the data frame, we have three columns named "A", "B" and "C".  Each column consists of three observations, and when the data frame is printed, we see that `R` has helpfully assigned observation numbers in the left-most side of the data frame.  Shortly we will see more about how to manipulate and work with data frames.
 
-Later we will introduce a data type named *tibble* that is very similar to data frames, with a few differences, and is common to work with it in the *tidyverse* that will be explained later. The last data type of this section will be lists, this one allows to store any data type you imagine, you can combine in one object characters, numbers or data frame, within other objects, and is that the reason multiple functions that will explore later will return it results as a list or an object created from a list. An example of this lists are the next one, where we create an object named `l` that is a list we will use later in other examples.
+The last data type we will briefly introduce in this section are lists.  Lists allow us a very flexible way to group things together, allowing us to store any data type we need.  For example, as we see below in a single object we are combining characters, numbers and a data frame, all in a single "container" called a list.  The flexibility of lists to contain many data types is why many functions that we will work with later on return their results as lists or as objects created from lists.  As in data frames, in lists, each element is given its own name, and when printed are referred to by this name:
 
 ```{r}
-l <- list(Character = c("Hello", "World"), Number = c(1, 2, 3, 4),
+l <- list(Character = c("Hello", "World"),
+     	  Number = c(1, 2, 3, 4),
           DataFrame = df)
+l
 ```
 
-#### Subset Multidimensional Elements
-
-As you see previously, there is elements as data frames or lists that stores multiple elements. Sometimes you will want to work with a subset of this multidimensional data types instead the entire object. In data frames, or lists, you can easily access to an entire column, or object, by using `$` followed by the column, or object, name:
+## Subsetting Multidimensional Elements
+As we saw in data frames and lists, often we will work with objects that store multiple elements. Sometimes we may want to work with a subset of this multidimensional data instead the entire object. In data frames, or lists, you can easily access an entire column, or element, by using `$` followed by the column, or object, name:
 
 ```{r}
 df$A
 l$Character
 ```
 
-But sometimes you may want to access more, or less, than one entire column or object, so the more generally way to access to the elements are with the use of `[ ]`. One dimension objects like vectors or a column of a data frame, allows to access its elements by using the number of the element position between `[ ]`
-
+But sometimes you may want to access more, or less, than one entire column or object, so the more general way to access to the elements are with the use of `[ ]` to subset. For one dimensional objects like vectors or a column of a data frame, we can access elements by using the number of the element position between `[ ]`. For example, for a column "A" in our data frame:
 ```{r}
 df$A[1]
 ```
+Identical nomenclature is used for vectors.
 
-This syntax allows also to access more than one object by combining it with a vector
-
+This syntax work to access more than a single object by combining it with a vector, for example as follows to access the first and third element of `df$A`:
 ```{r}
 df$A[c(1, 3)]
 ```
 
-In case of multidimensional elements as an entire data frame or arrays you should use `[row,column]` syntax, if you want an entire row just left in blank the row position
-
+In the case of multidimensional elements such as an entire data frame or array you should use the `[row,column]` syntax to control subsetting. If you would like to access an entire row, this can be requested by just leaving the row position blank:
 ```{r}
 df[,1]
 ```
-
-And the same for an entire row
-
+with the same logic holding to access an entire column:
 ```{r}
 df[1,]
 ```
 
-You can also mix a single element and more than one row, or column
+Similarly, all of the above can be mixed to grab multiple rows or columns.
 
 ```{r}
 df[2,2]
 df[c(1,3), 2]
 ```
 
-In lists you must use a slight syntax, first you must access the object with double `[ ]` and then once you access the object it works like the object do. For example, now we show how to access the data frame that is the third object of the list, and then the element of the second row and second column
-
+In lists the syntax is slightly different given the way that lists are internally stored.  In this case,  first you must access the object of interst with a double `[ ]` and then once you access the object it behaves in the same way that we saw above. For example, if we wanted to access the second row and second column of our data frame `df` stored in the list `l`, we can do so as follows, noting that the data frame is stored as the third item in the list:
 ```{r}
 l[[3]][2,2]
 ```
 
-Between `[ ]` you can also use the elements names when calling an object inside a list of a column in a data frame. The next code replicates the previous example
-
+Alternatively, between the first brackets you can also use the element's name to select it for later processing.  The following code exactly replicates the previous example, however arguably is less error prone, because it is clear precisely which elements we wish to select ("DataFrame" from the list, and column "B" from the data frame):
 ```{r}
 l[["DataFrame"]][2,"B"]
 ```
 
-#### Basic Operations
-
-Now that you know how to store data, and the different objects where you can store the data, you must know the basic operations to do with that data. `R` has the next basic mathematical operations:
+## Basic Operations
+The standard mathematical operations in `R` likely work how you would expect.  Basic mathematical operations are as follows, with an example of their use below:
 
 |   Symbol    |    Operation     |
 |:-----------:|:----------------:|
@@ -262,10 +273,17 @@ A few examples
 10 %/% 3
 ```
 
-Also when you combine different operators it respect the PEMDAS order, first solve Parenthesis, second solve Exponents, third Multiplication, fourth Division, fifth Addition and sixth Substraction. For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
+Also when you combine different operators it respects the PEMDAS order, first resolving Parentheses, second solve Exponents, third Multiplication and Division, fourth Addition and Substraction.  Both multiplication and division, and addition and substraction are evaluated left to right, rather than sequentially by operation, so it is important to indicate to `R` explicitly what you need using parentheses in certain cases.  For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
 
 ```{r}
 -(5+3^(5-3))/(5*3)
+```
+
+Specifically in the case of matrices, mathematical operations are assumed to refer to cell by cell calculations.  If, instead, you would like to undertake matrix multiplication, this must be requested with `%*%`.  For example, consider the two operations below and why they differ, also noting the `t()` is the matrix transpose operation.
+```{r}
+a=matrix(c(1,2,3,4,5,6), nrow=2)
+a*a
+a%*%t(a)
 ```
 
 `R` also has logical operatos that returns a boolean value (`TRUE` or `FALSE`, also abbreviated as `T` or `F`) pointing if the statement is true or false. This operators are:
@@ -295,186 +313,210 @@ A few examples
 TRUE | FALSE
 TRUE & FALSE
 ```
+This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows you work with them numerically and is useful when you want to check a series of conditions.
 
-This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows to work with them numerically and is useful when you want to check a series of conditions.
-
-The logical and mathematical operators are useful when making operations between different objects, it can be an object of a single valur or an object with multiple values. As many software `R` came with some basic functions that make specific tasks, for example if you want to add all the values in a vector you don´t need to type one-by-one all those values, you can use the function `sum`:
-
+## Functions
+Beyond these logical and mathematical operators, `R` comes with a large suite of built in functions which perform specific tasks, as well as a large number of user-contributed functions (discussed below) which can extend the basic functionality.  A basic installation of `R` comes with a range of packages.  The functions included in `R`'s base package can be consulted by typing the following at your `R` console:
+```{r}
+library(help="base")
+```
+Functions are designed to perform specific tasks, potentially accepting input (known as "arguments"), and returning output which you can interact with.  We have already seen a number of functions above such as `getwd()` which we used without arguments, and `print()` which we have used with specific arguments such as "Hello World!".  Arguments are simply the contents we provide the function inside the parentheses.  Understanding how packages work, including the arguments they accept and the objects they return is key.  This can be found by consulting the help file.  If you know the function you wish to use, all these details can be found by typing `help(function_name)` or simply `?function_name`.  For example, if we type `help(getwd)` we will see a section entitled "Arguments" which explains to us the arguments the function accepts, as well as the elements returned under the heading "Value".  In certain cases if we are not sure exactly what function we need we can type `??search_term` and `R` will advise us of any functions which may do what we're after.  For example, if we type `?? sum`, we see a range of functions, including one called `sum`.  We can then consult the help file to see if this is precisely what we are after.  Reading the help file we see that the function "returns the sum of all the values present in its arguments", and accepts numerical vectors.  We can confirm that this is the case by applying this function to our data:
 ```{r}
 sum(df$A)
 ```
 
-In order to use this functions the syntaxis in `R` is the function's name followed by parenthesis `( )` and between the parenthesis the function's arguments separated by comma `,`. To know better how a function works is always a good idea to read the help document that comes along with `R`, some that you can make with `?` symbol. For an example if you type `?sum` you will see how `sum` function works and its arguments, where you can see an argument `na.rm = FALSE`, this points that the default value of the argument is `FALSE` and if you keep reading a little forward you can see that the documentation indicates for this argument: *logical. Should missing values (including NaN) be removed?* telling you the type of value that you can use and what is the functionality. Let `x` be a vector with a *missing value* `NA`
+If you consult the help file to `sum` you will note quite prominently the option for  "na.rm", with the explanation *Should missing values (including ‘NaN’) be removed?*.  You will also note that in the "Usage" section of the help file, "na.rm = FALSE" is explicitly indicated.  Here we have encountered two particularly important elements: firstly, the concept of `NA` which we briefly mentioned above, and secondly the use of default options in functions.  We will discuss these in turn. `NA` formally refers to Not available, or missing data.  Similar concepts exist in other languages, such as NaN in Matlab, "." in Stata, and so forth.  Frequently we may encounter data where certain individuals have no information for certain variables.  For example, we may have a data with some individuals who participate in the labour market and some who do not, where the hourly wage is a variable.  For individuals who do not participate in the labour market, it probably makes most sense for their hourly wage to be recorded as `NA`. In `R`, these missing values can be recorded as `NA`.  Functions must know how to deal with values which are recorded as `NA`.  This is what `sum`  does with its `na.rm` option.  If `na.rm = TRUE`, values of NA will be removed prior to processing.  Otherwise, vales of NA will remain in the data when processing.  What's more, the fact that in its "Usage" section the help file tells us `na.rm = FALSE` implies that `FALSE` is the default behaviour.  Should we not say anything, `R` understands that as us accepting this default.  To see how this works, we will define a vector `x` below with a *missing value* `NA`
 
 ```{r}
 x <- c(1, 2, NA)
 ```
-
-If you use the sum function you will get an `NA` value
+Now, if we use the sum function this will return to us an `NA` value, given that we can't logically sum  over a vector containing `NA`, because NA has no mathematical value:
 
 ```{r}
 sum(x)
 ```
-
-But if you use the `na.rm` argument you will get the sum of the valid values
+However, if we explicitly tell `R` that we wish to remove the `NA`s prior to processing, it will, returning us the sum of the remaining two elements:
 
 ```{r}
 sum(x, na.rm = TRUE)
 ```
+This behaviour ensures that we will know if our vectors contain `NA`, and in effect `R` makes us confirm to it that we are happy with this to return numerical values.
 
-As the `sum` function, `R` comes with a lot of functions in their base environment as functions to get descriptive statistics, work with dates and others. This functions are sufficient to take along any task manually but not necesarilly optimally. There are very useful functions and data types that doesn't come with base enviroment and comes with packages.
+Along with the `sum` function, `R` comes with a considerable range of functions in the base environment, including functions to generate descriptive statistics, work with dates, conduct statistical modelling, amond many other things.  These functions are sufficient to do nearly anything we will need to do, but are not necesarily optimal for all our tasks. As we will see now, there are a large number of useful functions and data types that don't come with base `R`, but are avaialble as packages which be installed externally.
 
-### Managing packages
+## Managing packages
 
-What are packages? Packages is a group of functions and data types that works within them and other functions in R, this packages contains data types definitions, variables definitions and functions that realize some specific procedures. In order to install a package you have several alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your R enviroment. Now is explained how to do it from CRAN by using the function `install.packages()` writing within `" "` the package name. As an example, in order to install `dplyr` -that is one of the most famous `R`'s packages for data manipulation- you must execute the following code:
+What are packages? Packages are a collection of functions, help files, and potentially data, which allow for the implementation of some group of procedures.  These are add-on elements to `R`, which can significantly ease certain routines which are not a part of base R.   In order to install a package you have several alternatives depending on how the package is distributed, though installing a package is a process which you only need to do once, and from then on this package will be avaialble to you should you wish to load it and use it.  The majority of stable `R` packages are stored on the CRAN (the Comprehensive R Archive Network), which is a repository from which packages can be installed directly into your version of `R`.  By far the most frequent way to install `R` packages is to install them from CRAN.  This can be done quite simply, using the  `install.packages()` function.  This function accepts as an argument the name of the package you wish to install.  For example, to install  `dplyr`, a package we will work with beloe for data manipulation, you simply execute the following code:
 
 ```{r eval=FALSE}
 install.packages("dplyr")
 ```
 
-Now that the package is installed you doesn't need to install it again unless you want to update the package. That a package is installed doesn't mean that `R` automatically loads the package along with their functions and data types, for example if you want to use the `dplyr`'s function `mutate` to create a new variable in your data frame it will be an error if you haven't load the `dplyr` package:
+Now that we have installed this package, it is available to you in the future and you don't need to install it again unless you wish to update the package. However, that a package is installed doesn't mean that `R` automatically loads the package (along with its functions and data types).  You must instruct `R` in every session that you wish to use load the package.  For example, if you want to use the function `mutate` which is a function available as part of the `dplyr` package that allows you generate new columns as functions of old columns in data, you cannot unless you first tell `R` that you wish to load `dplyr`.  For example, below we try to conduct a valid operation with `mutate` without having loaded `dplyr`:
 
 ```{r error=TRUE}
 mutate(df, C = A + B)
 ```
 
-So in order to use the package you must load it each time you open a new session with the function `library()` writing the package's name within `" "` as follows
-
+To avoid such errors, we must simply load the package with `R`'s `library()` function:
 ```{r}
 library(dplyr)
 ```
 
-Now if you want to use the `dplyr`'s function `mutate` it will work
+Now if you want to use `dplyr`'s function `mutate` it will work
 
 ```{r}
 mutate(df, C = A + B)
 ```
+To avoid unexpected errors, it is important to ensure that packages are correctly lodad each time you use `R`.  Generally, the best practice is to simply load the packages that you require in the R script that you are working on, as then each time you run the script you will be sure that you have the correct packages loaded.
 
-Is highly recommended that the load of the package be included in your script for reproducibility of your code.
-
-A situation that you may encounter in your `R` work is that sometimes you may want to use two packages that have different functions with the same name. As an example if you see the message that `R` print when you loaded `dplyr` package this says "*The following objects are masked from 'package:stats':*" and next it points the functions `filter` and `lag`, this message means that the package `stats` -one of the automatically installed and loaded by `R`- also has functions with the names `filter` and `lag`, but when you use them `R` will use the `dplyr`'s functions. For example the next code use `dplyr`'s `lag`
+At first glance, it may seem like failing to load a package is not so serious, because `R` will not find the package and simply produce an error, which you can then remedy by loading the package. But this is not necessarily the case!  At times, different packages may have functions named *in exactly the same way*, and if you fail to tell `R` you are using a particular package, it may find another function with the same name, that does not necessarily do the same thing.  This can lead to considerable confusion, hence the importance of being careful with your loading of packages.  As a matter of fact, this is something that we have seen when we loaded the `dplyr` package!  If you note above, a Message was printed when we loaded `dplyr` to draw our attention to some functions which exist in `dplyr`, and also in base `R`.  When we load a package, these pre-existing functions will be masked, implying that `R` will use the newly loaded functions, and not the masked versions.  To see why this matters, consider the first message above: "*The following objects are masked from 'package:stats':*".  And note what happens when we use  `dplyr`'s `lag` function:
 
 ```{r}
+df$A
 lag(df$A)
 ```
-
-But in order to use the masked functions you can use the syntaxis `package::function`, following the previous example, to use `stats`'s `lag`
+In this case, we see it produces a vector which takes, for each observation, the observation one unit prior in the vector.  However, we can also see what the function does with the `stats` package by using the syntax `package::function`, without first loading the package:
 
 ```{r}
 stats::lag(df$A)
 ```
+Here, the same function produces a different result: namely for each observation it takes the mathematical value one below it.  In many cases such clashes in function names will not occur, but we note the importance of this so that you can be cautious to always load the packages you need, and if in some strange case you do *actually* need two functions with the same name in different packages, that you have the knowledge that you can "unmask" functions by pre-empting the function name with the package name.
 
-### Loading and viewing data
+# Working with Data
+## Loading and viewing data
+In most -- if not all -- of our research projects, we will not actually type in data to `R` by hand which is a cumbersome and highly error-prone activity, but rather we will wish to read in data which we have stored on our disk in one or a number of files.  Such data may be stored in many formats; among others this may be free formats such as `csv` or `txt`, or even proprietry formats such as `excel` or `dta`. The first such formats do not require specific packages to be loaded into R, but the latter do.
 
-In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`. The first doesn't need specific packages to work well, but the latters do.
-
-For `csv` and `txt` data `R` comes with the functions `read.csv`, `read.csv2`, `read.delim` and `read.delim2`. If you see the help documentation you will see that the four of them belongs to the family of the `read.table` function and has a very similar usage, being the basic usage:
+For data stored as `csv` (comma seperated values) or `txt` formats `R` comes with the functions `read.csv`, `read.csv2`, `read.delim` and `read.delim2`. If you consult the help documentation, which is something I would recommend anytime you come across a new function, you will see that the four of these functions belons to the family of the `read.table` function and have a very similar usage, along the lines of the following:
 
 ```{r eval=FALSE}
-read.table(file = "Path/To/Your/File.csv")
+read.csv(file="Path/To/Your/File.csv")
 ```
 
-Note that the example is made with `csv` but is the same for `txt`. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates if the first row should be taken as a header row, what is the separation between columns, the decimal separator and others.
+Note that you could do this all directly with the `read.table` function, but would just need to make clear any file-specific details, such as the characters which indicate column breaks, whether a header is included, and so forth.  So, for a file where columns are separated by commas and which variable names are included, we could mimic the above behaviour by typing:
 
-For `excel` files you count with a variety of packages such as `readxl`, `openxlsx` and `xlsx`. Each package has their function and allows different tasks as read or write depending on the package. As this section is focused on import data, we present an example of the `readxl` package's family of functions `read_xls`, `read_xlsx` and `read_excel`
+```{r eval=FALSE}
+read.table(file="Path/To/Your/File.csv", header=TRUE, sep=",")
+```
+Similar such procedures can be followed for other data stored in flat formats such as .txt or others, as laid out in the help file. 
+
+In the case of files which are stored in other formats, more specialised packages are likely required.  For example, for `excel` files you could consider one of a number of packages available from CRAN, such as `readxl`, `openxlsx` and `xlsx`. Each package provides functions to deal with data stored in xlsx format, along with different options such as reading or writing files depending on the particular package.  Once again, in general the basic syntax is simple, and further control can be achieved as desired following instructions in the help fules.  For example, if we have installed and loaded the `readxl` library, we can use functions such as `read_xls`, `read_xlsx` and `read_excel` as follows.
 
 ```{r eval=FALSE}
 read_xlsx(path = "Path/To/Your/File.xlsx")
 ```
+In practice the syntax can be more complex as you may wish to import only some specific sheet, or some specific range of rows or columns.
 
-If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to impor, an specific range, use or not the first row as column names, between others.
-
-Finally in order to import `dta` files the package will be `haven` and the functions `read_stata` or `read_dta`, both with the basic usage as follows
+Finally if you wish to import other proprietry data formats such as Stata's `dta` files, you could install the `haven` package, and use the functions `read_stata` or `read_dta`, both with the basic usage as follows
 
 ```{r eval=FALSE}
 read_dta(file = "Path/To/Your/File.dta")
 ```
 
-Until now all examples only import data but not store it in any object, an action that doesn't make much sense because probably you import data to work with it. Now we are going to import an internal dataset from the package `wooldridge`, that contains 115 data sets from the book "Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge, in order to show how manipulate this data sets
+The examples so far have been to illustrate basic syntax, though imported data has not been stored in any particular object for later manipulation.  In general we will of course want to go on to *use* the data we load, which is why we loaded it in the first place.  This can be done in the same way as any other assignment in `R`.  Below we will import a particular dataset which is available internally in `R` (ie you will not have to download anything), to have some data to work with below.  In particular, we will load a dataset from the package `wooldridge`, that contains 115 data sets from Wooldridge's undergraduate Econometrics Textbook ("Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge):
 
 ```{r}
 mroz <- wooldridge::mroz
 ```
 
-This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799.
-
-### Tyding data
-
-In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a data frame
-
+This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799, and we have stored it as an object called `mroz`.  We can inspect this element to see how the data has been imported:
 ```{r}
 class(mroz)
 ```
-
-Along with this section you will see the use of the `head` function, this function shows us the first rows of an object in order to prevent a data frame being totally printed. Previously we mentioned the existence of *tibbles* that are a widely used structure similar to data frames but with a few differences like don't consider rownames or don't interpret strings as factors by default. We introduce this because with the use of some functions from `dplyr` package a data frame becomes automatically a tibble. For example, consider de `mroz` data frame, if we apply the combination of `group_by` and `summarise` functions to get the mean of the number of kids with less than 6 years by labor situation of the women:
-
+seeing that, conveniently, it has been stored as a data frame.  We can also look at a quick snapshot of the data by using the `head()` command, which will print just the first few rows of our data:
 ```{r}
-ungroup(summarise(group_by(mroz, inlf), meankidslt6 = mean(kidslt6)))
+head(mroz)
 ```
+Depending on the way that we are working with `R`, we can also explore the data more interactively using the `View()` function.
 
-As you can see the result is a tibble. Now that you have an example of the use of `dplyr` you can see how easily is to get confused by using too many functions at once, a really nice operator that comes with `dplyr` is the pipe operator `%>%` that allows to apply functions without writing all together. As an example the next code replicates the previous example:
 
-```{r}
-mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6)) %>%
-  ungroup()
-```
+## Tidying data
+Once we have loaded data in `R`, we will likely want to manipulate the data in a number of ways.  This can include relatively simple things like sub-setting to certain columns or rows (which we have already encountered above), but also more complicated things like aggregating data to a higher level, calculating statistics for one or mutliple variable(s) over other variables, joining together a number of datasets, or "reshaping" data in certain ways.  Here we will provide a very brief overview of these procedures, and introduce other things as we need them thoughout the book.
 
-Note that this works as: to the object at the left of the pipe operator, apply the function to the right. Another thing you can note is the use of the `group_by`, `summarise` and `ungroup` combo, where `group_by` as the name says allows to group by the variable(s) indicated, `summarise` calculate a descriptive statistic that can be `mean`, `sd`, `min`, `max`, `median`, `quantile` and others, in order to know them all you should consult the help documentation of `summarise` function.
 
-Other functionalities of `dplyr` package are the use of `sql` functions like `sql_join` that allows to merge two data frames or tibbles, apply functions to every column or specific ones, among others. Another famous package for data manipulation is `tidyverse`, a package that comes along with other package as `dplyr`, `tibble`, `tidyr` and others like `ggplot2` for plots, `lubridate` for dates, `stringr` for strings. This fact became `tidyverse` as one of the must have package for data manipulation but with the caution that it takes up more memory.
+While these things can all be done in Base `R`, an increasingly common way to do such tasks is via a group of functions known as the *tidyverse*.  These packages seek to provide a common logic for data manipulation (and other) tasks, and includes packages such as `dplyr` (data manipulation), `tibble` (a simplified version of data frames), `tidyr` (tidying or otherwise "wrangling" data) and others like `ggplot2` for plots, `lubridate` for dates and `stringr` for strings.  We will discuss some of these libraries below.  As with other packages, the `tidyverse` can be loaded from the CRAN, though note that this will install a range of packages and so may a quite memory-heavy operation.  Provided that we have installed the `tidyverse`, we can load it as standard:
 
 ```{r}
 library(tidyverse)
 ```
 
-Once loaded `tidyverse` package, you can use all the tools in the packages that are loaded with `tidyverse`. So let's now try to make a join between two data frames (tibbles), first create the mean as previous examples and next join this mean to the mroz dataset by the column inlf
+### Aggregating Data
+To start with some basic data manipulations, we can return to the `dplyr` package discussed previously.  By typing `help(package="dplyr")` we can see a full index of the range of functions included.  For example, imagine that we wished to turn our individual level data frame we imported as `mroz` above into some group-level averages.  We can do this using `dplyr`'s `summarise` function.  Below, we will calculate the mean number of children aged less than six:
+```{r}
+summarise(mroz, mean(kidslt6))
+```
+Indeed, here with summarise we have requested that it provide us with the mean of this variable, but we could just as easily request some other statistic such as `sd`, `min`, `max`, `median`, `quantile` etc.
+It is quite simple to concatenate operations to conduct a range of operations.  For example, imagine that if instead of wishing to simply know the mean number of children less than 6 in our data, we wanted to know this for women in the labour market and those out of the labour market.  We could easily add this distinction using `dplyr`'s `group_by` function.  We will also name the resulting average "meankidslt6":
+```{r}
+summarise(group_by(mroz, inlf), meankidslt6 = mean(kidslt6))
+```
+
+As we will see below, these operations can become somewhat complex and a bit tricky to follow, and so `dplyr` allows for an alternative way to write these commands, essentially breaking out the functions into a series of steps, where the output of each step is "piped" into the next step.  This is by using the "pipe operator", written as %>%.  To see what this looks like, consider the previous command, and note that we can alternatively write it as follows:
+```{r}
+mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6))
+```
+You will see that the output is identical, though potentially the input is easier to follow.  In some examples further below, we will see that when the number of functions in a pipe grows, it is likely easier to follow in pipe notation than as a single nested function.
+
+You may have noticed that the output of these commands was a type of data which we have not come across before.  This is a `tidyverse`-specific construct known as a "tibble", essentially a modified data frame including features including enhanced printing (refer to `help(tibble)` for full information).  However, if you actually *did* prefer to generate a standard data frame, we could certainly do this, either via piping or just enclosing everything in a `data.frame()` function.  For example, in the below line we will save the output from the above pipe in a data frame named *kids*:
+```{r}
+kids<- mroz %>% group_by(inlf) %>% summarise(meankidslt6 = mean(kidslt6)) %>%
+  data.frame()
+```
+Note that the only addition to the pipe is the last step converting output to a data frame.
+
+### Merging/Joining Data
+We will also, at times, wish to join two (or more) pieces of data together, for example "merging" data frames or tibbles by a column or columns.  For example, it may be that we have a survey where each individuals surveyed belongs to a household, where all of the individual-level questions in the data are stored as an individual-level file (along with the individual's household ID), while the household level measures are stored in another file at the household level.  If we wish to work with information on the individual *and* their household characteristics, we will need to "join", or "merge" the file using the household ID.
+
+We can see an example of this using a series of joining functions included as part of `dplyr`.  A simple example is if we would like to take the grouped-level statistics generated previously, and join them back into our original `mroz` data.  What we want to do then, is for each individual who is in the labour force (`inlf==1`), join the information on the mean number of children under 6 in this group to their row of data, and similarly, for individuals *not* in the labour force (`inlf==0`), incorporate the group-level value to their row.
 
 ```{r}
 mroz %>% group_by(inlf) %>% summarise(MeanKidslt6 = mean(kidslt6)) %>%
-  ungroup() %>% right_join(mroz, by = "inlf")
+   left_join(mroz, by = "inlf")
 ```
+You will note that the only new part of the pipe is the addition of `left_join()` where we state that we wish to join the output of our pipe with the original `mroz` data, joining by the variable `inlf`.  It would be exceedingly easy to generalise this, for example if we wished to insted have the aggregates by labour market status *and* the individual's age:
+```{r}
+mroz %>% group_by(inlf,age) %>% summarise(MeanKidslt6 = mean(kidslt6)) %>%
+   left_join(mroz, by = c("inlf", "age"))
+```
+Here we have used the function `left_join()` to conduct our merge.  In this **particular** setting, we could have used any if `inner_join`, `left_join`, `right_join` or `full_join`.  This is because in this case, all of the levels of "inlf" or "inlf" and "age" which are in one set of data are also in the other set of data.  In many cases this may not be the case, and we may have observations in one dataset that are not in the other.  In this case, we must be careful to indicate whether we wish to keep observations that appear in both sets of data (`inner_join`), keep those that only appear in the left-hand side of the pipe (`left_join`), those that only appear in the right-hand side of the pipe (`right_join`), or those appearing in either data set (`full_join`). 
 
-Note that the result of this procedure hasn't been store in any object, so it can't be accessed later. Other convenient tools that you will apply on this book are selecting some rows or some columns from the dataset, from `filter` function we can filter rows that meet certain condition and from the use of `select` we can filter specific columns:
+
+### Filtering Data
+Previously we have discussed how to select particular columns or rows of data, however we can also filter on observation values.  This is straightforward, and can be incorporated in pipes using the `filter` function. Additionally, if we wish to use the standardised syntax of `tidyverse` we can use the `select` function to choose certain variables or groups of variables.   For example, below we will subset our data first to a pair of variables by using `select`, and then keep only individuals with at least 2 children under 6 years of age using the `filter` function:
 
 ```{r}
 mroz %>% select(kidslt6, hours) %>% filter(kidslt6 > 2)
 ```
 
-In previous section has been shown the use of `mutate` function to create new variables, in tibbles as in data frames the use of `$` operator also creates new variables:
-
+### Generating variables
+Above we have briefly introduced the idea of generating variables using the `mutate` function.  In tibbles as well as in data frames the use of `$` operator also creates new variables:
 ```{r}
 mroz$exper2 <- mroz$exper^2
 head(mroz)
 ```
-
-Another function to create variables is `transmute`, but this function doesn't mantain old variables, in fact it replace all the data for the new one
-
-```{r}
-head(mroz %>% transmute(expersquared = exper^2))
-```
+This is the standard way that we will generate variables in `R`, and it can work with any of the mathematical or logical operations, as well as many numerical outputs from functions discussed above.  
 
 ```{r echo=FALSE}
 rm(list = setdiff(ls(), "mroz"))
 ```
 
-So it must be used with caution. Finally the last tool that we introduce for data manipulation is transform data from wide format to long format and reverse. Consider the next data frame
+### Reshaping Data
+Finally the last tool that we introduce for data manipulation is the idea of "reshaping" or transforming data from a wide format to a long format (and *vice versa*).  We refer to data in a **long** format if for each observation we have multiple rows of data, covering different levels of some other variable.  For example, a classic example of this would be a panel of data over countries and years.  On the other hand, we refer to data as being in a **wide** format if for each observation we have multiple columns (or variables) which cover different levels of some other variable.  In certain settings we will wish to work with data in one format, and in other settings we may find it more convenient to work with data in another format.  To make this a bit clearer, consider the below data frame:
 
 ```{r}
-Data <- data.frame(Zone = c("A", "A", "B", "B"), 
-                   Year = c(2021, 2022, 2021, 2022),
-                   Sales = c(100, 115, 98, 106))
+Data <- data.frame(Zone = c("A", "A", "A", "B", "B", "B"), 
+                   Year = c(2020, 2021, 2022, 2020, 2021, 2022),
+                   Sales = c(90, 100, 115, 82, 98, 106))
 Data
 ```
-
-This format is the long format, you have multiple observations for one unit (zone in this example), to transform it in wide format
-
+Here we can see that data is in the long format, with multiple observations for one unit (zone in this example) over a number of years.  To convert this data to wide format we can use the `pivot_wider` function, as follows: 
 ```{r}
 Data = pivot_wider(data = Data, id_cols = Zone, names_from = Year,
                    values_from = Sales)
 Data
 ```
 
-As you can see now there is one observation per unit. Lets get it back to long format
+As you can see now there is now one observation per unit, where each observation has three resulting columns (one for each year). Now, if we wish to return to the long format we can do so with the similar `pivot_longer` function:
 
 ```{r}
 Data = pivot_longer(data = Data, names_to = "Year", values_to = "Sales",
@@ -482,87 +524,84 @@ Data = pivot_longer(data = Data, names_to = "Year", values_to = "Sales",
 Data
 ```
 
-Now that you know the basics of data manipulation, the next step is to learn how make some basic plots.
+In practice, we will generally use these commands with a considerably larger number of units, but the basic principles are the same regardless.
 
 ```{r echo=FALSE}
 rm(list = setdiff(ls(), "mroz"))
 ```
 
-### Basic Plots
-
-The basic function to make a plot in `R` is the plot function, this function maps pairs of points in the $(x,y)$ coordinate axis. Let $x$ be a sequence of integers between -5 and 5
-
+# Basic Plots
+To end this initial introduction, we will briefly explore the generation of basic plots in `R`.
+The basic function to make a plot in `R` is, perhaps unsurprisingly, the `plot` function.  This function maps pairs of points in the $(x,y)$ coordinate axis and places them on a graph. For example, let's consider a case where $x$ is a sequence of integers between -5 and 5.  This can be generated as below:
 ```{r}
 x <- -5:5
 ```
 
-Now consider $y = x^2$
+Now consider the variable $y = x^2$
 
 ```{r}
 y = x^2
 ```
 
-`plot` function by default maps a point plot
-
+`plot`, by default generates a scatter plot of points, making reasonable decisions for axes and labelling:
 ```{r}
 plot(x,y)
 ```
 
-If you access help documentation for plot you can see how add elements to the graph
+If you access help documentation for `plot` you can see how to add further elements to the graph.  For example, below we will request a line plot instead of a scatter plot (`type="l"`), and add a title and some axis labels:
 
 ```{r}
 plot(x,y, type = "l", main = "Plot Example", xlab = "Variable X",
      ylab = "Variable Y")
 ```
 
-A widely used package for make more custom graphs is `ggplot2`, as `tidyverse` has been loaded previous, in this case we don't need to load `ggplot2`, but if you haven't load it remember that with the next code you can do it
+There are many ways to further customise graphics in `R`, and indeed, we will see a range of other plots throughout the remainder of these pages.  One widely-used package to allow for the customisation of graphis in `R` is the `ggplot2` package, incorporated as part of the `tidyverse`.  Given that we have previously loaded the `tidyverse` we do not need to load `ggplot2` again, but if you haven't loaded it, remember that with the below code you can do so:
 
 ```{r}
 library(ggplot2)
 ```
 
-The first step in `ggplot` is to define the plot
+The `ggplot2` package consists of a graphs which can be built up in a step by step fashion.  To see this, we will first define an employ plot region:
 
 ```{r}
 ggplot()
 ```
 
-This define a blank canvas where you can add elements, as an example a line object (*geom*) is added
+This provices us with a blank canvas where we can add elements, as an example, below we add a line object using the *geom_line()* function:
 
 ```{r}
 ggplot() + geom_line()
 ```
-
-Until now we haven't added data so `ggplot2` is not mapping any pair of points, now specify the data, this must be done inside the `aes` function
+However, so far we have not added any data, so `ggplot2` is still generating a blank canvas.  Now we can add a pair of points, which is done inside the `aes` mapping, which refers to "aesthetic mappings" we will add to our graphs.
 
 ```{r}
 ggplot() + geom_line(aes(x = x, y = y))
 ```
-
-Note that in order to add elements to the graph we have been using `+` unlike when using multiple variables where were used the pipe operator `%>%`. With this syntax you can add more elements to the graph
+We can continue to add elements if we would like, concatenating additional portions of the plot using a `+` symbol.  
 
 ```{r}
 ggplot() + geom_line(aes(x , y)) + geom_point(aes(x, y))
 ```
 
-When you use a data frame you can also define `aes` inside `ggplot` function
+If using a data frame, which will often be the case when graphing, you can include this is an argument to `ggplot`, and then directly define `aes` inside `ggplot` function, as follows:
 
 ```{r warning=FALSE}
 ggplot(mroz, aes(x = exper, y = lwage)) + geom_point()
 ```
 
-Here you can manipulate different overall themes for your plot and elements characteristics such as color or size
+Further editing graphs is quite simple, allowing alternative themes, colours, and so forth:
 
 ```{r warning=FALSE}
 ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
   theme_minimal()
 ```
 
-In this way you can add a variety of elements such as an OLS regression line
+This results in plots which can be built up piece by piece, for example the below plot will be extended to include an OLS regression line and 95% confidence intervals using the `geom_smooth()` function, and additionally adding axis labels:
 
 ```{r warning=FALSE}
 ggplot(mroz, aes(x = exper, y = lwage)) + geom_point(color = "red") +
-  theme_minimal() + geom_smooth(method = "lm", color = "blue")
+  theme_minimal() + geom_smooth(method = "lm", color = "blue") +
+  xlab("Years of Experience") + ylab("ln(Wage)")
 ```
 
-As said before, this introductory section of this chapter doesn't intend to be a comprehensive tutorial of `R`, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.
+We will take forward many of the examples laid out on this page in the chapters ahead.  For now, this introductory session aims to provide you with a sufficient overview to get up and running in `R`, and apply your knowledge to microeconometric methods introduced in the book.
