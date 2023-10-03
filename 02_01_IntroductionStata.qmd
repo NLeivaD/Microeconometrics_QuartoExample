@@ -3,47 +3,167 @@ knitr::opts_chunk$set(warning = FALSE)
 library(Statamarkdown)
 ```
 
-## Introduction to Stata and Basic Tools Required for this book
+## An Introduction to Stata
 
-From the moment you open Stata you are into an Stata session until the moment you close it, from now on understand a session as this time between you open and close Stata. A good idea when working with Stata is to use Stata Projects who allows you to organize into a better way your enviroment in a self-contained folder, where all the documents (input or output) by default will be in that folder unless you define subfolders or specify the entire path in your computer to other folders, for more information you may consult [Stata webpage](https://www.stata.com/features/overview/project-manager/). In order to execute code you should input the code in your Stata command window, that is the place where Stata receive instructions and execute them, so if you input in your command window
+# Preliminaries
+We will assume that when you are reading this you have access to some version of Stata.  Likely, the way you will interact with Stata will be with Stata's [native GUI](https://www.stata.com/features/overview/graphical-user-interface/) which provides you with a number of windows including a panel showing the history of commands, an area displaying any variables you have loaded, a place to type commands, a number of emerging windows which we will discuss below, and most importantly, a "shell", or Stat interface, which looks like the following:
+
+```
+  ___  ____  ____  ____  ____ ®
+ /__    /   ____/   /   ____/      18.0
+___/   /   /___/   /   /___/       MP—Parallel Edition
+
+ Statistics and Data Science       Copyright 1985-2023 StataCorp LLC
+                                   StataCorp
+                                   4905 Lakeway Drive
+                                   College Station, Texas 77845 USA
+                                   800-STATA-PC        https://www.stata.com
+                                   979-696-4600        stata@stata.com
+
+Stata license: Single-user 8-core  perpetual
+Serial number: SERIAL HERE
+  Licensed to: NAME HERE
+               INSTUTION HERE
+
+Notes:
+      1. Unicode is supported; see help unicode_advice.
+      2. More than 2 billion observations are allowed; see help obs_advice.
+      3. Maximum number of variables is set to 5,000 but can be increased; see help set_maxvar.
+
+.
+```
+
+
+Stata comes in versions ranging from 1 to 18, with later versions being assigned higher numbers.  Later versions of Stata can run any code written in earlier versions of Stata, though at times new commands are introduced, which may be available in more recent versions of Stata, but not in earlier versions.  In the below we will generally work in a way which will work with any recent versions of Stata (for example from version 12 onwards, given that versions prior to Stata 12 are not common), though we will note in a few cases where commands may be specific to only certain versions of Stata and later.
+
+If you are in the Stata GUI, `Stata` code can be entered directly in the command line which is generally located at the bottom of the window.  The most simple way to execute code in `Stata` is to simply input commands at the command like.  So, for example, you could write the following in the command line and press enter, and `Stata` will evaluate this code:
 
 ```{stata}
 display 4 + 4
 ```
 
-Stata will understand the instruction that you want to add 4 plus 4 and show the result, latter in this chapter we will explain more about mathematical operations and the different Stata data types. Another example of Stata execution is that if you type in your console:
+As you can see, `Stata` has understood the instruction that you want to add 4 plus 4 and show the result, which is evaluated, and output directly in the `Stata` console above.  Later in this chapter we will properly explain these mathematical operations and the different `Stata` data types.  You will note that unlike in certain other languages, here we have not simply input a mathematical operation to be evaluated.  This is because `Stata` requires every interaction to be based on a valid command, which in this case happens to be the `display` command.  So if, for example, we were instead to type:
+```stata
+4+4
+```
+```
+4 is not a valid command name
+r(199);
+```
+we see that the answer is not returned to us, but rather some message suggesting that we have done something invalid (we will discuss such messages at more length below). `Stata` has a large range  of  commands which can be invoked at the command line.  We will become familiar with a considerable number of these throughout this introduction.  As another very simple example we can type `pwd` for "print working directory":
 
 ```{stata}
 pwd
 ```
 
-Stata will show you the path to the current working directory, the folder where Stata understand is working. If you want to change this directory you must use the command `cd "Path/to/the/directory/you/want/to/use"` with the path written between `" "` in order to Stata understand that is a character, again a topic that will be seen deeper latter. Another important thing is that you should type path with `/` because some operative systems don't recognize backslash `\`.
+This command show us the path on our computer where `Stata` is currently working.  Thus, any files saved will be exported here, and `Stata` will search for any thing to import from this directory. If you wish to change this directory you must use the function `cd("Path/to/the/directory/you/want/to/use")` with the path written between `" "` in order for `Stata` understand that is a character, again a topic that will be introduced more deeply later.  It is important to note that paths should be separated with the slash character: `/` rather than the backlash `\`, as this will work on any operating system.  Indeed, if you try to set directories with a backslash, on certain operating systems you will see that `Stata` returns an error.  This may not happen on your operating system, but it is good practice to separate paths by "/" as it ensures code can be run seamlessly on other systems.
 
-Commands is also a topic we are going to see latter. Anyways, until now we have just execute code in the console, but with this unless you watch out for the history, you may loose the code between sessions, so is highly recommended to register your code in `Do Files`. What are do files? Are text files that Stata understands it like code to execute, all you write in a do file, Stata will interpret it as code to execute unless you have the `*` character at the beginning of the line or the characters `//` between code and this plain text. For example if you type in your script
+We will return to discuss the precise nature of commands in more detail a bit later on.  For now you will note that we have simply been typing instructions to `Stata` directly into the command line, and `Stata` has been providing us with output.  Generally, we will not work this way in an empirical research project, as we will want to develop code over time, and be able to return to `Stata` and replicate code in the future.  For this reason, generally we will work in do files, or files named as `something.do` (where `something` will be logical name for the file).  We will use these do files to store the commands which we require for particular processes or routines, and can then save them to the disk of our computer before running them in `Stata`.  These scripts can be generated in any type of text editor, and then can be run in `Stata` using the `do` command.  For example, below, you can see a screenshot of a session on `Stata` where we have a basic `Stata` do file named `firstStataScript.do` which we are editing in `Stata`'s native do file editor (which can be accessed by typing `doedit`, and behind this, in the `Stata` console we see that the script is run using `do` and output is provided.
+
+![A Stata do file and Output in Stata](sourceStata.png)
+
+
+You may notice something strange about the code and the output in the `Stata` console.  The Stata do file has 7 distinct lines of text, but the console only executes three lines of code (the lines in Stata which do not begin with a ".").  The reason for this is because we have included comments, or messages for human eyes, but not for the computer to interpret.  Any time that `//` is included in code, `Stata` understands that this is a comment, and hence is ignored in executing the code.  So, for example, when we write:
 
 ```{stata}
-display "Hello World"
+display "Hello World!"
 ```
 
-`R` will understand that you are giving the instruction to print the character *Hello World*, but instead if you type
+in our code, the `Stata` console correctly echoes *Hello World!* back at us.  However, if we enter precisely the same code, but begin the line with a comment symbol, `Stata` will not do anything given that it interprets everything to the right of `//` as plain text which should be ignored.  Similarly, the "*" symbol used at the beginning of a line also serves to act as a comment character.  You will note that on line 9 of the code displayed in the do file editor, we are also perfectly able to use comments within a line in do files, and the line will only be executed up to the point which the comment is reached.
+It is good practice to comment code extensively, both for sharing code with other users, but also for sharing code with yourself in the future, where you may not remember precisely what you were thinking when you originally wrote your code!  As a final note on comments, you can also write comments which span multiple lines if these comments are contained within the characters: `/*` which opens the commend and `*/` which closes the comment.  You may wish to confirm this yourself by opening a do file and checking that you can write a multi-line comment in this way.
+
+
+# An introduction to the language and data types
+Until now we have executed some code in `Stata` and seem some specific commands which print output, but we have never stored any results for later use within our code.  Generally we *will* want to store the output of intermediate steps in our code for later use.  We will show a number of ways to do this below.
+
+In general, when we work with `Stata` we will work with variables, which are stored by `Stata` as a dataset.  We can assign the values or characters to variables, provided that we first ensure that `Stata` has a defined number of observations.  For example:
+```{stata}
+set obs 10
+generate x1=1
+```
+If we already have data in memory, the first line of code `set obs 10` will not be necessary, as we will already have a defined number of observations.  However in the second line where we generate a variable named `x1`  and define its value as 1 for each observation, this will be generated for the number of observations in our entire dataset.  We will discuss this structure shortly, as well as alternative ways to store information, when we lay out `Stata`'s  data types below.
+
+In the above code we have seen that Stata has used the command `generate`  and then uses the equals symbol to assign a value to the variable generated.  If we fail to remember to type generate, or make some other error in our assignation, Stata will inform us about our error by printing out an error message:
+
+```stata
+x1 = 1
+```
+```
+command x1 is unrecognized
+r(199);
+```
+These error messages include a brief explanation of what has gone wrong, to help you diagnose and fix your code, as well as an error code (in this case r(199)), which may allow you to find further information related to the error.  All error codes can be found in `Stata`'s [manuals](https://www.stata.com/manuals/perror.pdf#perror).  When an error occurs, anything which you have asked of your code will not be performed, and so in this particular case you will not see any variable named *x1* in your Stata memory.
+
+## Data Types
+### Data Stored as Variables
+The logic of `Stata` is generally based on the idea that we will have a principal dataset which will allow us to store related variables.  This is similar to the idea of data frames in other languages, and makes sense for a lot of our econometric work where we will often wish to store information on *N* individuals in rows, and *K* variables in columns.  By default, when we generate variables these will be stored in a single dataset which we can browse in `Stata`.  As we have seen above, we can generate this dataset "by hand" by first indicating the number of observations (rows) available, and then simply provide names for any newly added variables.  As we will see below, in practice we will generally actually import an existing dataset, and then generate any variables to add to this data.  Traditionally, Stata obliges us to work with a single dataset in memory, and so at times we need to think carefully about how to combine datasets if we are working with multiple pieces of information at once.  However, as we will see shortly, frmo version 16 of `Stata` onwards, we are now able to hold multiple datasets in memory simultaneously, potentially making it more simple to work with varying types of information.
+
+#### Text (String) Data
+To get up and running with `Stata`, it is useful to understand the different ways which data can be stored.  `Stata` can hold a number of different types of information in the variables we generate, and it is important that `Stata` understands what type of information we are passing or storing.  Among others, `Stata` allows for variables to hold text (strings) or numeric data types.  Text is perhaps the conceptually simplest type of data.  Text is simply saved as strings of characters, and should be specified between `" "`.  We have seen the use of characters when displaying "Hello world" previously.  If characters are not indicated between strings, `Stata` will understand that they refer to variable names.  For example, returning to *Hello World*, if we seek to generate a variable which stores this text, if this is entered without quotes, an error will appear:
+```stata
+generate mivar = Hello World
+```
+```
+Hello not found
+r(111);
+```
+Indeed, if we look carefully at the error message we may see that the error has occurred when `Stata` tried to evaulate `Hello`.  As we did not enclose `Hello` in double quote, Stata seeks to find some internal information such as a variable or command called `Hello`.  When it is unable to find tis, an error is produced.  However, if we had correctly enclosed "Hello World" in double quotes, we would see that this would be stored as a variable, which we are naming `mivar`:
+```{stata}
+generate mivar = "Hello World"
+```
+
+We can confirm that this variable exists and is effectively understood to be string data by using the `describe` command.  This command describes to us the variable which we request to describe, or if entered with no names, simply describes all the data held in the memory.  Below we see that among other things, the storage type of this variable is denoted as `str11`, a string variable with 11 characters. 
+
+```{stata echo=4}
+qui set obs 10
+gen x1=1
+generate mivar = "Hello World"
+describe mivar
+```
+
+Numeric data is entered without any special behaviour, simply writing the number in the case of numerica values.  Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data.  For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.
+```{stata echo=2:4}
+qui set obs 10
+generate num1=2
+generate num2 = "2" 
+describe num1 num2
+```
+
+If you try to perform numerical operations based on the above variables (more on this below), you will see that `num1` can be involved in such calculations, while `num2` cannot.
+
+### Working with frames ($\ge$ Stata 16)
+One of the few points we will see here which is Stata version specific is the use of frames.  From Stata version 16 and beyond, the ability to work with multiple datasets simultaneously in a single session was introduced.   For example, given that we have generated a number of variables in our session, we can see that there is a current data frame named default.
 
 ```{stata eval = FALSE}
-* print("Hello World")
+frame
+```
+If we would like to start working with multiple frames we may wish to rename this frame for simplicity using `frame rename oldname newname`
+
+```{stata eval = FALSE}
+frame rename default my10obs
 ```
 
-Stata will do nothing because interpret all the line that begins with `*` as plain text and not code with instructions to follow. Note that was also pointed the use of `//`, this can be used in the same line as code
+Now we will create a new data frame with `frame create name` and change to that data frame with `cwf name`, where `cwf` refers to "Change working frame":
 
 ```{stata}
-display "Hello World" // All to the right, plain text
+frame create secondframe
+cwf secondframe
+describe
 ```
 
-As you can see it executes the instruction to the left of `//` but ignores all to the right, this plain text is known as comment and is always a good practice in programming to include a few comments in your script explaining in general terms what are you doing. The previous idea helps you when revise old scripts and when share your code work with others.
+As you can see when we use the `describe` command, our new frame contains none of the information which we have previously generated in our session.  However, if we request that Stata , but if you use
 
-### An introduction to language and data types
+```{stata echo=5}
+qui set obs 10
+frame rename default my10obs
+frame create secondframe
+cwf secondframe
+frames dir
+```
+You will see how there is two data frames and the one named `my10obs` contains our previously generated data.  We can now simply use `cwf` to toggle between data frames should we wish to work in two separate data environments.
 
-Until now we have executed some code in Stata, some of this code can made internal changes as the `cd` command and other just execute an action showing its results as `display 4 + 4`, but just doing and showing it, not storing this result. In order to store a result you must follow the syntaxis `command name = value`, where the command will be specific of the object type, the name will be whatever you want to call the result you are storing and the value can be an specific value or the result of an operation, now we introduce a variety of object types in Stata and we explore further the topic of the data types this objects store in the next subsection.
-
-The most common objects to work in Stata are scalars, matrices and the datasets. Scalars are objects that store a single value, this value can be either a string or a number, data types we will analyze latter, and can be defined as follow
+### Other Types of Data Stored by Stata
+Although the most common way to work in `Stata` will be within a dataset or data frame, `Stata` provides a number of additional ways to store data including as scalars and matrices. Scalars are objects that store a single value, which can be either a string or a number.  For example, we can define scalars as below, noting the use of the `scalar` command.
 
 ```{stata}
 scalar x1 = "Hello World"
@@ -52,7 +172,7 @@ scalar x2 = 4 + 4
 display x2
 ```
 
-This code succesfully store the string *Hello World* in the scalar named `x1` and 8 (as the result of 4 plus 4) in the scalar `x2`. This scalars can also be used in future operations
+This code succesfully store the string *Hello World* in the scalar named `x1` and 8 (as the result of 4 plus 4) in the scalar `x2`.  This scalars can also be used in future operations
 
 ```{stata echo = 2:3}
 scalar x2 = 4 + 4
@@ -60,14 +180,32 @@ scalar x3 = x2 + 4
 display x3
 ```
 
-Matrices can store only numbers and works like usual algebraic matrices, in order to create a matrix you must use
+You may note that here we have generated a scalar named as `x1`, and previously we had generated a variable named `x1` in our Stata dataset.  There is no formal reason why you cannot name scalars in the same way as you name variables, as Stata will view them as different objects.  Of course, you likely will wish to avoid the confusion of having variables and scalars named in the same way, and it is good practice to use more descriptive names when generating variables and scalars.  However, it is worth noting one difference in working with scalars and variables.  If we wish to generate a variable which is already generate, `Stata` will not allow us to, resulting in an error indicating a variable with this name is already defined.  However, if we wish to replace a scalar with a new value, `Stata` will issue no error, simply destroying the old scalar, and creating a new one.  For example, below (noting that the variable `x1` and the scalar `x1` have previously been defined), we can see this differing behaviour:
+```stata
+qui set obs 10
+gen x1=1
+gen x1=2
+scalar x1=2
+```
+```
+variable x1 already defined
+r(110);
+```
+If we do *actually* wish to save over our variable, we need to explicitly indicate this by using the `replace` command instead of the `generate` command.
+```{stata echo=3} 
+qui set obs 10
+gen x1=1
+replace x1=2
+```
+
+Finally, we can also work with numerical matrices which can only store numbers and which work in the fashion of standard algebraic matrices, by using the group of `matrix` commands.  To see this, consider the following matrices, which are input using `matrix input`, and which we name as `A` and `B`:
 
 ```{stata}
 matrix input A = (1, 2 \ 3, 4)
 matrix input B = (5, 6 \ 7, 8)
 ```
 
-In order to see this matrices
+Stata's matrix notation is to separate columns by commas, and rows with the backslash.  We can see the result of this `matrix input` using the `matrix list` command
 
 ```{stata echo = 3:4}
 matrix input A = (1, 2 \ 3, 4)
@@ -76,7 +214,7 @@ matrix list A
 matrix list B
 ```
 
-This matrices are stored and we can operate with them latter
+This matrices are stored and can then be operated with to conduct permitted matrix operations, as seen below. 
 
 ```{stata echo = 3:4}
 matrix input A = (1, 2 \ 3, 4)
@@ -84,99 +222,10 @@ matrix input B = (5, 6 \ 7, 8)
 matrix define C = A * B
 matrix list C
 ```
+A list of matrix operations can be found in [Stata's manuals](https://www.stata.com/manuals/u14.pdf). 
 
-Finally in datasets the data is organized as rectangular table where each column is understand as a variable and each row is understand as an observation. This datasets can be imported from externals files, there are some internals and also can be accessed from the web, a topic we will see deeper latter, for now as an example we use one of the Stata internals datasets in order to show you how they work. With the following code you will charge the dataset `auto.dta`
-
-```{stata eval = FALSE}
-sysuse auto
-```
-
-If you use the `browse` command, Stata will deploy a new window where will show you this data set
-
-```{stata eval = FALSE}
-browse
-```
-
-In this window you can see that each column represent a different variable and each row is a different observation. Also you can see data in different color, some columns in black (numeric), other in red (string) and other in blue (numeric, but labeled), a topic we will see latter when talk about data types. As you can see this kind of object allows to store different data types and multiple variables, so is very useful.
-
-In one of the recent versions of Stata (specifically the version 16) were introduced the Frames objects, this are data frames that allows to store multiple data sets simultaneously in the memory of Stata and switch between them whenever you want. For example now that you have imported the dataset `auto.dta` you can see that there is a current data frame named default
-
-```{stata eval = FALSE}
-frame
-```
-
-In order to chante this data frame name you can use `frame rename oldname newname`
-
-```{stata eval = FALSE}
-frame rename default auto
-```
-
-Now we will create a new data frame with `frame create name` and change to that data frame with `cwf name`
-
-```{stata eval = FALSE}
-frame create secondframe
-cwf secondframe
-```
-
-As you can see the dataset that were stored previously is no longer seeable in your interface, but if you use
-
-```{stata eval = FALSE}
-frames dir
-```
-
-You will see how there is two data frames and the one named `auto` has the data set stored previously. If you go back to this data frame with
-
-```{stata eval = FALSE}
-cwf auto
-```
-
-You will see available again the `auto` dataset. Now we show you how can have multiple datasets simultaneously in Stata with this data frame. First go back to the data frame `second` with `cwf` and then we import other internal dataset named `lifeexp`
-
-```{stata eval = FALSE}
-cwf second
-sysuse lifeexp
-```
-
-You can see that the dataset has changed and you have new data in your dataset, now you can change between this datasets with `cwf name` and check how the data that is shown in your dataset changes.
-
-For further information about the objects we have seen you can consult the help documentation with the `help` command. For example to see more about frames you can use
-
-```{stata eval = FALSE}
-help frames
-```
-
-You will see that Stata has deployed a new window with the help documentation for this topic that will show you a lot of information as syntax, descriptions, examples and links to other sections of Stata's help documentation.
-
-#### Data Types
-
-Now that you know how to store values in different objects, you should know that Stata has different data types for this objects, some of them are strings and other numerics. Different types of data allows different ways to operate with it, for example characters must be specified between `" "`, otherwise Stata will understand them as object's names and will return an error as don't recognize them. For example if you want to display *Hello World* the next try will give you an error:
-
-```{stata error=TRUE}
-display Hello World
-```
-
-In change, the next code understands that is a character:
-
-```{stata}
-display "Hello World"
-```
-
-Numeric data doesn't need to be inputted between `" "`, in fact if is inputted between `" "` Stata will understand it as a character instead a number. For example if you type just `2` the output will be a number, and if you type `"2"` the output will be printed as 2
-
-```{stata}
-display 2
-display "2"
-```
-
-Visually there is no difference with display, but if you try to operate with both of them it will return an error
-
-```{stata error = TRUE}
-display "2" * 2
-```
-
-#### Basic Operations
-
-At this point we have made a few examples with some mathematical operations, now we introduce a list of a variety of operators that Stata understand for each type of data. We start with the arithmetic ones:
+## Basic Operations
+The standard mathematical operations in `Stata` likely work how you would expect.  Basic mathematical operations are as follows, with an example of their use below:
 
 | Symbol |   Operation    |
 |:------:|:--------------:|
@@ -196,13 +245,15 @@ display 10 / 3
 display 10 ^ 3
 ```
 
-Also when you combine different operators it respect the PEMDAS order, first solve Parenthesis, second solve Exponents, third Multiplication, fourth Division, fifth Addition and sixth Substraction. For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
+Also when you combine different operators it respects the PEMDAS order, first resolving Parentheses, second solve Exponents, third Multiplication and Division, fourth Addition and Substraction.  Both multiplication and division, and addition and substraction are evaluated left to right, rather than sequentially by operation, so it is important to indicate to `Stata` explicitly what you need using parentheses in certain cases.  For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
 
 ```{stata}
 display -(5+3^(5-3))/(5*3)
 ```
 
-When you work with strings there are also operators that works, these are `+` and `*`. Stata automatically identifies when you use `+` if you are adding numerical values or concatenating strings, in this case you must use the same data type. When you use `*` to operate with strings you must specify a string and a number, because Stata will repeat the string as many times as the number indicates
+In general, these operations are assumed to refer to variables or scalars.  In the case of matrices, addition, substraction multiplication and division are also possible with the same symbols, where multiplication will result in matrix multiplication (and not element-wise multiplication), and division assumes the division of each element of the matrix by a single scalar.  Matrix transpose can also be performed simply using `'`.  If, however, you wish to perform more complicated matrix calculations such as element-wise operations, it may be worth using `Stata`'s own matrix processing language, which is known as `Mata`.  In this introduction we will not explore `Mata`, however it is worth noting its existence, particularly if you wish to work with demanding numerical tasks.
+
+Certain mathematical operators can also work with strings, specifically `+` and `*`. Stata automatically identifies when you use `+` if you are adding numerical values or concatenating strings, in this case you must use the same data type. When you use `*` to operate with strings you must specify a string and a number, because Stata will repeat the string as many times as the number indicates:
 
 ```{stata}
 scalar x1 = "Hello " + "World"
@@ -240,112 +291,84 @@ display (4 == 3) | (4 != 3)
 display (4 == 3) & (4 != 3)
 display ~(4 == 3)
 ```
+We will return to these logical operators below when we discuss the use of conditions in manipulating variables.
 
-As many softwares Stata hase some basic commands that make specific tasks, for example if you want to calculate some descriptive statistic of a variable in a dataset you don´t need to calculate one-by-one the statistics, you can use the command `summarize`. As an example, for the dataset `auto` if you want to get the descriptive statistics of the `mpg` variable
+## Stata Commands
+Beyond these logical and mathematical operators, `Stata` comes with a large suite of built in commands which perform specific tasks, as well as additional user-contributed functions (discussed below) which can perform a number of more specialised tasks.  "Out of the box" `Stata` comes with many commands which are all comprehensively documented.  A full list can be found in the [Stata manuals](https://www.stata.com/manuals/r.pdf#rrBaseReference).
 
-```{stata echo = 2}
+Commands are designed to perform specific tasks, potentially accepting input (known as "arguments"), and returning output which you can interact with.  We have already seen a number of functions above such as `display`, `generate`, and `describe` which at times we have used with arguments, and at times we have used without arguments.
+In order to use commands the highly-standardised Stata syntax is to provide the command's name, followed by its arguments (variable names, conditionals for a subset of observations and other requirements) and its specific options, which are separated by a comment from the main arguments.  These options allow us to further specialise commands by requesting particular optional changes to the default implementation.  To understand how a command works, we should consult the help documentation which is available for each command by typing `help` and the command name.  For example, if we wish to understand the `describe` function, typing `help describe` will provide us with the following syntax, along with a list of options, further explanation, and so forth.
+
+ <ins>d</ins>escribe [varlist] [, memory_options]
+
+The syntax is always laid out in this standardised way, where square brackets imply that something is optional.  Here if we do not type a specific list of variables (varlist) Stata will describe to us all the variables in memory.  We are also optionally able to include options, such as simple, and short, which are laid out below in the help file.  You will also note one other thing in the syntax diagram, and that is that the `d` describe is underlined.  Each Stata command will underline the shortest possible way a command can be written by providing this underline, and in this case this implies that even if we just write `d` Stata will understand that this refers to the describe command.  Indeed, we can write command names as this shortest version possible, or any longer version up to and including the full name, so `d`, `de`, `des` and so forth are all understood as `describe`.
+
+In certain cases if we are not sure exactly what function we need we can type `search search_term` and `Stata` will advise us of any functions which may do what we're after.  For example, if we are seeking to summarise our variables, we may type `search summary`, and we see a range of functions, including one called `summary`.  We can then consult the help file to see if this is precisely what we are after.  Reading the help file we see that the command "calculates and displays a variety of univariate summary statistics."
+
+As in general we will work with data in using our commands, and to see how this `summarize` command works in practice, we will use an internal dataset which Stata provides for us.  This is the `auto` dataset, a simple dataset often used to explore commands.  In the following section we will further discuss ways to load data into Stata, but for now just note that we can load this particular dataset using the `sysuse` (for "system use") command, along with the name of the auto dataset:
+
+```{stata}
 sysuse auto
+des
 summarize mpg
 ```
+Here we can see that when loading this dataset and describing variables, there are number of variables and types, and when we type `symmarize mpg` (one of the variables) we are provided with summary statistics such as the mean, standard deviation, and so forth.
 
-In order to use this commands the syntaxis in Stata is the command's name followed by its arguments (variable names, conditionals for a subset of observations and other requirements) and its specific options, separated by a comma the arguments from the options. To know better how a command works is always a good idea to read the help document that comes along with Stata, something that you can make with the `help` command. As an example if you type `help summarize` you will see the help documentation for this command, in sepecific note that the syntax will point
+If we again consult the help file of `summarize` we may see that there are actually some further details we did not encounter in the help file for describe.  In particular, this time the syntax diagram is as follows:
 
-`<ins>su</ins>mmarize [varlist] [if] [in] [weight] [, options]`
+[su]{.underline}mmarize [varlist] [if] [in] [weight] [, options]
 
-The first you can note is that the name of the command has a few letters underline, this means that you can abbreviate the command name to those letters and Stata will understand that you want to use that command. As an example if you type
+As before, we see that the varlist is optional, and so we *could* type the command without any arguments, in which case `Stata` will assume that we want descriptive statistics for all variables:
 
-```{stata echo = 2}
-sysuse auto
-su mpg
-```
-
-Then you can see it has some elements between `[ ]`, this means those are optional arguments. In the case of *varlist* you can specify a list of variables in order to get their descriptive statistics or you can leave it in blank in order to get all variables descriptive statistics
-
-```{stata echo = 2:4, message = FALSE}
-sysuse auto
-su price mpg
-display "-------------- Line to separate outputs --------------"
+```{stata echo = 2, message = FALSE}
+qui sysuse auto
 su
 ```
 
-*if* and *in* is to apply the command for a subset of observations, in the case of *if* you must specify a condition. For example we will summarize the price of those those observations with a `mpg` greater than its mean
+What is new here are the *if*, *in* and *weight* options, which allow us to apply the command to a particular subset of observations, in the case of *if* you must specify a condition. For example we will summarize the price of those those observations with a `mpg` greater than its mean
 
 ```{stata echo = 2, message = FALSE}
-sysuse auto
+qui sysuse auto
 su price if mpg > 21.2973
 ```
 
-As you see the number of observations and the other indicators has changed. The use of *in* is similar, but instead of specify a condition you must specify the position as rows number. For example get the summarize of the price for the first 20 observations
+As you see the number of observations and other statistics have changed. The use of *in* is similar, but instead of specifying a condition you must specify the position as row numbers. For example, if for some reason we wished to summarise the price for the first 20 observations we could do so as follows:
 
 ```{stata echo = 2, message = FALSE}
-sysuse auto
+qui sysuse auto
 su price in 1/20
 ```
 
-Also you can see the *weigth* that is useful when you have weighted data, in that case you should specify a way for deal with the weights from a list of frequency weights, sampling weights, analytic weights or importance weights. To know more of this weights and its mean you should read the help documentation of weights with `help weights`.
+Also you can see the *weight* observations if you wish to perform weighted calculations.  We will not delve into this point here, but I direct you to the documentation for *weight* which can be consulted by typing: `help weights`.
 
-Final element of the help documentation syntax for the command you will see *\[, options\]* and further down the documentation a table listing the options with their description. As an example in the summarize help documentation you can see the detail option and its description that says "display additional statistics" so if we use this (note the underline d)
+We may also wish to explore certain *\[, options\]*, which are laid out in the help file below the syntax diagram. As an example in the summarize help documentation you can see that there is a *detail* option and its description which says "display additional statistics".  So, noting the underlined *d* in the help file, we can provide more specialised output to the command by invoking this option:
 
 ```{stata echo = 2}
 sysuse auto
 su price, d
 ```
 
-Showing how now has been displayed additional statistics as percentiles, the smallest and largest values, and others.
+A final point of note is something which you may have realised when we summarised the entire dataset.  While our dataset contains 74 observations (something which we can confirm using the `count` command), but one variable (`rep78`) does not provide a summary for 74 observations:
+```{stata echo = 2:3}
+qui sysuse auto
+count
+su price rep78
+```
+The reason for this is because the variable has certain missing observations.
 
-Until now we have show you the use of command, but those aren't the only method Stata have to make some specific procedures, Stata also count with functions. Functions has a different syntax that is `functioname(arguments)`. An example is the next
-
-```{stata}
-display sqrt(4)
+```{stata echo = 2:6}
+qui sysuse auto
+count if mpg==.
+count if rep78==.
+count if rep78<1000
+count if rep78>-1000
+count if rep78>-1000 & rep78!=.
 ```
 
-You must know that there are very useful commands and functions that doesn't come along with Stata and comes with extra packages that you must download from different sources. In the next section we talk about how you can download and install those packages from one of this sources.
+In Stata, missing values are recorded as `.`, and are, by definition, not considered when conducting numerical analyses.  In the code above we first confirm that the variable `mpg` has no missing observations, using the `count` command, and the `if` construct discussed above.  We then confirm that the missing observations in `mpg` are indeed recorded as `.`.  In general, `Stata` makes it relatively easy to work with missing observations, simply omitting these observations from any analyses.  However, it is important to note this when conducting analysis.  There is one hugely important caveat here, and that is to realise that by construction, `Stata` views `.` as an infinitely large value.  So, if you consider the examples above, you will note that when we count the observations with $mpg<1000$, we are correctly told it is 69.  However, when we could the number of observations with $mpg>-1000$, we are told that it is 74, precisely because `.`is seen as an infinitely large value.  For this reason, it will be very careful for us to ensure that we deal carefully with missing values, for example, explicitly accounting for missings, as we do in the last line above.
 
-### Managing packages
 
-What are packages? Packages is a group of commands and code that develop specifics tasks. In order to install a package you have some alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your system. Now is explained how to do it from Statistical Software Components (SSC) Archive by using the command `ssc install packagename`. As an example, in order to install `outreg2` -that is one of the most famous Stata's packages for arrange regression outputs into an illustrative table- you must execute the following code:
-
-```{stata eval=FALSE}
-ssc install outreg2
-```
-
-Now that the package is installed you doesn't need to install it again. In Stata is enough to install once a package for use it all the times you want. Once you install it you can use it.
-
-There are other sources such as the [Stata Journal](https://www.stata-journal.com/) or simply an URL, in both cases the command `net` will provide the tools for search and install packages, so is highly recommendable to consult `net`'s help documentation.
-
-### Loading and viewing data
-
-In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`. For `csv` and `txt` the command is `import delimited`. If you see the help documentation you will see that the basic usage is:
-
-```{stata eval=FALSE}
-import delimited "Path/To/Your/File.csv"
-```
-
-Note that the example is made with `csv` but is the same for `txt`. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates options such as the row to use as variable names, what is the separation between columns, the decimal separator and others.
-
-For `excel` files the command is `import excel`. If you see the help documentation you will see that the basic usage is:
-
-```{stata eval=FALSE}
-import excel "Path/To/Your/File.xls"
-```
-
-Note that the example is made with `xls` but is the same for `xlsx`. If you explore the help documentation you will notice that you can specify a variety of arguments that indicates options such as if the row should be used as variable names, the range of cells, the sheet name and others.
-
-Finally in order to import `dta` files how this comes from Stata format you only need to use the command `use` with the basic usage as follows
-
-```{stata eval=FALSE}
-use "Path/To/Your/File.dta"
-```
-
-Be aware that you can import datasets from other sources such as webpages or internal repository of Stata, as was shown previously for the dataset `auto.dta` where was used the command `sysuse`.
-
-### Tyding data
-
-In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. We will use the already loaded dataset `auto.dta`.
-
-Along with this section you will see the use of the `list` command, this command shows us the first rows of a dataset in order, a tool that will help us to show the results of some procedures we will do.
-
-Until now you know how to obtain descriptive statistics with the `summarize` command, now we show you how acces to that results and operate with them. One option is to do the summarize and then see the `return list` as follows:
+When we first introduced commands, we noted both that they accept arguments, *and* that they potentially return objects.  Conveniently, the objects which Stata returns are generally provided to use for further processing if desired.  Anything return from commands can be found by inspecting the  `return list`, or `ereturn list` for estimation commands, as follows:
 
 ```{stata echo = 2:3}
 sysuse auto
@@ -353,36 +376,98 @@ su mpg
 return list
 ```
 
-Here you can see that there is a group of scalars that are automatically generated by Stata once the summarize command is executed. You can freely operate with this scalars
+Here you can see that there is a group of scalars that are automatically generated by Stata once the summarize command is executed, and which correspond to the output of the command. You can freely operate with these scalars
 
-```{stata echo = 3:4}
-sysuse auto
+```{stata echo = 3}
+qui sysuse auto
 su mpg
-display as text "Pearson's Variation Coefficient is " as result r(sd)/abs(r(mean))
+display "Pearson's Variation Coefficient is: " r(sd)/abs(r(mean)) 
 ```
-
-Now we show you how to create new variables with the command `generate`, this command allows to combine mathematical operators, functions and other variables values, among others. As an example we create the variable `mpg_meandev` $$mpg_i - \overline{mpg}$$ Where $\overline{mpg}$ is the mean of `mpg` variable
+Similarly, we can incorporate these scalars directly into any variable generation we may wish to proceed with, for example the variable `mpg_meandev` $$mpg_i - \overline{mpg}$$ Where $\overline{mpg}$ is the mean of `mpg` variable
 
 ```{stata echo = 2:4}
-sysuse auto
+qui sysuse auto
 su mpg
 generate mpg_meandev = mpg - r(mean)
 list mpg mpg_meandev in 1/5
 ```
 
-As you can see in the list output (also you can check it with `browse`) there is a new variable named `mpg_meandev` with the deviations to the mean values of `mpg` variable. Note that is not necessary to use de `summarize` command each time we want to access the `return list` values, we do that to visually help to see the result of the variable.
+As you can see in the list output there is a new variable named `mpg_meandev` which reports the deviations of each observation from the mean of the `mpg` variable. Note that is not necessary to use the `summarize` command each time we want to access the `return list` values, provide that no other command is used which populates the return list with other values.  For example, if we now decide that we would like to generate a standardised version of this variable named `mpg_zscore` as $$\frac{mpg - \overline{mpg}}{\widehat{\sigma}_{mpg}}$$ Where $\widehat{\sigma}_{mpg}$ is the sample standard deviation of `mpg` variable, we can do as follows:
 
-Stata also allows to replace values of this variables in the dataset, as an example we create a variable named `mpg_zscore` as $$\frac{mpg - \overline{mpg}}{\widehat{\sigma}_{mpg}}$$ Where $\widehat{\sigma}_{mpg}$ is the sample standard deviation of `mpg` variable. First we create this variable with missing values `.` and then replace this missing values with the formula
-
-```{stata echo = 2:5}
-sysuse auto
-su mpg
-generate mpg_zscore = .
-replace mpg_zscore = (mpg - r(mean)) / r(sd)
+```{stata echo = 3:4}
+qui sysuse auto
+qui su mpg
+generate mpg_zscore = (mpg - r(mean)) / r(sd)
 list mpg mpg_zscore in 1/5
 ```
 
-Note that Stata also says you how many changes has done.
+
+
+## User-Written Commands
+While `Stata` provides a wide array of inbuilt commands, at times we may wish to install extensions written by users which are expected to provide both some specific functionality, as well documentation which can be read as a help file.  In `Stata`, most user-written commands are stored on a central repository known as the  Statistical Software Components (SSC). This can be done quite simply using the command `ssc install packagename`. As an example, in order to install `outreg2`, a library for formatting regression tables, you can do so with the following code:
+
+```{stata eval=FALSE}
+ssc install outreg2
+```
+
+Now that the package is installed you can access the help file by typing `help outreg2`, and in the future will not need to re-install the package unless you wish to update the package.  Once you have installed a user-written command, it will be permanently available to you.
+
+There are other sources such as the [Stata Journal](https://www.stata-journal.com/) or simply a URL, in both cases the command `net` will provide the tools for search and install packages.
+
+# Working with Data
+## Loading and viewing data
+In most -- if not all -- of our research projects, we will not actually type in data to `Stata` by hand which is a cumbersome and highly error-prone activity, but rather we will wish to read in data which we have stored on our disk in one or a number of files.  Such data may be stored in many formats; among others this may be free formats such as `csv` or `txt`, or proprietry formats such as `excel` or Stata's own `dta` files.  We have already seen one example of reading in data, which is Stata's `sysuse` command, but this is a special case for data that is provided by Stata at installation.
+
+For data which we have stored somewhere on our hard drive in formats such as `csv` (comma seperated values) or `txt` formats `Stata` comes with the `import delimited`, command. If you consult the help documentation, which is something I would recommend anytime you come across a new function, you will see that the basic usage is relatively standard, as follows:
+
+```{stata eval=FALSE}
+import delimited "Path/To/Your/File.csv"
+```
+This will work as is, provided that your csv file is indeed delimited by commas and has variable names on the first line.  If, however, your csv does not have variable names, or is delimited by some other character, you may refer to the options in the help file to see how to proceed.  Similar such procedures can be followed for other data stored in flat formats such as .txt or others, as laid out in the help file.
+
+This syntax crosses over to excel files too, via the `import excel` command:
+```{stata eval=FALSE}
+import excel "Path/To/Your/File.xls"
+```
+Note that the example is based on a file assumed to end with `xls` but the same command can be used replacing `xls` with `xlsx` if a file is saved as .xlsx.  If you further explore the help documentation you will notice that you can specify a variety of arguments that indicates options such as if the row should be used as variable names, the range of cells you wish to import, the sheet name and other such details.
+
+
+Finally in order to import `dta` files, which is Stata's native data format you can simply specify the `use` command:
+```{stata eval=FALSE}
+use "Path/To/Your/File.dta"
+```
+If you are working entirely in Stata the value of saving your data in a .dta format is that you will maintain any internal labelling you may be working with, but this may be more complex if you wish to share your data with others who are working in other languages, given that it is a Stata-specific data format.
+
+Once a dataset is loaded in `Stata` it is immediately avaiable for further processing and use.  For a number of examples below we will use another dataset which is provided by `Stata` upon installation (all such datasets can be seen by typing `sysuse dir`).  This is an abstract of the 1988 US NLSW (National Longitudinal Survey of Mature and Young Women).
+
+```{stata}
+sysuse nlsw88.dta, clear
+```
+
+Once we have loaded a dataset if we wish we can see a quick snapshot of the data with the `list` command, for example using `list in 1/3` to observe the first three lines:
+```{stata echo=2}
+qui sysuse nlsw88.dta, clear
+list in 1/3
+```
+
+Depending on the way that we are working with `Stata`, we may also be able to explore the data more interactively using the `browse` command.
+
+
+
+## Tidying data
+Once we have loaded data in `Stata`, we will likely want to manipulate the data in a number of ways.  This can include relatively simple things like sub-setting to certain columns or rows (which we have already encountered above), but also more complicated things like aggregating data to a higher level, calculating statistics for one or mutliple variable(s) over other variables, joining together a number of datasets, or "reshaping" data in certain ways.  Here we will provide a very brief overview of these procedures, and introduce other things as we need them thoughout the book.
+
+
+
+### Aggregating Data
+To start with some basic data manipulations, we can consider the case where we may wish to convert the data which we havae imported into some group-level averages.  We can do many such manipulations of this type using Stata's `collapse` command.  At its most simple level, this command allows us to take some disaggregated data, and "collapse" it to some more aggregated data.  For example, imagine we wished convert our data into a single line containing the mean wage over the entire data.  We can do this simply with the collapse command:
+```{stata echo=2:3}
+qui sysuse nlsw88.dta, clear
+collape wage
+list
+```
+
+
 
 Others very useful commands are those who allows us to add more information to our dataset, this information can be more variables for each observation (`merge` command) or more observations for each variable (`append`). Another famous command for data manipulation is `collapse`, this command allows to create a dataset of summary statistics. As an example we calculate a series of statistics for the variable `price` using the `by` option of the command to group this summary statistics by the `foreign` variable.
 
@@ -439,7 +524,7 @@ list
 
 As you can see now the dataset has one observation for each zone and no repeated values for a variable. With this we conclude this subsection and move on to the basic plots.
 
-### Basic Plots
+# Basic Plots
 
 There is a variety of plots that you can create in Stata, and each plot has his own syntax, so we encourage to review the respective help documentation for each graph. In this subsection we are going to show you two basic plots: (i) line plot and (ii) scatter plot, in the latter we will review how to add a linea prediction plot.
 
@@ -496,3 +581,4 @@ graph export "LfitPlotExample.png", replace
 ![Lfit Plot Example](LfitPlotExample.png)
 
 As said before, this introductory section of this chapter doesn't intend to be a comprehensive tutorial of Stata, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.
+
