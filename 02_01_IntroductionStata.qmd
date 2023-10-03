@@ -460,34 +460,50 @@ Once we have loaded data in `Stata`, we will likely want to manipulate the data 
 
 
 ### Aggregating Data
-To start with some basic data manipulations, we can consider the case where we may wish to convert the data which we havae imported into some group-level averages.  We can do many such manipulations of this type using Stata's `collapse` command.  At its most simple level, this command allows us to take some disaggregated data, and "collapse" it to some more aggregated data.  For example, imagine we wished convert our data into a single line containing the mean wage over the entire data.  We can do this simply with the collapse command:
+To start with some basic data manipulations, we can consider the case where we may wish to convert the data which we have imported into some group-level averages.  We can do many such manipulations of this type using Stata's `collapse` command.  At its most simple level, this command allows us to take some disaggregated data, and "collapse" it to some more aggregated data.  For example, imagine we wished convert our data into a single line containing the mean wage over the entire data.  We can do this simply with the collapse command:
 ```{stata echo=2:3}
 qui sysuse nlsw88.dta, clear
-collape wage
+collapse wage
 list
 ```
 
+This aggregation can occur in a much richer way depending on how we wish to aggregate data (ie which type of statistics we desire), and over what variables we would like this aggregation to occur.  For example, imagine instead of the mean wage we wished to measure mean wages *and* the standard deviation of wages over whether an individual graduated from college, and whether they are a member of a union.  We can do so as follows, noting that statistics are indicated in parentheses along with other arguments, while the levels which we wish to group over are indicated with the `by()` option.  Once we have generated this collapsed version of the data we will save the data file on disk using the `save` command for some processes below:
 
-
-Others very useful commands are those who allows us to add more information to our dataset, this information can be more variables for each observation (`merge` command) or more observations for each variable (`append`). Another famous command for data manipulation is `collapse`, this command allows to create a dataset of summary statistics. As an example we calculate a series of statistics for the variable `price` using the `by` option of the command to group this summary statistics by the `foreign` variable.
-
-```{stata echo = 2:3}
-sysuse auto
-collapse (mean) mean_price = price (sd) sd_price = price, by(foreign)
+```{stata echo = 2:4}
+qui sysuse nlsw88.dta, clear
+collapse (mean) mean_wage = wage (sd) sd_wage = wage, by(collgrad union)
 list
+save groupedNLSW.dta, replace
 ```
 
-Note that we follow the syntax
+Generically, the syntax of `collapse` is as follows,
 
-`collapse (stat) newname = varname (stat) newname = varname ..., by(groupvariable)`
+`collapse (stat) newname = varname (stat) newname = varname ..., by(groupvariables)`
 
 Where the use of `...` is to denote that we could add more stats to this collapse.
 
-Now we are going to clear all the Stata memory for latter input mannually some data for our next example:
+### Merging/Joining Data
+We will also, at times, wish to join two (or more) pieces of data together, for example "merging" data to match up observations by some particular column or columns.  For example, it may be that we have a survey where each individuals surveyed belongs to a household, where all of the individual-level questions in the data are stored as an individual-level file (along with the individual's household ID), while the household level measures are stored in another file at the household level.  If we wish to work with information on the individual *and* their household characteristics, we will need to "join", or "merge" the file using the household ID.
 
-```{stata collectcode = TRUE}
+Such processes are conducted in Stata using the `merge` command.  As a simple example of this, we could imagine that we would like to take the grouped-level statistics we generated previously and join them back into our original NLSW data..  What we want to do then, is for each individual who has a particular college and union status, join the information on the mean and standard deviation of the wage in this group to their row of data.
+
+```{stata}
+sysuse nlsw88.dta, clear
+merge m:1 collgrad union using groupedNLSW
+d
+```
+
+As we can see here, after completing the merge, we have our original NLSW data, but have additionally added the new columns `mean_wage`, `sd_wage` which are our generated variables, along with `_merge` which summarises the number of units which correctly merge (in this case, all of them).
+There are three types of merge which we may need to use.  These are **m:1** (as above), **1:1**, or **1:m**.  These are indicated immediately after invoking the `merge` command and one of these must be indicated.  These values refer to the quantity of observations in the data in Stata's memory (in this case nlsw88.dta) and the quantity of observations in the data indicated after `using` (in this case groupedNLSW.dta), over which the merge should be conducted.  When an **m** is indicated this implies that there are many observations in each level, and when a **1** is indicated it implies that there is a single observation in each level.  In the above example, given that in the data on the disk there is a single observation for each of the variables `collgrad` and `union`, this is indicated as **1**, while in the original data, there are multiple women in each group made up of `collgrad` and `union` (hence **m:1**).  It is fundamental in merges to ensure that we confirm that either all observations are correctly merged to a partner in the using data, or if not, understand why this is not the case.
+
+
+
+### Filtering Data
+For the remaining examples, we will clear all the information from Stata's memory to manually input a simplified data set to explore a number of tasks.  We will do this using the `input` command, as follows:
+
+```{stata}
 clear all
-input str20 Zone Year Sales
+input str2 Zone Year Sales
 "A" 2021 100
 "A" 2022 115
 "B" 2021 98
@@ -495,90 +511,153 @@ input str20 Zone Year Sales
 end
 list
 ```
+The `input` command is quite a unique command in that it tells Stata that we will manually write in variable values, and will be assumed to keep going until we type `end`. Here we have told Stata that we will input three variables manually, and these are named as `Zone`, `Year` and `Sales`.  You may also note the addition of `str2` before the Zone variable name, which informs Stata that this variable Zone will be inputed as a string, as otherwise Stata assumes that variables will be input manually.
 
-You could note the addition of `str20` before the Zone variable name, this says to Stata that the variable Zone will be inputed as a string, if not specified Stata assumes that variables are numeric ones.
+One way to filter variables is to use the `keep` and `drop` commands.  These commands can either indicate variable names, in which case all indicated variables will either be kept or dropped, or can indicate conditions, in which case all observations complying with the conditions will be kept or dropped.  We will illustrate this below, additionally illustrating the use of `preserve` and `restore` which allow us to "store" a dataset in a particular moment, and then return to this dataset at a later moment.
 
-Now we are going to show you how filter some data with the use of `keep` and `drop`, but also the use of `preserve` and `restore`. With `preserve` Stata internally store the actual status of the dataset and allows to make any change we want and go back to the stored status with `restore`. As an example first we are going to delete the variable `Year` with the drop command and next restore to its previous status
-
-```{stata}
-display "This is the result before drop, is saved by preserve"
+ As an example first we are going to delete the variable `Year` with the drop command and next restore to its previous status
+```stata 
 preserve
 drop Year
-display "This is the result after drop"
+dis "Prior to restore"
 list
 restore
-display "This is the result after restore"
+dis "After restore"
 list
 ```
+```
+Prior to restore
 
-As you can see the combination of `preserve` and `restore` allows to modify the dataset and go back, while `drop` remove what we specify, in the example was a variable but also can be observations in specific positions specifying *in* or depending on a condition specifying *if*. `keep` command works opposite to `drop`, as `drop` remove only what is specified, `keep` mantains only the specified and remove everything else.
+     +--------------+
+     | Zone   Sales |
+     |--------------|
+  1. |    A     100 |
+  2. |    A     115 |
+  3. |    B      98 |
+  4. |    B     106 |
+     +--------------+
 
-Finally in this subsection we review the `reshape` command that allows to transform the dataset from a *wide* format to a *long* format or backwards. Understand a *long* dataset as how our dataset is actually, it has multiple observations with the same value for an unit in one or more variables. In this case both zones A and B has more than one observation, one for year 2021 and one for year 2022 as you can see both observation for each zone has the same value in the variable Zone.
+After restore
 
-In order to transform this dataset to a *wide* format the code is
+    +---------------------+
+    | Zone   Year   Sales |
+    |---------------------|
+ 1. |    A   2021     100 |
+ 2. |    A   2022     115 |
+ 3. |    B   2021      98 |
+ 4. |    B   2022     106 |
+    +---------------------+
 
-```{stata}
+```
+As you can see the combination of `preserve` and `restore` allows to modify the dataset and go back, while `drop` remove what we specify, in the example was a variable but also can be observations in specific positions specifying *in* or depending on a condition specifying *if*. `keep` command works opposite to `drop`, as `drop` remove only what is specified, `keep` mantains only the specified and remove everything else.  You may wish to confirm that this also works with particular conditions, such as `if Sales>100`.
+
+
+### Reshaping Data
+Finally the last tool that we introduce for data manipulation is the idea of "reshaping" or transforming data from a wide format to a long format (and *vice versa*).  We refer to data in a **long** format if for each observation we have multiple rows of data, covering different levels of some other variable.  For example, a classic example of this would be a panel of data over countries and years.  On the other hand, we refer to data as being in a **wide** format if for each observation we have multiple columns (or variables) which cover different levels of some other variable.  In certain settings we will wish to work with data in one format, and in other settings we may find it more convenient to work with data in another format.  Our simplified dataset above is precisely the example of a **long** format, given that for each Zone we have data over multiple years. In order to transform this dataset to a *wide* format the code is
+
+```stata
 reshape wide Sales, i(Zone) j(Year)
 list
 ```
+```
+Data                               Long   ->   Wide
+-----------------------------------------------------------------------------
+Number of observations                4   ->   2
+Number of variables                   3   ->   3
+j variable (2 values)              Year   ->   (dropped)
+xij variables:
+Sales   ->   Sales2021 Sales2022
+-----------------------------------------------------------------------------
 
-As you can see now the dataset has one observation for each zone and no repeated values for a variable. With this we conclude this subsection and move on to the basic plots.
+   +----------------------------+
+   | Zone   Sal~2021   Sal~2022 |
+   |----------------------------|
+1. |    A        100        115 |
+2. |    B         98        106 |
+   +----------------------------+
+```
+As you can see now the dataset has one observation for each zone and no repeated values for a variable. If we wish to return to the long format we can use the reverse "reshape long" function, where in this case we must provide a name for the variable which will record the levels over which A and B are observed.  Namely:
+```stata
+reshape long Sales, i(Zone) j(Year)
+```
+
+In practice, we will generally use these commands with a considerably larger number of units, but the basic principles are the same regardless.
+
 
 # Basic Plots
+To end this initial introduction, we will briefly explore the generation of basic plots in `Stata`.
+There are a variety of plots that you can create in Stata, and each plot has its own precise syntax.  The range of plots which can describe relationships between two (or more) variables can be seen by consulting `help twoway` and I would encourage to scan the plot types, or explore online to see a graphical overview. In this subsection we are going to show you two basic plots: (i) the line plot and (ii) the scatter plot.
 
-There is a variety of plots that you can create in Stata, and each plot has his own syntax, so we encourage to review the respective help documentation for each graph. In this subsection we are going to show you two basic plots: (i) line plot and (ii) scatter plot, in the latter we will review how to add a linea prediction plot.
 
-In Stata the command to do a line plot is the `line` command, this command maps pairs of points in the $(x,y)$ coordinate axis and draw a line connecting this points. Let $x$ be a sequence of integers between -5 and 5
+In Stata the command to do generate a line plot is, perhaps unsurprisingly, the `line` command.  This function maps pairs of points in the $(x,y)$ coordinate axis and places them on a graph. For example, let's consider a case where $x$ is a sequence of integers between -5 and 5.  This can be generated as below:
 
-```{stata collectcode = TRUE}
+```{stata echo=1:3}
 clear all 
 set obs 11
 generate x = -6 + _n
 ```
 
-In this code first we clear the Stata memory, then we set the observations in the dataset to 11, with this Stata understands that there is a dataset, empty for the moment, that have 11 observations (rows). Finally it creates a variable named `x` that will have the value of add to -6 the row number (`_n`) in the dataset
+In this code first we clear the Stata memory, then we set the observations in the dataset to 11, so that Stata understands that there is a dataset, empty for the moment, which has 11 observations (rows). Finally we create a variable named `x` which will take the value of -6 and the row number (`_n`) in the dataset.  In this way, in row 1, where `_n=1`, x will equal -5, and will successively increase by one unit down rows:
 
-```{stata}
+```{stata echo=4}
+qui clear all 
+qui set obs 11
+qui generate x = -6 + _n
 list x in 1/4
 ```
 
 Next we create $y = x^2$ as follows
 
-```{stata collectcode = TRUE}
+```{stata echo=4}
+qui clear all 
+qui set obs 11
+qui generate x = -6 + _n
 generate y = x^2
 ```
 
-Now with `line` function we create the line plot
+Now with `line` function we create the line plot.  `line`, by default generates a line plot of points, making reasonable decisions for axes and labelling:
 
-```{stata echo = 1}
+```{stata echo = 5}
+qui clear all 
+qui set obs 11
+qui generate x = -6 + _n
+generate y = x^2
 line y x
-graph export "LinePlotExample.png", replace
+qui graph export "LinePlotExample.png", replace
 ```
 
 ![Line Plot Example](LinePlotExample.png)
 
-In the help documentation you can see a series of option that allows to modify the graph aspect. Now we show you how to graph a scatter plot, for that we are going to simulate with `rnormal()` 100 pseudo-random numbers from a standard normal distribution in a variable `error`, then in a variable `x` we simulate another 100 pseudo-random numbers from a standard normal distribution and finally we create $$y_i = 10 + 3*x_i + error_i$$
+In the help documentation you can see a series of option that allows to modify the graph aspect.
 
-```{stata collectcode = TRUE, echo = 1:6}
+Now we show you how to graph a scatter plot, for that we are going to simulate with `rnormal()` 100 pseudo-random numbers from a standard normal distribution in a variable `error`, then in a variable `x` we simulate another 100 pseudo-random numbers from a standard normal distribution and finally we create $$y_i = 10 + 3*x_i + error_i$$
+
+```{stata echo = 1:6}
 clear all
 set obs 100
 gen error = rnormal()
 gen x = rnormal()
 gen y = 10 + 3*x + error
 scatter y x
-graph export "ScatterPlotExample.png", replace
+qui graph export "ScatterPlotExample.png", replace
 ```
 
 ![Scatter Plot Example](ScatterPlotExample.png)
 
-If you access help documentation for `scatter` you can see how add elements to the graph, now particularly we show how to fit a linear regression line with `lfit`
+If you access help documentation for `scatter` you can see how add to elements to the graph and further edit the graphs appearance, for example by adding axis titles, adding lines, and so forth.
 
-```{stata echo = 1}
-scatter y x || lfit y x
-graph export "LfitPlotExample.png", replace
+It is also relatively easy to include multiple graphs, laying these on a single graph window.  Graphs can essentially be concatenated together, separating with "||" as follows, where we add a second graph, `lfitci` which fits a regression line along with 95% confidence intervals:
+
+```{stata echo = 5}
+qui set obs 100
+gen error = rnormal()
+gen x = rnormal()
+gen y = 10 + 3*x + error
+scatter y x || lfitci y x
+qui graph export "LfitPlotExample.png", replace
 ```
 
 ![Lfit Plot Example](LfitPlotExample.png)
 
-As said before, this introductory section of this chapter doesn't intend to be a comprehensive tutorial of Stata, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.
+We will take forward many of the examples laid out on this page in the chapters ahead.  For now, this introductory session aims to provide you with a sufficient overview to get up and running in `Stata`, and apply your knowledge to microeconometric methods introduced in the book.
 
