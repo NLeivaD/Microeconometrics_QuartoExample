@@ -335,7 +335,7 @@ A few examples
 ```
 
 Two important things to note are that the power symbol is *not* ^, but rather `**`, and that integer division simply returns the integer, discarding any remainder.  
-Also note that when you combine different operators Python follows the PEMDAS order, first resolving Parentheses, second solve Exponents, third Multiplication and Division, fourth Addition and Substraction.  Both multiplication and division, and addition and substraction are evaluated left to right, rather than sequentially by operation, so it is important to indicate to `R` explicitly what you need using parentheses in certain cases.  For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
+Also note that when you combine different operators Python follows the PEMDAS order, first resolving Parentheses, second solve Exponents, third Multiplication and Division, fourth Addition and Substraction.  Both multiplication and division, and addition and substraction are evaluated left to right, rather than sequentially by operation, so it is important to indicate to `Python` explicitly what you need using parentheses in certain cases.  For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
 
 
 ```{python}
@@ -476,7 +476,7 @@ While the options vary, a standardised syntax is also available for `excel` file
 pd.read_excel("Path/To/Your/File.xlsx")
 ```
 
-In practice, If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to import, an specific range, use or not the first row as column names, between others.
+If you refer to the help documentation you will see that there are a variety of arguments which allows you to point to a specific sheet you wish to import, a specific range of columns or rows, whether or not to use the first row as column names, etc.
 
 Finally in order to import `dta` the function is `read_stata`
 
@@ -484,174 +484,192 @@ Finally in order to import `dta` the function is `read_stata`
 pd.read_stata("Path/To/Your/File.dta")
 ```
 
-Until now all examples only import data but not store it in any object, an action that doesn't make much sense because probably you import data to work with it. Now we are going to import an internal dataset from the package `wooldridge`, that contains 115 data sets from the book "Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge, in order to show how manipulate this data sets
-
+The examples so far have been to illustrate basic syntax, though imported data has not been stored in any particular object for later manipulation.  In general we will of course want to go on to *use* the data we load, which is why we loaded it in the first place.  This can be done in the same way as any other assignment in `Python`.  Below we will import a particular dataset which is available as part of the wooldridge library, to have some data to work with below.  This library is available for download from pip if you do not have access on your system. And contains 115 data sets from Wooldridge's undergraduate Econometrics Textbook ("Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge):
 ```{python}
 import wooldridge
 mroz = wooldridge.data('mroz')
 mroz
 ```
 
-This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799.
-
-## Tidyng data
-
-In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a `Pandas` data frame
-
+This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women's Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799, and we have stored it as an object called `mroz`.  We can inspect this element to see how the data has been imported:
 ```{python}
 type(mroz)
 ```
-
-Along with this section you will see the use of the `head` method, this method shows us the first rows of an object in order to prevent a data frame being totally printed. Previously we mentioned the existence of this *methods*, this are function associated to an object that can be called from the object using the same notation that functios from modules, the difference is that methods are defined within a type of object and works along with the properties of that kind of object. For example `head`
-
+seeing that, conveniently, it has been stored as a data frame.  We can also look at a quick snapshot of the data by using the `head()` method, which will print just the first few rows of our data:
 ```{python}
 mroz.head()
 ```
+Depending on the way that we are working with `Python`, we may also be able to explore the data more interactively if we have some data viewer available.
 
-We principally focus on the use of `Pandas` functions and methods. For example, consider de `mroz` data frame, if we apply the `descibe` method to a column we get the descriptive statistics:
+## Tidying data
+Once we have loaded data in `Python`, we will likely want to manipulate the data in a number of ways.  This can include relatively simple things like sub-setting to certain columns or rows (which we have already encountered above), but also more complicated things like aggregating data to a higher level, calculating statistics for one or mutliple variable(s) over other variables, joining together a number of datasets, or "reshaping" data in certain ways.  Here we will provide a very brief overview of these procedures, and introduce other things as we need them thoughout the book.
+
+Data manipulation in data frames will largely depend upon `Panda`'s functions and methods.  We have seen examples of methods above, namely `loc()` and `iloc()`, and `head()`.  **Methods** are functions which are associated with an object and which can be called from the object, which will work in a specific way depending on the type of object this is.  We have seen above that data frames have methods, but methods can also be applied to columns within data frames.  As an example, we can consider `describe`  which can be applied to a column of a data frame to generate descriptive statistics:
 
 ```{python}
 mroz.wage.describe()
 ```
+You will note here that we have used a new way to refer to an entire column of a data frame, namely using its column name.  In order to see the range of methods which can be applied to an object you can use the `dir()` function. For example if you want to know the methods which can be applied to a data frame you can type:
 
-This result also is a object and has it owns methods, in order to know an object methods you can use the `dir()` function. For example if you want to know a data frame methods
-
-```{python}
+```python
 dir(mroz)
 ```
+which will provide you a long list of methods.
 
-For example now use `groupby` to get descriptive statistics for different groups
 
-```{python}
-mroz.groupby(['kidslt6']).wage.describe()
-```
-
-Other functionalities of `Pandas` module are the use of `sql` functions like `join` that allows to merge two data frames. So let's now try to make a join between two data frames, first create the mean as previous examples and next join this mean to the mroz dataset by the column inlf
+### Aggregating Data
+To start with some basic data manipulations, we will consider data aggregation.  For example, imagine that we wished to turn our individual level data frame we imported as `mroz` above into some group-level averages.  We can do this using as we have seen previously, we have been able to generate summary stats, and if we are interested in particular in the mean, example, we can use the `mean()` method.  Below, we will calculate the mean number of children aged less than six in our data:
 
 ```{python}
-mroz_wage_mean = mroz.groupby(['kidslt6']).wage.mean()
-mroz_mod = mroz.join(mroz_wage_mean, on =['kidslt6'], how = 'left', rsuffix = '_Mean')
-mroz_mod.loc[:,['kidslt6', 'wage', 'wage_Mean']].head()
+mroz.kidslt6.mean()
 ```
 
-Other convenient tools that you will apply on this book are selecting some rows or some columns from the dataset, from `filter` method we can filter columns or rows that meet certain condition in their labels. For example selecting columns:
+Indeed, here with summarise we have requested that it provide us with the mean of this variable, but we could just as easily request some other statistic such as `std`, `min`, `max`, `median`, `quantile` etc.
+It is quite simple to concatenate operations to conduct a range of operations.  For example, imagine that if instead of wishing to simply know the mean number of children less than 6 in our data, we wanted to know this for women in the labour market and those out of the labour market.  We could easily add this distinction using the `groupby` method.  We will also name the resulting data frame `meankidslt6`:
+
+
+
+```{python}
+meankidslt6 = mroz.groupby(['inlf']).kidslt6.mean()
+meankidslt6
+```
+
+This process of data aggregation can be considerably extended depending on what we require, for example working with multiple levels over which to group, generating a larger range of statistics, and so forth.
+
+
+### Merging/Joining Data
+We will also, at times, wish to join two (or more) pieces of data together, for example "merging" data frames or tibbles by a column or columns.  For example, it may be that we have a survey where each individuals surveyed belongs to a household, where all of the individual-level questions in the data are stored as an individual-level file (along with the individual's household ID), while the household level measures are stored in another file at the household level.  If we wish to work with information on the individual *and* their household characteristics, we will need to "join", or "merge" the file using the household ID.
+
+We can see an example of this using the `join()` method.  A simple example is if we would like to take the grouped-level statistics generated previously, and join them back into our original `mroz` data.  What we want to do then, is for each individual who is in the labour force (`inlf==1`), join the information on the mean number of children under 6 in this group to their row of data, and similarly, for individuals *not* in the labour force (`inlf==0`), incorporate the group-level value to their row.
+
+
+```{python}
+mroz_kids_mean = mroz.groupby(['inlf']).kidslt6.mean()
+mroz_mod = mroz.join(mroz_kids_mean, on = ['inlf'], how = 'left', rsuffix = '_Mean')
+mroz_mod.loc[:,['inlf', 'kidslt6', 'kidslt6_Mean']].head()
+```
+
+```{python}
+mroz_mod.loc[:,['inlf', 'kidslt6', 'kidslt6_Mean']].tail()
+```
+Here we have used the `join()` method to conduct our merge, and specified `how='left'`.  In this **particular** setting, we could have used any if the various `join` modes which can be `left`, `right`, `inner` or `outer`.  This is because in this case, all of the levels of "inlf" which are in one set of data are also in the other set of data.  In many cases this may not be the case, and we may have observations in one dataset that are not in the other.  In this case, we must be careful to indicate whether we wish to keep observations that appear in both sets of data (`inner`), keep those that only appear in the left-hand side of the command (`left`), those that only appear in the right-hand side of the command (`right`), or those appearing in either data set (`outer`).  Note that here when we refer to the left-hand side and the right-hand side, we refer to the data frame indicated before `.join(` as the left-hand side, and that which appears after as the right-hand side.
+
+
+While there is some mechanics in setting this up, once we have understood the logic of group by and join it would be exceedingly easy to generalise this, for example if we wished to instead have the aggregates produced by labour market status *and* the individual's age (or any other less aggregated level).  It would be worth exploring such generalisations in the code above to ensure that you are happy with the way things are working.
+
+
+### Filtering Data
+Previously we have discussed how to select particular columns or rows of data, however there are other ways which we can do this.  For example, the `filter` method allows us to filter columns or rows that meet certain condition in their labels. For example selecting columns:
 
 ```{python}
 mroz.filter(items = ["kidslt6", "age"])
 ```
-
-Now for selecting some rows according to its values
-
+Perhaps more useful, we can also filter on observations values.  This is done using logical indexing
 ```{python}
 mroz[mroz.kidslt6 == 3]
 ```
 
-In order to create new columns, Python automatically understands it when we input a name that is not recognized in the data frame:
+
+### Generating variables
+In order to create new columns, Pandas automatically understands that when we include a name that is *not* a part of the data frame, that we wish to generated a new column of data.  For example, in the below we will generate a new variable, which is experience squared:
 
 ```{python}
 mroz["exper2"] = mroz.exper**2
 mroz.head()
 ```
+If we instead include a variable name which is already present, any existing information will be replaced with the new values we assign.
 
-Finally the last tool that we introduce for data manipulation is transform data from wide format to long format and reverse. Consider the next data frame
+
+### Reshaping Data
+Finally the last tool that we introduce for data manipulation is the idea of "reshaping" or transforming data from a wide format to a long format (and *vice versa*).  We refer to data in a **long** format if for each observation we have multiple rows of data, covering different levels of some other variable.  For example, a classic example of this would be a panel of data over countries and years.  On the other hand, we refer to data as being in a **wide** format if for each observation we have multiple columns (or variables) which cover different levels of some other variable.  In certain settings we will wish to work with data in one format, and in other settings we may find it more convenient to work with data in another format.  To make this a bit clearer, consider the below data frame:
 
 ```{python}
-Data = pd.DataFrame({'Zone': ["A", "A", "B", "B"], 'Year': [2021, 2022, 2021, 2022], 'Sales': [100, 115, 98, 106]})
+Data = pd.DataFrame({'Zone': ["A", "A", "A", "B", "B", "B"], 'Year': [2020, 2021, 2022, 2020, 2021, 2022], 'Sales': [90, 100, 115, 82, 98, 106]})
 Data
 ```
 
-This format is the long format, you have multiple observations for one unit (zone in this example), to transform it in wide format
+Here we can see that data is in the long format, with multiple observations for one unit (zone in this example) over a number of years.  To convert this data to wide format we can use the `pivot` method, as follows:
 
 ```{python}
 Data = Data.pivot(index = 'Zone', columns = 'Year', values = 'Sales')
 Data
 ```
 
-As you can see now there is one observation per unit. Lets get it back to long format with the `melt` method
+As you can see now there is now one observation per unit, where each observation has three resulting columns (one for each year). Now, if we wish to return to the long format we can do so with the converse `melt` function:
 
 ```{python}
-Data = pd.melt(Data.reset_index(), id_vars = ['Zone'], value_name = 'Sales')
+Data = Data.melt(value_vars=[2020,2021,2022], value_name = 'Sales')
 Data
 ```
+In practice, we will generally use these commands with a considerably larger number of units, but the basic principles are the same regardless.
 
-Now that you know the basics of data manipulation, the next step is to learn how make some basic plots.
+
 
 # Basic Plots
-
-In Python one of the most used modules to create plots is `pyplot` from `matplotlib`
+To end this initial introduction, we will briefly explore the generation of basic plots in `Python`.  In Python one of the most used modules to create plots is `pyplot` from the `matplotlib` module.  If you have not previously installed this module, you can do so using `pip install matplotlib`, and then we will import the pyplot submodule as `plt`.  
 
 ```{python}
 from matplotlib import pyplot as plt 
 ```
 
-Let $x$ be a sequence of integers between -5 and 5
+`pyplot` maps pairs of points in the $(x,y)$ coordinate axis and places them on a graph. For example, let's consider a case where $x$ is a sequence of integers between -5 and 5.  This can be generated as below:
 
 ```{python}
-x = numpy.array(range(-5, 6))
+x = np.array(range(-5, 6))
 x
 ```
 
-Now consider $y = x^2$
+Now consider the variable $y = x^2$:
 
 ```{python}
 y = x**2
 y
 ```
 
-If you create a data frame
+We will store these two objects as a data frame, by creating a dictionary containing `x` and `y` (though we could proceed to plot without first storing our data as a data frame):
 
 ```{python}
 Data = pd.DataFrame({'x': x, 'y': y})
 ```
 
-The first step in `pyplot` is to define the plot and add elements, then, unless you have an IDE with a plot pane, you should use the `show` method from `pyplot` to display your plot
+The relevant function in `pyplot` is `plot`, which  by default generates a line plot, making reasonable decisions for axes and labelling.  Unless you have an IDE which automatically displays your plot in a  plot panel, you should use the `show` method from `pyplot` to display your plot:
 
 ```{python}
 plt.plot(Data['x'], Data['y'])
 plt.show()
 ```
 
-By default a line plot is rendered, in order to change it to a points plot you must set the linestyle to `""` and the markers to points
+If you wish to change the default behaviour of `plot` you can do so with a range of options.  For example, in order to change the plot to a scatter plot, we can set the linestyle to `""` and the markers to points:
 
 ```{python}
 plt.plot(Data['x'], Data['y'], linestyle = "", marker = ".")
 plt.show()
 ```
 
-As you can see pointes where added but over the line that was rendered previously, in order to reset the figure you can use `clf` method
+There are many ways to further customise graphics in `Python`, and indeed, we will see a range of other plots throughout the remainder of these pages.  In general, editing basic plots can be done relatively straight-forwardly, allowing us to build up plots bit by bit.  For example, we could use the `mroz` data we have worked with previously to plot the log(wage) against years of experince:
+
 
 ```{python}
-plt.clf()
-plt.show()
-```
-
-And now make the point plot
-
-```{python}
-plt.plot(Data['x'], Data['y'], linestyle = "", marker = ".")
-plt.show()
-```
-
-Now we show you with the `mroz` data frame how to make a scatter plot instead a point plot manually as has been shown
-
-```{python}
-plt.clf()
-plt.figure(1)
 plt.scatter(mroz['exper'], mroz['lwage'])
+plt.grid(True)
+plt.ylabel("ln(wage)")
+plt.xlabel("Experience")
 plt.show()
 ```
 
-Other widely used module is `seaborn`, this module is specific for way more complex plots as for example a regression plot
-
+Another widely-used package to allow for further customisation of graphs in `Python` is the `seaborn` library, which can be installed from pip.   For example, if we wish to overlay a regression line on the scatter plot above, along with its 95% confidence intervals, we can do so quite easily with `seaborns` `regplot` function.  To see this, we will first import seaborn, and then finally generate the plot:
 ```{python}
 import seaborn as sns
 ```
 
 ```{python}
 plt.clf()
-sns.regplot(data = mroz, x = 'exper', y = 'lwage')
+sns.regplot(data = mroz, x = 'exper', y = 'lwage', color='red')
+plt.grid(True)
+plt.ylabel("ln(wage)")
+plt.xlabel("Experience")
 plt.show()
 ```
 
 
-As said before, this introductory section of this chapter doesn't intend to be a comprehensive tutorial of Python, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.
+We will take forward many of the examples laid out on this page in the chapters ahead.  For now, this introductory session aims to provide you with a sufficient overview to get up and running in `Python`, and apply your knowledge to microeconometric methods introduced in the book.
