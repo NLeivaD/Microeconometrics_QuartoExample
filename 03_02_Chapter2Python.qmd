@@ -102,8 +102,54 @@ plt.legend()
 plt.grid(True)
 plt.show()
 ```
+### Block 2.1
+To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
+```{python}
+import pandas as pd
+import statsmodels.api as sm
+
+# Load the household data
+data = pd.read_csv("C:\\Users\\maria\\Desktop\\Proyecto\\Banerjee_et_al_2021.csv")
+
+# Assign the loaded data to subset_data
+subset_data = data
+
+# Remove rows with missing values
+subset_data = subset_data.dropna(subset=['ind_fin_el1', 'treatment'])
+
+# Check for missing values
+print("Missing values in 'ind_fin_el1':", subset_data['ind_fin_el1'].isna().sum())
+print("Missing values in 'treatment':", subset_data['treatment'].isna().sum())
+
+# Re-run the regression
+X = subset_data['treatment']
+y = subset_data['ind_fin_el1']
+X = sm.add_constant(X)
+model = sm.OLS(y, X).fit()
+print(model.summary())  # Note down the coefficient for the treatment variable
+
+# Store the coefficient for the treatment variable
+coef_treatment = model.params['treatment']
+
+# Display the regression coefficient
+print(f"Coefficient for treatment in regression: {coef_treatment}")
+
+# Calculate the means and difference in means
+mean_treatment = subset_data.loc[(subset_data['treatment'] == 1), 'ind_fin_el1'].mean()
+mean_control = subset_data.loc[(subset_data['treatment'] == 0), 'ind_fin_el1'].mean()
+diff_means = mean_treatment - mean_control
+print(f"Difference in means (Treatment - Control): {diff_means}")
+
+# Display the comparison
+print("The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.")
+
+```
+
 
 # Regression and Comparison of Means Estimators
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method.
+In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+
 Here we will work with data from @Banerjeeetal2021
 
 # Randomization Inference
@@ -199,6 +245,47 @@ plt.show()
 
 ## Randomization inference with a larger dataset
 Here we will return to the example from @Banerjeeetal2021.
+### Block 2.2
+```{python}
+import pandas as pd
+import numpy as np
+
+# Read the data
+data = pd.read_csv("C:/Users/maria/Desktop/Proyecto/Banerjee_et_al_2021.csv")
+
+# Function to perform randomization inference
+def randomization_inference(data, column_name):
+    # Observed treatment effect
+    treated = data[data['treatment'] == 1]
+    control = data[data['treatment'] == 0]
+    obs_effect = treated[column_name].mean() - control[column_name].mean()
+
+    # Randomization inference
+    n_permutations = 10000
+    permuted_effects = np.zeros(n_permutations)
+    for i in range(n_permutations):
+        permuted_treatment = np.random.permutation(data['treatment'].values)
+        treated_effect = data[column_name][permuted_treatment == 1].mean()
+        control_effect = data[column_name][permuted_treatment == 0].mean()
+        permuted_effects[i] = treated_effect - control_effect
+
+    # Calculate p-value
+    p_value = np.mean(np.abs(permuted_effects) >= np.abs(obs_effect))
+    return {"observed_effect": obs_effect, "p_value": p_value}
+
+# Function to print results in a descriptive manner
+def print_results(index_name, results):
+    significance = "significative" if results['p_value'] < 0.05 else "not significative"
+    print(f"The observed effect of {index_name} is {results['observed_effect']:.4f} and it's p-value is {results['p_value']:.4f}, which is {significance}.")
+
+# Financial Index
+financial_results = randomization_inference(data, 'ind_fin_el1')
+print_results("Financial Index", financial_results)
+
+# Asset Index
+asset_results = randomization_inference(data, 'asset_ind_tot_el1')
+print_results("Asset Index", asset_results)
+```
 
 
 
@@ -208,4 +295,57 @@ Here we will return to the example from @Banerjeeetal2021.
 3. Estimate the original regression equation with an additional term for the placebo treatment.
 4. Repeat \#1–3.
 5. The randomization inference p-value is the proportion of times the placebo treatment effect was larger than the estimated treatment effect.
+
+## Dehejia and Wahba
+In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM). PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates.
+By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.
+
+You have data from an observational study on a job training program. The dataset contains information on individuals' participation in the program (treat), their earnings in 1978 (re78), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975.
+The main objective of this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.
+```{python}
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import NearestNeighbors
+
+# Load the dataset
+data = pd.read_stata('C:/Users/maria/Desktop/Proyecto/Dehejia_Wahba_1999.dta')
+
+# Define the covariates and the treatment variable
+X = data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']]
+y = data['treat']
+
+# Estimate propensity scores using logistic regression
+logit = LogisticRegression(max_iter=1000)
+logit.fit(X, y)
+data['propensity_score'] = logit.predict_proba(X)[:, 1]
+
+# Perform matching
+treated = data[data.treat == 1]
+untreated = data[data.treat == 0]
+neigh = NearestNeighbors(n_neighbors=1)
+neigh.fit(untreated[['propensity_score']])
+indices = neigh.kneighbors(treated[['propensity_score']], return_distance=False)
+matched = untreated.iloc[indices.flatten()]
+
+# Reset indexes for treated and matched DataFrames
+treated = treated.reset_index(drop=True)
+matched = matched.reset_index(drop=True)
+
+# Diagnostic Checks
+# 1. Check for Missing Values
+print(data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75', 're78']].isnull().sum())
+
+# 2. Check Matching Results
+print("Number of treated individuals:", len(treated))
+print("Number of matched untreated individuals:", len(matched))
+
+# 3. Check Propensity Scores
+print("Unique propensity scores:", data['propensity_score'].nunique())
+
+# Calculate ATT
+ATT = (treated['re78'] - matched['re78']).mean()
+print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
+
+```
 

@@ -1,3 +1,84 @@
 ## Details required for Chapter 2
 
 Here will be the Chapter 2 excersises and examples.
+
+### Block 2.1
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(readxl)
+library(plyr)
+library(ggplot2)
+library(xtable)
+library(tidyr)
+library(haven)
+
+# Load the household data
+data <- read.csv("C:\\Users\\maria\\Desktop\\Proyecto\\Banerjee_et_al_2021.csv")
+
+# Simple Regression for ind_fin_el1
+fit <- lm(ind_fin_el1 ~ treatment, data = subset(data, el1 == 1))
+summary(fit)  # Note down the coefficient for the treatment variable
+coef_fit <- coef(fit)["treatment"]  # Extract the coefficient for the treatment variable
+
+# Display the regression coefficient
+cat("Coefficient for treatment in regression:", coef_fit, "\n")
+
+# Calculate mean for the treatment group
+mean_treatment <- mean(subset(data, treatment == 1 & el1 == 1)$ind_fin_el1, na.rm = TRUE)
+
+# Calculate mean for the control group
+mean_control <- mean(subset(data, treatment == 0 & el1 == 1)$ind_fin_el1, na.rm = TRUE)
+
+# Calculate and display the difference in means
+diff_means <- mean_treatment - mean_control
+cat("Difference in means (Treatment - Control):", diff_means, "\n")
+
+# Display the comparison
+cat("The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.\n")
+```
+### Block 2.2
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method.
+In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(readxl)
+library(plyr)
+library(ggplot2)
+library(xtable)
+library(tidyr)
+library(haven)
+
+data <- read.csv("C:/Users/maria/Desktop/Proyecto/Banerjee_et_al_2021.csv")
+
+########Financial Index###########
+# Observed treatment effect
+obs_effect <- mean(data$ind_fin_el1[data$treatment == 1], na.rm = TRUE) - mean(data$ind_fin_el1[data$treatment == 0], na.rm = TRUE)
+# Randomization inference
+n_permutations <- 10000
+permuted_effects <- numeric(n_permutations)
+for (i in 1:n_permutations) {
+  permuted_treatment <- sample(data$treatment)
+  permuted_effect <- mean(data$ind_fin_el1[permuted_treatment == 1], na.rm = TRUE) - mean(data$ind_fin_el1[permuted_treatment == 0], na.rm = TRUE)
+  permuted_effects[i] <- permuted_effect
+}
+# Calculate p-value
+p_value <- mean(abs(permuted_effects) >= abs(obs_effect))
+list(observed_effect = obs_effect, p_value = p_value)
+
+########Asset Index###########
+# Observed treatment effect
+obs_effect <- mean(data$asset_ind_tot_el1[data$treatment == 1], na.rm = TRUE) - mean(data$asset_ind_tot_el1[data$treatment == 0], na.rm = TRUE)
+# Randomization inference
+n_permutations <- 10000
+permuted_effects <- numeric(n_permutations)
+for (i in 1:n_permutations) {
+  permuted_treatment <- sample(data$treatment)
+  permuted_effect <- mean(data$asset_ind_tot_el1[permuted_treatment == 1], na.rm = TRUE) - mean(data$asset_ind_tot_el1[permuted_treatment == 0], na.rm = TRUE)
+  permuted_effects[i] <- permuted_effect
+}
+# Calculate p-value
+p_value <- mean(abs(permuted_effects) >= abs(obs_effect))
+list(observed_effect = obs_effect, p_value = p_value)
+```
+
