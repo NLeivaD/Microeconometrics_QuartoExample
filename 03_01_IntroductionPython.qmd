@@ -6,20 +6,8 @@ execute:
 jupyter: python3
 ---
 
-```{r echo = FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(warning = FALSE)
-library(reticulate)
-Sys.setenv(RETICULATE_PYTHON = "C:/Users/Usuario/AppData/Local/Programs/Python/Python311/python.exe")
-use_python("C:/Users/Usuario/AppData/Local/Programs/Python/Python311/python.exe")
-repl_python()
-```
-
 # Preliminaries
-We will assume that when you are reading this you have downloaded Python and have been able to access Python in some way. This may be via the command line, but most likely we imagine you will have some GUI which allows you to see a number of windows including a space for graphical output, a description of the contents of your Python Environment (for example any data you have loaded), potentially a place to write your code in Python, and, most importantly, a "shell", or Python interface, which looks like the following:
-
-```{bash eval = FALSE}
-python
-```
+We will assume that when you are reading this you have downloaded Python and have been able to access Python in some way. This may be via the command line, but most likely we imagine you will have some type of IDE which allows you to see a number of windows including a space for graphical output, a description of the contents of your Python Environment (for example any data you have loaded), potentially a place to write your code in Python, and, most importantly, a "shell", or Python interface, which looks like the following:
 
 ```
 Python 3.8.10 (default, May 26 2023, 14:05:08)
@@ -28,7 +16,19 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
-Here, Python code can be entered directly following a prompt which is the `>>>` symbol at the bottom of the window above. From the moment you open Python you are in a Python session until the moment you close it, from now on understand a session as this time between you open and close Python. The most simple way to execute code in Python is to simply input commands into your Python prompt  So, for example, you could write the following at to the right of the `>>>` symbol, and Python will evaluate this code:
+It may be prefereble to install `ipython` (details [here](https://ipython.org/install.html)) which provides a slightly more interactive version of Python.  This is available by default in certain IDEs such as Spyder.  The value of working in an `ipython` shell over a standard `python` shell is the availability of a number of "[magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html)" such as simple ways to get help, run files, and so forth.  We will delve into this slightly more below, but under the hood, both Python and IPython work with the Python language, and have a very similar feel; for example, see below for an example of the IPython shell compared to Python above.
+
+```
+Python 3.10.12 (main, Jun 11 2023, 05:26:28) [GCC 11.4.0]
+Type 'copyright', 'credits' or 'license' for more information
+IPython 8.14.0 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]:
+
+```
+
+
+Here, Python code can be entered directly following a prompt which is the `>>>` symbol at the bottom of the python window above, or `In [1]:` in the case of IPython. From the moment you open Python you are in a Python session until the moment you close it, and from now on we will understand a session as this time between when we open and close Python. The most simple way to execute code in Python is to simply input commands into your Python prompt.  So, for example, you could write the following at to the right of the `>>>` symbol, and Python will evaluate this code:
 
 ```{python}
 4 + 4
@@ -37,23 +37,22 @@ Here, Python code can be entered directly following a prompt which is the `>>>` 
 As you can see, Python has understood the instruction that you want to add 4 plus 4 and show the result, which is evaluated, and output directly below the code in the Python prompt. Later in this chapter we will properly explain these mathematical operations and the different Python data types. Beyond evaluating such simple mathematical operations, Python has a host of in-built functions which can be invoked at the command line. While we will interact with this in more detail later, a simple example is the following, which you can type in your Python console:
 
 ```{python}
-import os
-os.getcwd()
+sum([1,3,2,4])
 ```
 
-This function which can be understood as "get working directory" will show you the path on your computer where Python is currently working. Thus, any files saved will be exported there, and Python will search for any thing to import from this directory. If you want to change this directory you must use the function `os.chdir("Path/to/the/directory/you/want/to/use")` with the path written between `" "` or `' '` in order to Python understand that is a character, again a topic that will be seen deeper latter. It is important to note that paths should be separated with the slash character: `/` rather than the backlash `\`, and this will work on any operating system. Indeed, if you try to set directories with a backslash, you will see that Python returns an error.
+This function simply sums the list of values provided within it, printing the output (10) below.  We will return to discuss functions in more detail a bit later on.
 
-We will return to discuss functions in more detail a bit later on. For now you will note that we have simply been typing instructions to Python directly into the prompt, and Python has been providing us with output. Generally, we will not work this way in an empirical research project, as we will want to develop code over time, and be able to return to Python and replicate code in the future. For this reason, generally we will work in Python scripts, or files named as `something.py` (where `something` will be logical name for the file). We will use these scripts to store the commands which we require for particular processes or routines, and can then save them to the disk of our computer before running them in Python. These scripts can be generated in any type of text editor, and then can be run in Python using the `runfile` command. For example, below, you can see a screenshot of a session on (Spyder?) where we have a basic Python script named `firstPythonscript.py`, and below this, in the Python prompt we see that the output is provided.
+For now you will note that we have simply been typing instructions to Python directly into the command prompt, and Python has been providing us with output. Generally, we will not work this way in an empirical research project, as we will want to develop code over time, and be able to return to Python and replicate code in the future. For this reason, generally we will work in Python scripts, or files named as `something.py` (where `something` will be logical name for the file). We will use these scripts to store the commands which we require for particular processes or routines, and can then save them to the disk of our computer before running them in Python. These scripts can be generated in any type of text editor, and then can be run in Python.  If you are using IPython, running a script can be done simply using the %run command, by typing `%run something.py`.  This is however a magic command, and so is available in IPython, but not in Python.  Similarly, in certain other IDEs there may be other environment-specific ways to run `.py` files, for example the `runfile` command which is used in Spyder below:
 
-![A Python Script and Output in Spyder](runfilePython.png)
+![A Python Script and Output in Spyder](sourcePython.png)
 
-You may notice something strange about the code and the output in the Python console. The Python script has 7 distinct lines of text, but the console only produces two lines of output. The reason for this is because we have included comments, or messages for human eyes, but not for the computer to interpret. Any time that the `#` character is included in code, Python understands that this is a comment, and hence is ignored in executing the code. So, for example, when we write:
+You may notice something strange about the code and the output in the Python console in the image above. The Python script has 7 distinct lines of text, but the console only produces two lines of output. The reason for this is because we have included comments, or messages for human eyes, but not for the computer to interpret. Any time that the `#` character is included in code, Python understands that this is a comment, and hence is ignored in executing the code. So, for example, when we write:
 
 ```{python}
 print("Hello World!")
 ```
 
-in our code, the Python console correctly echoes *Hello World!* back at us.  However, if we enter precisely the same code, but begin the line with a comment symbol, Python will not do anything given that it interprets everythin to the right of `#` as plain text which should be ignored:
+in our code, the Python console correctly echoes *Hello World!* back at us.  However, if we enter precis	ely the same code, but begin the line with a comment symbol, Python will not do anything given that it interprets everything to the right of `#` as plain text which should be ignored:
 
 ```{python}
 # print("Hello World")
@@ -65,13 +64,12 @@ Similarly, comments can be used within lines:
 print("Hello World") # To the left of # code, all to the right, plain text
 ```
 
-As you can, this lines has executed the instruction to the left of `#` but ignores all those to the right.  It is good practice to comment code extensively, both for sharing code with other users, but also for sharing code with yourself in the future, where you may not remember precisely what you were thinking when you originally wrote your code!
+As you can, this lines has executed the instruction to the left of `#` but ignores all instructions to the right.  It is good practice to comment code extensively, both for sharing code with other users, but also for sharing code with yourself in the future, where you may not remember precisely what you were thinking when you originally wrote your code!  If you wish to include multiple line comments, you can also do this by enclosing various lines in three inverted commas.  For example, any lines contained between an opening \"\"\" and a closing \"\"\" will be assumed to be one long comment.  You can confirm this for yourself in a Python script.
 
-One final thing to note from this Python script is that the output from the final line of code (`4+4`) was not printed in the console. In Python, when you type `4+4` at the command line, you get immediate output because Python is operating in an interactive mode. In interactive mode, Python evaluates expressions as soon as you enter them and displays the result to the console. However, when you write `4+4` in a script and then run the script, there is no automatic output to the console.  However, it is important to note that the calculation *is* conducted. You can confirm this yourself if you'd like by explicitly requesting that Python provide this output when it runs the code, replacing `4+4` in the code with `print(4+4)`.
+One final thing to note from this Python script is that the output from the final line of code (`4+4`) was not printed in the console. In Python, when you type `4+4` at the command line, you get immediate output because Python automatically sends output to the console.  However, when you write `4+4` in a script and then run the script, there is no automatic output to the console.  However, it is important to note that the calculation *is* conducted. You can confirm this yourself if you'd like by explicitly requesting that Python provide this output when it runs the code, replacing `4+4` in the code with `print(4+4)`.
 
-### An introduction to language and data types
-
-Until now we have executed some code in Python and seem some specific functions which print output, but we have never stored any results for later use within our code.  Generally we *will* want to store the output of intermediate steps in our code for later use.  This can be done in Python using the assignment symbol `=`. For example, below we store a value as a variable which we define, arbitrarily named `x`:
+# An introduction to language and data types
+Until now we have executed some code in Python and seen some specific functions which print output, but we have never stored any results for later use within our code.  Generally we *will* want to store the output of intermediate steps in our code for later use.  This can be done in Python using the assignment symbol `=`. For example, below we store a value as a variable which we define, arbitrarily named `x`:
 
 ```{python}
 x = 2
@@ -80,8 +78,11 @@ x
 
 The use of `=` in the assignment must respect `name = value`. If, instead, we try to assign some variable as `value=name` an error will occur:
 
-```{python error=TRUE}
+```python
 4 = x
+```
+```
+SyntaxError: cannot assign to literal here. Maybe you meant '==' instead of '='?
 ```
 
 This error implies that the code has not been executed, and if we inspect the contents of `x` we will see that its prior value remains.
@@ -89,21 +90,21 @@ This error implies that the code has not been executed, and if we inspect the co
 ```{python}
 x
 ```
-In general, a command can produce a number of conditions which contain important messages for us.  These are:
+These errors tell you that something has gone wrong and Python couldn't execute your code. Error messages include a brief explanation of what has gone wrong, to help you diagnose and fix your code. Any expected results from your command will not be assigned.  At certain times, you may also see warnings which are printed when certain processes are run.  These "warnings" that something has occurred that could *potentially* cause problems, but is not critical for code execution. In these cases, Python will still execute the code and give the result, but warn you that not everything is necessarily in order and this may cause inaccurate results or future problems. At times these messages can be ignored without further issues, but warnings can also be a sign of peril, and so time should be taken to review warnings and understand whether they are problematic.
 
-- `Error`: These kinds of messages tell you that something has gone wrong and Python couldn't execute your code. Usually error messages include a brief explanation of what has gone wrong, to help you diagnose and fix your code. Any expected results from your command will not be assigned. 
-- `Warning`: These kinds of message indicate that somes has occurred that could potentially cause problems, but is not critical for code execution. In these cases, Python will still execute the code and give the result, but warn you that not everything is in order and this may cause inaccurate results or future problems. At times this messages can be ignored without further issues, but warnings can also be a sign of peril, and so time should be taken to review warnings and understand whether they are problematic.
-- `Message`: This kinds of messages simply provide information about the execution of your command, and Python is providing you with some piece of information which is useful for you to know.  This will not affect the output of your code, and does not generally indicate an error with your code.
 
-#### Data Types
-##### Text (String) Data
-To get up and running with Python, it is useful to understand the different ways which data can be stored. Python can hold a number of different types of objects in its working memory, and it is important that Python understands what type of information we are passing or storing. Among others, Python allows for information to be stored as characters, numeric, arrays, data frames and lists. Different types of data allow different types of operations, and should be stored in different ways. Characters are perhaps the conceptually simplest type of data. Characters are simply strings of text, and should be specified between `" "`, or `' '`.  We have seen the use of characters when printing "Hello world" previously. If characters are not indicated between quotes, Python will understand that they refer to variable names. For example, returning to *Hello World*, if this is entered without quotes, an error will appear:
+## Data Types
+### Text (String) Data
+To get up and running with Python, it is useful to understand the different ways which data can be stored. Python can hold a number of different types of objects in its working memory, and it is important that Python understands what type of information we are passing or storing. Among other things, Python allows for information to be stored as characters, numeric values, arrays, data frames and lists. Different types of data allow different types of operations, and should be stored in different ways. Characters are perhaps the conceptually simplest type of data, and Python has excellent text processing libraries. Characters are simply strings of text, and should be specified between `" "`, or `' '`.  We have seen the use of characters when printing "Hello world" previously. If characters are not indicated between quotes, Python will understand that they refer to variable names. For example, returning to *Hello World*, if this is entered without quotes, an error will appear:
 
-```{python error=TRUE}
+```python
 Hello World
 ```
+```
+SyntaxError: invalid syntax
+```
 
-Indeed, if we look carefully at the error message we may see that the error has occurred when Python arrives to *World*. This is because it assumes that *Hello* is a variable name, but this must be followed by some valid assignment. For example, had we written ```Hello = "world"``` this would have been perfectly fine!  Alternatively, if we do actually want to write this as characters, we can do so simply by enclosing the text in quotes:
+In practice, what has actually occurred here is that, because we did not tell it otherwise, Python assumes that Hello is a variable name, but this must be followed by some valid assignment. For example, had we written ```Hello = "world"``` this would have been perfectly fine (though probably not what we were trying to do)!  Alternatively, if we do actually want to write this as characters, we can do so simply by enclosing the text in double or single quotes:
 
 ```{python}
 "Hello World"
@@ -113,36 +114,50 @@ We can confirm that this is effectively understood to be character data by using
 
 ```{python}
 type("Hello World")
-my_var = "Hello World"
-type(my_var)
 ```
 
-##### Numeric Data
+```{python}
+my_string = "Hello World"
+type(my_string)
+```
+
+In both cases `Python` correctly informs us that we are working with string (text) data, printing `str`.
+
+
+### Numeric Data
 Numeric data is entered without any special behaviour, simply entering the number in the case of scalar values. Indeed, if numeric data is accidentally enclosed between quotes, it will be treated as character, and *not* numeric data. For example, below we assign two variables based on the number `2` and confirm that one is numeric while the other is viewed as a character.  
 
 ```{python}
 num1 = 2
 num2 = "2"
 type(num1)
+```
+
+```{python}
 type(num2)
 ```
 
-If you try to perform numerical operations based on the above variables (more on this below), you will see that `num1` can be involved in such calculations, while `num2` cannot.
+If you try to perform numerical operations based on the above variables (more on this below), you will see that `num1` can be involved in such calculations, while `num2` generally cannot.
 
-##### Tuples, Lists and Arrays
-Generally, we will be dealing with more than a single number in our work, and for this reason need ways	to collect groups of numbers. Tuples and lists (or arrays) provide some ways to do this. An easy way to create tuples or lists is via two options:  
+### Tuples, Lists and Arrays
+Typically, we will be dealing with more than a single number in our work, and for this reason need ways	to collect groups of numbers. Tuples and lists (or arrays) provide some ways to do this.
 
-1. Creating a list with `[ ]`. This allows for numbers to be combined in a list of elements. For example,
+To create a list of numbers, we simply need to enclose a group of values within square parentheses, separating the numbers by commas.  For example, to create a list with two values:
 ```{python}
 my_list = [1,2]
 type(my_list)
 ```
-This is required to group numbers. If we simply write a series of numbers without wrapping them in the `[ ]` operator, error will occur:
-```{python error=TRUE}
-1 2 
+This is required to group numbers. If we simply write a series of numbers without separating them by commas, an error will occur:
+```python
+[1 2]
 ```
-2. Just ennumerate the numbers and separate by a comma in order to create a tuple
-```{python error=TRUE}
+```
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+```
+though the error message has helpfully pointed us to the source of our error.  Similarly, if we forget the comma *and* fail to wrap our numbers if `[ ]`, we will once again generate an error.
+
+However, we *can* generate an alternative way to store numbers without the square brackets if we separate numbers by commas.  This will generate a tuple, as we can see below:
+```{python}
 my_tuple = 1,2,3
 type(my_tuple)
 ```
@@ -155,111 +170,147 @@ my_tuple = 1, 'Hello'
 type(my_tuple)
 ```
 
-In order to create arrays with matrix form you can list lists, this allows you to get objects in two dimensiones, rows and columns
-
+In order to create arrays with a matrix-like form, we can list lists, which allows us to get objects in two dimensiones: rows and columns.  To see this, we will generate a matrix below, and then print it out to the left of the string "Matrix =":
 ```{python}
 matrix = [[1,2],[3,4]]
 print("Matrix =", matrix)
 ```
 
-Other kind of data types to arrange multiple elements are `NumPy` arrays, this comes with the `NumPy` module, a module developed for array processing and mathematical operations
+While this allows us to view data in a matrix-like form, we would likely not want to start here if we actually want to do matrix-based calculations.  Indeed, there are a range of extended functionalities to Python which we can access by installing external packages and libraries.  We will hold off our discussion of the installation of packages until a little bit later in this section, but in the interests of completion would just note that there is a package known as `NumPy` which allows for more convenient matrix processing and numerical operations.  *Provided* that you have this package installed, you can generate a numpy array as follows, noting that we will discuss the installation of packages and the idea behind `import` slightly later in this document. 
 
 ```{python}
 import numpy
 numpy.array([[1,2],[3,4]])
 ```
-
-This give a new kind of data type and note that first you need to import the module, a subject that will be covered latter. A disadvantage of this data type is that coerce to the most restrictive type of data, as an example if you try to combine numbers and strings, will coerce every element to strings
+Unlike in lists, tuples, and so forth, numpy's interest in systematic processing of elements means that it *will* force the data into a uniform type, in particular coercing the array to the most restrictive data type, as you can see below, where the list `[1,2]` has been coerced to `['1', '2']`:
 
 ```{python}
 numpy.array([[1,2],["Hello", "World"]])
 ```
 
-##### Dictionaries
-One of the most used objects in Python are dictionaries that are pretty similar to lists, with the difference that a dictionary allows to associate values to a key:
+We will return to discuss numpy at more length below.
+
+
+### Dictionaries
+Dictionaries are similar to lists, however values can be assigned to a particular key.  As we will see shortly, in certain circumstances this may be preferable in terms of providing control over elements within the dictionary.
 
 ```{python}
 my_dictionary = {'First': [1,2], 'Second':[3,4]}
 my_dictionary
-type(my_dictionary)
 ```
 
-##### Data frames
-One of the data types that works along with mutliple other types are `Pandas` data frames, this allows to create a standard data base as you tipically know with multiple rows and columns, where an entire column will coerce to the most restrictive data type but you can have different data types in different columns. As an example we create a data frame named `df` that will use later in other examples
+### Data frames
+Likely the type of object which we will be working with the most in our analysis in `Python` are data frames.  Data frames allow us to mix mutliple other types of data, viewing the collection of variables and observations as a database with multiple rows and columns.  Within data frames, we can easily subset to certain rows (observations), columns (variables), and conduct univariate and multivariate analysis.  It will likely be the starting point for much of your work when you import a standard dataset into `Python`. Similarly to the case of numpy arrays, data frames in Python are handled by an external library known as Pandas, and again, we will discuss the installation of libraries properly below.
+
+However, to see way that a data frame can be used in Python, *if* you have Pandas installed on your computed you can generate a data frame as follows:
 
 ```{python}
 import pandas
-df = pandas.DataFrame(data = {'Col1': [1, 2], 'Col2': ["Hello", "World"],'Col3': [3, "String"]})
+df = pandas.DataFrame({'Col1': [1, 2], 'Col2': ["Hello", "World"],'Col3': [3, "String"]})
 df
 ```
+You may notice that all we have done to generate this data frame has been to enclose a dictionary inside of the command `pandas.DataFrame()`.  As is the case with numpy arrays, given that Pandas seeks consistency within columns of data, all types of data in a single column will be coerced to the most restrictive type.  In the case of `df` above, the third column (`Col3`) will be stored as a string.  If you would like to work with Pandas immediately, you may wish to jump ahead to the section where we discuss the Installation of libraries, and then return here.
 
-Later we will introduce more of the `Pandas` module
 
-#### Subset Multidimensional Elements
-
-As you see previously, there is elements as data frames or lists that stores multiple elements. Sometimes you will want to work with a subset of this multidimensional data types instead the entire object. In lists you can easily access to an specific value by using `[ ]` followed by the index of the object you want to extract:
+## Subsetting Multidimensional Elements
+As we saw in data frames and lists, often we will work with objects that store multiple elements. Sometimes we may want to work with a subset of this multidimensional data instead the entire object. In the case of lists you can easily gain access to any specific value by using the list's name followed by square parentheses and the location of the item(s) you wish to extract:
 
 ```{python}
 my_list[0]
 ```
 
-Note that in Python the index starts from 0. If you want to access more than one object you can use the slice operator `:` between `[ ]` as `[StartIndex : EndIndex]`. As an example overwrite `my_list` with more numbers and access from the first to the second
+A particularity of Python is that it uses zero-based indexing, so element [0] refers to the first item in a list, while the last item in a list will be element N-1.  However, items can also be accessed by referring to their position with regards to the end of the list.  For example, specifying [-1] will return the final item in the list:
+
+```{python}
+my_list[-1]
+```
+If you wish to access more than one object you can use the slice operator which consists of a colon `:` between `[ ]` in the format of `[StartIndex : EndIndex]`. As an example we will replace `my_list` with a longer list and access from the first to the second element.
 
 ```{python}
 my_list = [1,2,3,4,5,6]
 my_list[0:2]
 ```
 
-Note that the `EndIndex` was 2, in Python that points to the third element but the third element wasn't included in the output, that is because Python doesn't include the element respective to `EndIndex`, it includes until the previous.  
+You will likely have notede here that the `EndIndex` was 2, which in Python points to the third element of the list.  But as we can see, the third element wasn't included in the output, and this is because Python returns elements *up until* `EndIndex` but not including `EndIndex`.  Similarly, with the slide operator we can also use positions relative to the end of the list, provided that `EndIndex` is greater than `StartIndex`.
+```{python} 
+my_list[2:-1]
+```
 
-In the case of `Pandas` data frame the way to access is different and have two ways to access, through the methods `loc` and `iloc`. What methods are will be seen latter. The `loc` method allows to access a subset of the data frame through their index names, rows and column, as follows `DataFrameName.loc[RowIndex, ColIndex]`. For example in `df`
+In the case of the `Pandas` data frames that we have discussed, there are a number of ways that we can access data: either referring to column names, or referring to the order of columns, along with the row numbers that we wish to access.  If we wish to access columns based on their names, we can use the `loc` method, while if we wish to access columns based on their column number, we can use the `iloc` method.  Previously we have generated a data frame which we named `df`:
 
 ```{python}
 df
 ```
 
-The column index are *Col1, Col2* and *Col3* while the row index are *0* and *1*. In order to get the World element
+If we wish to access data through column names (also known as column index) we use the syntax: `DataFrameName.loc[RowIndex, ColIndex]`.  In the data frame `df`, our column index is: *Col1, Col2* and *Col3* while the row index is *0* and *1*. This, in order to access the "World" element we can simply write:
 
 ```{python}
 df.loc[1, 'Col2']
 ```
 
-Instead, the `iloc` method allows to access them through numeric index pointing the position of row and column. In the case of `df` as no row index names are provided, will be equivalent the row index to input in `loc` and `iloc` while the column index will change
+Alternatively, the `iloc` method works similarly, however accesses rows through their numeric index, which as standard begins at *0*, and goes up from their.  So, to do the equivalent of the above using `iloc` we can simply write the following.
 
 ```{python}
 df.iloc[1,1]
 ```
-Note that mix one syntax with other will give errors
+In this case, because the rows are named numerically, the `RowIndex` value is 1 in both examples.  Frequently our data frames will have rows named numerically, and so this is quite standard.  If however we want to name our rows differently, we can do this by using `df.index` as below:
 
-```{python error = TRUE}
+
+```{python}
+df.index=['a','b']
+```
+
+Now, if we attempt to use the previous `loc` call where *1* was a valid row index, we will see that this now results in an error, and we instead need to use the correct row index.
+
+```{python}
+df.loc[1, "Col2"]
+```
+
+```
+SyntaxError: invalid syntax
+```
+
+```{python}
+df.loc["b", "Col2"]
+```
+
+
+Similarly, if we accidentally mix up our notation and try to use column naming in `iloc`, things will not work as we hope:
+```{python}
 df.iloc[1, "Col2"]
 ```
+```
+ValueError: Location based indexing can only have [integer, integer slice (START point is INCLUDED, END point is EXCLUDED), listlike of integers, boolean array] types
+```
 
-```{python error = TRUE}
+```{python}
 df.loc[1, 1]
 ```
-In case you want an entire row just left the slice operator `:` in the column position
 
+```
+KeyError: 1
+```
+
+As we saw previously with lists, we can use the slice operator to access ranges of cells:
+
+```{python}
+df.iloc[0:2, 2]
+```
+
+In case we wish to acess an entire row, we can do this by using the slice operator with no values, which defaults to accessing the entire row:
 ```{python}
 df.iloc[1,:]
 ```
 
-And the same for an entire row
-
+This can similarly be used with `loc`:
 ```{python}
-df.loc[1,:]
+df.loc["a",:]
 ```
 
-Note this works with `loc` and `iloc`. You can also mix a single element and more than one row, or column, but always in mind to respect `loc` and `iloc` respective syntax
 
-```{python}
-df.iloc[1,1]
-df.iloc[0:2, 2]
-```
+## Basic Operations
+The standard mathematical operations in `Python` likely work how you would expect. Basic mathematical operations are as follows, with an example of their use below:
 
-#### Basic Operations
-
-Now that you know how to store data, and the different objects where you can store the data, you must know the basic operations to do with that data. Python has the next basic mathematical operations:
 
 |   Symbol    |    Operation     |
 |:-----------:|:----------------:|
@@ -283,13 +334,15 @@ A few examples
 10 // 3
 ```
 
-Also when you combine different operators it respect the PEMDAS order, first solve Parenthesis, second solve Exponents, third Multiplication, fourth Division, fifth Addition and sixth Substraction. For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
+Two important things to note are that the power symbol is *not* ^, but rather `**`, and that integer division simply returns the integer, discarding any remainder.  
+Also note that when you combine different operators Python follows the PEMDAS order, first resolving Parentheses, second solve Exponents, third Multiplication and Division, fourth Addition and Substraction.  Both multiplication and division, and addition and substraction are evaluated left to right, rather than sequentially by operation, so it is important to indicate to `Python` explicitly what you need using parentheses in certain cases.  For example in order to solve $$-\frac{5 + 3^{5-3}}{5\times 3}$$ You should use the code
+
 
 ```{python}
--(5+3^(5-3))/(5*3)
+-(5+3**(5-3))/(5*3)
 ```
 
-Python also has logical operatos that returns a boolean value (`True` or `False`) pointing if a statement is true or false. This operators are:
+Python also has logical operatos that returns a boolean value (`True` or `False`) pointing if a statement is true or false. These operators are:
 
 | Symbol |     Comparison     |
 |:------:|:------------------:|
@@ -299,9 +352,9 @@ Python also has logical operatos that returns a boolean value (`True` or `False`
 |  `>=`  |  Greater or Equal  |
 |  `<`   |     Less than      |
 |  `<=`  | Less than or Equal |
-| `|` or `or` |         Or         |
-|  `&` or `and`   |        And         |
-|  `not`   |        Negation         |
+| `|` or `or` |         Or    |
+|  `&` or `and`   |   And     |
+|  `not`   | Negation         |
 
 A few examples
 
@@ -312,7 +365,7 @@ A few examples
 4 >= 3
 4 < 3
 4 <= 3
-4 %in% c(1,2,3,4)
+4 in [1,2,3,4]
 True | False
 True or False
 True & False
@@ -320,257 +373,303 @@ True and False
 not(True)
 ```
 
-This boolean values are interpreted by Python as the numbers 0 for `False` and 1 for `True`, characteristic that allows to work with them numerically and is useful when you want to check a series of conditions.
+These boolean values are interpreted by Python as the numbers 0 for `False` and 1 for `True`, a characteristic which allows you to work with them numerically and is useful when you want to check a series of conditions.
 
-The logical and mathematical operators are useful when making operations between different objects, it can be an object of a single value or an object with multiple values. As many software Python came with some basic functions that make specific tasks, for example if you want to add all the values in a vector you don´t need to type one-by-one all those values, you can use the function `sum`:
+
+## Functions
+Beyond these logical and mathematical operators, `Python` comes with a basic suite of built in functions which perform specific tasks, as well as a large number of other functions (discussed below) which can be imported, or installed and imported, to extend this basic functionality.  Every time you open Python, a range of built in functions are always available (listed [here](https://docs.python.org/3/library/functions.html)).
+
+Functions are designed to perform specific tasks, potentially accepting input (known as "arguments"), and returning output which you can interact with.  We have already seen a number of functions above such as `print()`, `sum()` and `type()`, all of which we have used with arguments.  Arguments are simply the contents we provide the function inside the parentheses.  Understanding how packages work, including the arguments they accept and the objects they return is key.  This can be found by consulting the help file by typing `help(function_name)`.  For example, if we type `help(abs)` we will see that the function accepts an argument "x", and "Return the absolute value of the argument".  We can explore this to confirm that this is what happens with a simple example:
 
 ```{python}
-sum([1,2,3])
+abs(-1)
 ```
 
-In order to use this functions the syntaxis in Python is the function's name followed by parenthesis `( )` and between the parenthesis the function's arguments separated by comma `,`. To know better how a function works is always a good idea to read the help document that comes along with Python, some that you can make with the `help` function. For an example if you type `help(sum)` you will see how `sum` function works and its arguments.  
+## Managing modules
+While not available "out of the box", an enormous range of functions can be imported into Python by loading Modules or libraries.  Modules are a set of predefined objects and functions that can be imported and used in Python to extend functionality in many directions.  This modules can themselves contain various levels of submodules which contain individual functions, and in general the syntax to access functions within a module is `module.function`, or if there are submodules `module.submodule.function`. 
 
-As the `sum` function, Python comes with a lot of functions in their base environment as functions to get descriptive statistics, work with dates and others. This functions are sufficient to take along any task manually but not necessarily optimal. There are very useful functions and data types that doesn't come with base enviroment and comes with modules.
+There are a large number of modules which are available with a standard installation of Python.  If you would like to see a list of *all* the modules available -- which will likely be large -- you can see this is in Python by typing:
+```python
+help("modules")
+```
 
-### Managing modules
+To access the functions contained in a particular module we must import this into Python every time that we run Python.  This process of importing a function uses the `import` command, and should generally be done at the top of any script we write.  So, for example, if we wish to access functions from within the `os` module, we can do this by typing:
 
-What are the modules? Is a set of predefined objects and functions that can be imported and used in Python. This modules can contain various levels of submodules before get to the functions, in general the syntax is `module.function` and if there is submodules `module.submodule.function`. For example when you define the `NumPy` array you access to the array function in the `NumPy` module throug `numpy.array`.
+```{python}
+import os
+```
+And similarly, if we'd like to be able to access functions from the math module we can do this as:
+```{python}
+import math
+```
+We can then use function which are available within these modules provided that we prepend the module name.  Thus, for example, from `math`:
+```{python}
+math.log(5)
+```
+and
+```{python}
+math.pi
+```
+are quite self-explanatory, while from `os` we can find a large arrange of tools to interact with our operating system, for example the `getcwd` function if we would like to see the directory where we are currently working or the `chdir` function to change to a new working directory:
+```{python}
+os.getcwd()
+```
 
-In order to install a module you have several alternatives depending on what is the package's source, but no matter the option is the case, the procedure must be done only once in your equipment. Now is explained how to do it with the use of `pip` by using `pip install packagename`. As an example, in order to install `Pandas` -that is one of the most famous Python's packages for data manipulation- you must execute the following code in the prompt:
+However, at times we may wish to install modules which are not available in our standard installation.  A range of additional packages are available via `pip`, which is the package installer for Python (hence pip).  Two packages which we referred to previously were `NumPy` and `Pandas`.  Both of these packages will be fundamental for our work, and can be installed from pip using the command `pip install packagename`.  For example, to install Pandas we can type:
 
-```{python eval=FALSE}
+```python
 pip install pandas
 ```
 
-Now that the module is installed you doesn't need to install it again unless you want to update the module. That a module is installed doesn't mean that Python automatically loads the package along with their functions and data types, for example if you want to use the `Pandas`'s function `DataFrame` to create a new data frame it will be an error if you haven't imported the `Pandas` package.
-
-So in order to use the package you must load it each time you open a new session with the command `import` writing the package's name next
-
-```{python eval = FALSE}
+Now that the module is installed you will not need to install it again unless you want to update the module.  However, as above we will need to import the package every time we wish to use it using import.  While this can be done as previously:
+```{python}
 import pandas
 ```
-
-And that allows to make use of all that incorporate the module. A common practice is to abbreviate the module name when importing, for example
+In practice we can assign the package an alias which makes it easier to use later.  It is standard usage to instead load pandas as follows, where by writing `as pd` means that we now refer to the package as `pd` rather than Python:
 
 ```{python}
 import pandas as pd
-df = pd.DataFrame(data = df)
+df = pd.DataFrame(df)
 df
 ```
 
-In the previous code was used the function `df` of `Pandas` module without writing `pandas`, instead writing `pd`. Is highly recommended that the import of the module be included in your script for reproducibility of your code. Also you can import specific functions from modules
+Similarly, it is standard to load numpy as:
+```{python}
+import numpy as np
+```
+Implying that we can refer to any numpy functions as simply `np.function_name()`.  If there are specific functions that will be particulary commonly used, we can import these directly, and then they can be used without first typing the package name.  For example, if we want to simplify access to `numpy`'s `sqrt` function to take square roots, we can do this as below:
 
 ```{python}
 from numpy import sqrt
 sqrt(4)
 ```
 
-And you can also rename this functions
+What's more, if for some reason we wish to provide alternative names for specific functions, we can do this once again with `as`:
 
 ```{python}
 from numpy import sqrt as squareroot
 squareroot(4)
 ```
 
-### Loading and viewing data
 
-In this section we review how to import classical data formats as `csv`, `txt`, `excel` and `dta`, all via `Pandas` functions. Beginning with `csv` files, the basic usage is
+# Working with Data
+## Loading and viewing data
+In most -- if not all -- of our research projects, we will not actually type in data to `Python` by hand which is a cumbersome and highly error-prone activity, but rather we will wish to read in data which we have stored on our disk in one or a number of files.  Such data may be stored in many formats; among others this may be free formats such as `csv` or `txt`, or even proprietry formats such as `excel` or `dta`. We will generally do this using functions which are a part of `Python` which has the added benefit of importing our data as an easy to use data frame.
 
-```{python eval = FALSE}
+For data stored as `csv` (comma seperated values) or `txt` formats `Panda` comes with the functions `read_csv`,  and `read_table`. If you consult the help documentation, which is something I would recommend anytime you come across a new function, you will see that these functions provide a large number of options to control how data is read into `Python`.  If we would like to import a standard comma separated value (csv) file, the basic usage is
+
+```python
 pd.read_csv("Path/To/Your/File.csv")
 ```
 
+For `txt` data, or in fact any type of delimited data, a useful function is `read_table`:
 
-For `txt` data, in fact delimited data, a useful function is `read_table`:
-
-```{python eval=FALSE}
+```python
 pd.read_table("Path/To/Your/File.csv")
 ```
 
-If you explore the help documentation you will notice that you can specify a variety of arguments that indicates if the first row should be taken as a header row, what is the separation between columns, the decimal separator and others.
+If you explore the help documentation you will notice that you can specify a variety of arguments such as  indicating which  character is used to indicate column breaks, whether a header is included, and so forth.
 
-For `excel` files you count with the function `read_excel`
+While the options vary, a standardised syntax is also available for `excel` files such as those ending in .xls or .xlsx:
 
-```{python eval=FALSE}
+```python
 pd.read_excel("Path/To/Your/File.xlsx")
 ```
 
-If you see the help documentation you will catch that there are a variety of arguments that allows point an specific sheet to import, an specific range, use or not the first row as column names, between others.
+If you refer to the help documentation you will see that there are a variety of arguments which allows you to point to a specific sheet you wish to import, a specific range of columns or rows, whether or not to use the first row as column names, etc.
 
 Finally in order to import `dta` the function is `read_stata`
 
-```{python eval=FALSE}
+```python
 pd.read_stata("Path/To/Your/File.dta")
 ```
 
-Until now all examples only import data but not store it in any object, an action that doesn't make much sense because probably you import data to work with it. Now we are going to import an internal dataset from the package `wooldridge`, that contains 115 data sets from the book "Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge, in order to show how manipulate this data sets
-
+The examples so far have been to illustrate basic syntax, though imported data has not been stored in any particular object for later manipulation.  In general we will of course want to go on to *use* the data we load, which is why we loaded it in the first place.  This can be done in the same way as any other assignment in `Python`.  Below we will import a particular dataset which is available as part of the wooldridge library, to have some data to work with below.  This library is available for download from pip if you do not have access on your system. And contains 115 data sets from Wooldridge's undergraduate Econometrics Textbook ("Introductory Econometrics: A Modern Approach", 7th Edition by Jeffrey Wooldridge):
 ```{python}
 import wooldridge
 mroz = wooldridge.data('mroz')
 mroz
 ```
 
-This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women´s Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799.
-
-### Tyding data
-
-In this section we are covering how to manipulate data, specifically how to make a simple exploratory analysis and modify the data frame. Note that the dataset is imported as a `Pandas` data frame
-
+This dataset contains the data from T. A. Mroz (1987), "The Sensitivity of and Empirical Model of Married Women's Hours of Work to Economic and Statistical Assumptions", Econometrica 55, 765-799, and we have stored it as an object called `mroz`.  We can inspect this element to see how the data has been imported:
 ```{python}
 type(mroz)
 ```
-
-Along with this section you will see the use of the `head` method, this method shows us the first rows of an object in order to prevent a data frame being totally printed. Previously we mentioned the existence of this *methods*, this are function associated to an object that can be called from the object using the same notation that functios from modules, the difference is that methods are defined within a type of object and works along with the properties of that kind of object. For example `head`
-
+seeing that, conveniently, it has been stored as a data frame.  We can also look at a quick snapshot of the data by using the `head()` method, which will print just the first few rows of our data:
 ```{python}
 mroz.head()
 ```
+Depending on the way that we are working with `Python`, we may also be able to explore the data more interactively if we have some data viewer available.
 
-We principally focus on the use of `Pandas` functions and methods. For example, consider de `mroz` data frame, if we apply the `descibe` method to a column we get the descriptive statistics:
+## Tidying data
+Once we have loaded data in `Python`, we will likely want to manipulate the data in a number of ways.  This can include relatively simple things like sub-setting to certain columns or rows (which we have already encountered above), but also more complicated things like aggregating data to a higher level, calculating statistics for one or mutliple variable(s) over other variables, joining together a number of datasets, or "reshaping" data in certain ways.  Here we will provide a very brief overview of these procedures, and introduce other things as we need them thoughout the book.
+
+Data manipulation in data frames will largely depend upon `Panda`'s functions and methods.  We have seen examples of methods above, namely `loc()` and `iloc()`, and `head()`.  **Methods** are functions which are associated with an object and which can be called from the object, which will work in a specific way depending on the type of object this is.  We have seen above that data frames have methods, but methods can also be applied to columns within data frames.  As an example, we can consider `describe`  which can be applied to a column of a data frame to generate descriptive statistics:
 
 ```{python}
 mroz.wage.describe()
 ```
+You will note here that we have used a new way to refer to an entire column of a data frame, namely using its column name.  In order to see the range of methods which can be applied to an object you can use the `dir()` function. For example if you want to know the methods which can be applied to a data frame you can type:
 
-This result also is a object and has it owns methods, in order to know an object methods you can use the `dir()` function. For example if you want to know a data frame methods
-
-```{python}
+```python
 dir(mroz)
 ```
+which will provide you a long list of methods.
 
-For example now use `groupby` to get descriptive statistics for different groups
 
-```{python}
-mroz.groupby(['kidslt6']).wage.describe()
-```
-
-Other functionalities of `Pandas` module are the use of `sql` functions like `join` that allows to merge two data frames. So let's now try to make a join between two data frames, first create the mean as previous examples and next join this mean to the mroz dataset by the column inlf
+### Aggregating Data
+To start with some basic data manipulations, we will consider data aggregation.  For example, imagine that we wished to turn our individual level data frame we imported as `mroz` above into some group-level averages.  We can do this using as we have seen previously, we have been able to generate summary stats, and if we are interested in particular in the mean, example, we can use the `mean()` method.  Below, we will calculate the mean number of children aged less than six in our data:
 
 ```{python}
-mroz_wage_mean = mroz.groupby(['kidslt6']).wage.mean()
-mroz_mod = mroz.join(mroz_wage_mean, on =['kidslt6'], how = 'left', rsuffix = '_Mean')
-mroz_mod.loc[:,['kidslt6', 'wage', 'wage_Mean']].head()
+mroz.kidslt6.mean()
 ```
 
-Other convenient tools that you will apply on this book are selecting some rows or some columns from the dataset, from `filter` method we can filter columns or rows that meet certain condition in their labels. For example selecting columns:
+Indeed, here with summarise we have requested that it provide us with the mean of this variable, but we could just as easily request some other statistic such as `std`, `min`, `max`, `median`, `quantile` etc.
+It is quite simple to concatenate operations to conduct a range of operations.  For example, imagine that if instead of wishing to simply know the mean number of children less than 6 in our data, we wanted to know this for women in the labour market and those out of the labour market.  We could easily add this distinction using the `groupby` method.  We will also name the resulting data frame `meankidslt6`:
+
+
+
+```{python}
+meankidslt6 = mroz.groupby(['inlf']).kidslt6.mean()
+meankidslt6
+```
+
+This process of data aggregation can be considerably extended depending on what we require, for example working with multiple levels over which to group, generating a larger range of statistics, and so forth.
+
+
+### Merging/Joining Data
+We will also, at times, wish to join two (or more) pieces of data together, for example "merging" data frames or tibbles by a column or columns.  For example, it may be that we have a survey where each individuals surveyed belongs to a household, where all of the individual-level questions in the data are stored as an individual-level file (along with the individual's household ID), while the household level measures are stored in another file at the household level.  If we wish to work with information on the individual *and* their household characteristics, we will need to "join", or "merge" the file using the household ID.
+
+We can see an example of this using the `join()` method.  A simple example is if we would like to take the grouped-level statistics generated previously, and join them back into our original `mroz` data.  What we want to do then, is for each individual who is in the labour force (`inlf==1`), join the information on the mean number of children under 6 in this group to their row of data, and similarly, for individuals *not* in the labour force (`inlf==0`), incorporate the group-level value to their row.
+
+
+```{python}
+mroz_kids_mean = mroz.groupby(['inlf']).kidslt6.mean()
+mroz_mod = mroz.join(mroz_kids_mean, on = ['inlf'], how = 'left', rsuffix = '_Mean')
+mroz_mod.loc[:,['inlf', 'kidslt6', 'kidslt6_Mean']].head()
+```
+
+```{python}
+mroz_mod.loc[:,['inlf', 'kidslt6', 'kidslt6_Mean']].tail()
+```
+Here we have used the `join()` method to conduct our merge, and specified `how='left'`.  In this **particular** setting, we could have used any if the various `join` modes which can be `left`, `right`, `inner` or `outer`.  This is because in this case, all of the levels of "inlf" which are in one set of data are also in the other set of data.  In many cases this may not be the case, and we may have observations in one dataset that are not in the other.  In this case, we must be careful to indicate whether we wish to keep observations that appear in both sets of data (`inner`), keep those that only appear in the left-hand side of the command (`left`), those that only appear in the right-hand side of the command (`right`), or those appearing in either data set (`outer`).  Note that here when we refer to the left-hand side and the right-hand side, we refer to the data frame indicated before `.join(` as the left-hand side, and that which appears after as the right-hand side.
+
+
+While there is some mechanics in setting this up, once we have understood the logic of group by and join it would be exceedingly easy to generalise this, for example if we wished to instead have the aggregates produced by labour market status *and* the individual's age (or any other less aggregated level).  It would be worth exploring such generalisations in the code above to ensure that you are happy with the way things are working.
+
+
+### Filtering Data
+Previously we have discussed how to select particular columns or rows of data, however there are other ways which we can do this.  For example, the `filter` method allows us to filter columns or rows that meet certain condition in their labels. For example selecting columns:
 
 ```{python}
 mroz.filter(items = ["kidslt6", "age"])
 ```
-
-Now for selecting some rows according to its values
-
+Perhaps more useful, we can also filter on observations values.  This is done using logical indexing
 ```{python}
 mroz[mroz.kidslt6 == 3]
 ```
 
-In order to create new columns, Python automatically understands it when we input a name that is not recognized in the data frame:
+
+### Generating variables
+In order to create new columns, Pandas automatically understands that when we include a name that is *not* a part of the data frame, that we wish to generated a new column of data.  For example, in the below we will generate a new variable, which is experience squared:
 
 ```{python}
 mroz["exper2"] = mroz.exper**2
 mroz.head()
 ```
+If we instead include a variable name which is already present, any existing information will be replaced with the new values we assign.
 
-Finally the last tool that we introduce for data manipulation is transform data from wide format to long format and reverse. Consider the next data frame
+
+### Reshaping Data
+Finally the last tool that we introduce for data manipulation is the idea of "reshaping" or transforming data from a wide format to a long format (and *vice versa*).  We refer to data in a **long** format if for each observation we have multiple rows of data, covering different levels of some other variable.  For example, a classic example of this would be a panel of data over countries and years.  On the other hand, we refer to data as being in a **wide** format if for each observation we have multiple columns (or variables) which cover different levels of some other variable.  In certain settings we will wish to work with data in one format, and in other settings we may find it more convenient to work with data in another format.  To make this a bit clearer, consider the below data frame:
 
 ```{python}
-Data = pd.DataFrame({'Zone': ["A", "A", "B", "B"], 'Year': [2021, 2022, 2021, 2022], 'Sales': [100, 115, 98, 106]})
+Data = pd.DataFrame({'Zone': ["A", "A", "A", "B", "B", "B"], 'Year': [2020, 2021, 2022, 2020, 2021, 2022], 'Sales': [90, 100, 115, 82, 98, 106]})
 Data
 ```
 
-This format is the long format, you have multiple observations for one unit (zone in this example), to transform it in wide format
+Here we can see that data is in the long format, with multiple observations for one unit (zone in this example) over a number of years.  To convert this data to wide format we can use the `pivot` method, as follows:
 
 ```{python}
 Data = Data.pivot(index = 'Zone', columns = 'Year', values = 'Sales')
 Data
 ```
 
-As you can see now there is one observation per unit. Lets get it back to long format with the `melt` method
+As you can see now there is now one observation per unit, where each observation has three resulting columns (one for each year). Now, if we wish to return to the long format we can do so with the converse `melt` function:
 
 ```{python}
-Data = pd.melt(Data.reset_index(), id_vars = ['Zone'], value_name = 'Sales')
+Data = Data.melt(value_vars=[2020,2021,2022], value_name = 'Sales')
 Data
 ```
+In practice, we will generally use these commands with a considerably larger number of units, but the basic principles are the same regardless.
 
-Now that you know the basics of data manipulation, the next step is to learn how make some basic plots.
 
-### Basic Plots
 
-In Python one of the most used modules to create plots is `pyplot` from `matplotlib`
+# Basic Plots
+To end this initial introduction, we will briefly explore the generation of basic plots in `Python`.  In Python one of the most used modules to create plots is `pyplot` from the `matplotlib` module.  If you have not previously installed this module, you can do so using `pip install matplotlib`, and then we will import the pyplot submodule as `plt`.  
 
 ```{python}
 from matplotlib import pyplot as plt 
 ```
 
-Let $x$ be a sequence of integers between -5 and 5
+`pyplot` maps pairs of points in the $(x,y)$ coordinate axis and places them on a graph. For example, let's consider a case where $x$ is a sequence of integers between -5 and 5.  This can be generated as below:
 
 ```{python}
-x = numpy.array(range(-5, 6))
+x = np.array(range(-5, 6))
 x
 ```
 
-Now consider $y = x^2$
+Now consider the variable $y = x^2$:
 
 ```{python}
 y = x**2
 y
 ```
 
-If you create a data frame
+We will store these two objects as a data frame, by creating a dictionary containing `x` and `y` (though we could proceed to plot without first storing our data as a data frame):
 
 ```{python}
 Data = pd.DataFrame({'x': x, 'y': y})
 ```
 
-The first step in `pyplot` is to define the plot and add elements, then, unless you have an IDE with a plot pane, you should use the `show` method from `pyplot` to display your plot
+The relevant function in `pyplot` is `plot`, which  by default generates a line plot, making reasonable decisions for axes and labelling.  Unless you have an IDE which automatically displays your plot in a  plot panel, you should use the `show` method from `pyplot` to display your plot:
 
 ```{python}
 plt.plot(Data['x'], Data['y'])
 plt.show()
 ```
 
-By default a line plot is rendered, in order to change it to a points plot you must set the linestyle to `""` and the markers to points
+If you wish to change the default behaviour of `plot` you can do so with a range of options.  For example, in order to change the plot to a scatter plot, we can set the linestyle to `""` and the markers to points:
 
 ```{python}
 plt.plot(Data['x'], Data['y'], linestyle = "", marker = ".")
 plt.show()
 ```
 
-As you can see pointes where added but over the line that was rendered previously, in order to reset the figure you can use `clf` method
+There are many ways to further customise graphics in `Python`, and indeed, we will see a range of other plots throughout the remainder of these pages.  In general, editing basic plots can be done relatively straight-forwardly, allowing us to build up plots bit by bit.  For example, we could use the `mroz` data we have worked with previously to plot the log(wage) against years of experince:
+
 
 ```{python}
-plt.clf()
-plt.show()
-```
-
-And now make the point plot
-
-```{python}
-plt.plot(Data['x'], Data['y'], linestyle = "", marker = ".")
-plt.show()
-```
-
-Now we show you with the `mroz` data frame how to make a scatter plot instead a point plot manually as has been shown
-
-```{python}
-plt.clf()
-plt.figure(1)
 plt.scatter(mroz['exper'], mroz['lwage'])
+plt.grid(True)
+plt.ylabel("ln(wage)")
+plt.xlabel("Experience")
 plt.show()
 ```
 
-Other widely used module is `seaborn`, this module is specific for way more complex plots as for example a regression plot
-
+Another widely-used package to allow for further customisation of graphs in `Python` is the `seaborn` library, which can be installed from pip.   For example, if we wish to overlay a regression line on the scatter plot above, along with its 95% confidence intervals, we can do so quite easily with `seaborns` `regplot` function.  To see this, we will first import seaborn, and then finally generate the plot:
 ```{python}
 import seaborn as sns
 ```
 
 ```{python}
 plt.clf()
-sns.regplot(data = mroz, x = 'exper', y = 'lwage')
+sns.regplot(data = mroz, x = 'exper', y = 'lwage', color='red')
+plt.grid(True)
+plt.ylabel("ln(wage)")
+plt.xlabel("Experience")
 plt.show()
 ```
 
 
-As said before, this introductory section of this chapter doesn't intend to be a comprehensive tutorial of Python, instead is a wide general guide to understand some fundamentals you will see in the rest of the chapter.
+We will take forward many of the examples laid out on this page in the chapters ahead.  For now, this introductory session aims to provide you with a sufficient overview to get up and running in `Python`, and apply your knowledge to microeconometric methods introduced in the book.
