@@ -31,7 +31,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./02_01_IntroductionStata.html" rel="next">
-<link href="./01_03_Chapter3R.html" rel="prev">
+<link href="./01_04_Chapter4R.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -154,6 +154,11 @@ ul.task-list li input[type="checkbox"] {
   <a href="./01_03_Chapter3R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 3</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_04_Chapter4R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 4</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -166,7 +171,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></a>
+  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Stata</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -191,7 +196,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3.1 Introduction to Python</span></a>
+  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Python</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -221,8 +226,10 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#installing-and-working-with-stata" id="toc-installing-and-working-with-stata" class="nav-link" data-scroll-target="#installing-and-working-with-stata">Installing and Working with Stata</a></li>
+  <li><a href="#installing-and-working-with-stata" id="toc-installing-and-working-with-stata" class="nav-link" data-scroll-target="#installing-and-working-with-stata">Installing and Working with Stata</a>
+  <ul class="collapse">
   <li><a href="#further-resources" id="toc-further-resources" class="nav-link" data-scroll-target="#further-resources">Further Resources</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -248,19 +255,24 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>In this section we will provide a primer in <a href="https://www.stata.com/">Stata</a>, which seeks to provide you with the necessary tools to explore the microeconometric methods introduced throughout the book. “Stata is a complete, integrated software package that provides all your data science needs—data manipulation, visualization, statistics, and automated reporting” as is defined in its website. Stata has a long history, dating the middle 1980s, and also an ever-growing body of user-contributed add-on packages. It also has an active community providing online support on forums such as <a href="https://www.statalist.org/">Stata List</a>, and a substantial corpus of code online, meaning that large language models will be well suited to support you in your programming in Stata. It provides you with the large majority of tools you will need throughout this book, as well as the programming environment necessary to extend available tools where required.</p>
+<p>In this section we will provide a primer in <a href="https://www.stata.com/">Stata</a>, which seeks to provide you with the necessary tools to explore the microeconometric methods introduced throughout the book. “Stata is a complete, integrated software package that provides all your data science needs—data manipulation, visualization, statistics, and automated reporting” as is defined in its website. <a href="https://www.stata.com/">Stata</a> was first developed in the mid 1980s, and is now up to release 18. Stata is particularly strong at data manipulation and statistical modelling, and along with their own developers, has an active community of researchers who contribute user-written packages. It also has an active community providing online support on forums such as <a href="https://www.statalist.org/">Stata List</a>. It provides you with the large majority of tools you will need throughout this book, as well as the programming environment necessary to extend available tools where required. Stata releases a new version of the program every couple of years, and a strength of Stata is that it guarantees backwards compatability. Thus, code written in older versions of Stata can be run seamlessly in future versions. However, code written in newer versions of Stata will not necessarily work in older versions of Stata, because in each version of Stata new tools are added.</p>
 <p>The goal of this site is not to provide you with a comprehensive introduction to the software, but instead we it seeks to provide you with an overview of the basic tools to understand the required tools that we will use to get up and running in this book. In the first section we will focus on a brief rundown of some principal elements of Stata without yet getting into the empirical methods discussed in the textbook. Thereafter, we will focus on causal econometric methods, but in each section will also introduce any further tools required to complete key analyses or end-of-chapter questions. The goal of this resource is that after following along with these sections you will be sufficiently well-versed in Stata that you will comfortably be able to work with real data and econometric implementations. Nevertheless, below we point you to further resources if you are seeking a comprehensive overview of Stata as a software.</p>
 </section>
 <section id="installing-and-working-with-stata" class="level2">
 <h2 class="anchored" data-anchor-id="installing-and-working-with-stata">Installing and Working with Stata</h2>
-<p>Information on how to order and get Stata is available on the <a href="https://www.stata.com/order/">Stata website</a>, and further support can be found searching the web. Stata also provide a user-friendly interface, allowing you to view any variable that you have generated in the memory in Stata, output like graphics, help documentation, and so forth. An example of what Stata looks like is provided below, where you can see that code is visible, as well as what is in the your “variables”, a history of code and results window.</p>
-<p>AQUI PODRIAMOS INCLUIR UN PANTALLAZO DE STATA, QUIZAS PODRIA SER EL SUYO PROFESOR</p>
+<p>Information on how to order and get Stata is available on the <a href="https://www.stata.com/order/">Stata website</a>, and further support can be found searching the web. When installing Stata, the language comes with its own Graphical User Interface (GUI) which is quite user friendly. This GUI provides a command line to interact with Stata and an output window, as well as a list of commands recently executed. It also has a number of emerging windows including a built in file editor, and a graphics window. An example of what Stata looks like is provided below, where you can see that a code editor is visible, as well as a screen below where one can interact directly with Stata.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="stata.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Stata</figcaption><p></p>
+</figure>
+</div>
+<section id="further-resources" class="level3">
+<h3 class="anchored" data-anchor-id="further-resources">Further Resources</h3>
+<p>From here we will move to a first tutorial about Stata as a language, and an overview of a number of key elements. If you are interested in generating a more complete overview of Stata, I would highly recommend the list of resources provided on the <a href="https://www.stata.com/links/">Stata webpage</a>. At this link they include things such as books and blogs on Stata, but also provide a number of video tutorials and online resources specifically related to learning Stata.</p>
+
+
 </section>
-<section id="further-resources" class="level2">
-<h2 class="anchored" data-anchor-id="further-resources">Further Resources</h2>
-<p>From here we will move to a first tutorial about Stata as a language, and an overview of a number of hey elements. If you are interested in generating a more complete overview of Stata, a number of resources can be consulted in the <a href="https://www.stata.com/links/">Stata webpage</a>.</p>
-
-
 </section>
 
 </main> <!-- /main -->
@@ -399,13 +411,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./01_03_Chapter3R.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Details required for Chapter 3</span></span>
+      <a href="./01_04_Chapter4R.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Details required for Chapter 4</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="./02_01_IntroductionStata.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">An Introduction to Stata</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

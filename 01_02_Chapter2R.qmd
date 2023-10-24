@@ -3,6 +3,7 @@
 Here will be the Chapter 2 excersises and examples.
 
 ### Block 2.1
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(readxl)
@@ -13,7 +14,7 @@ library(tidyr)
 library(haven)
 
 # Load the household data
-data <- read.csv("C:\\Users\\maria\\Desktop\\Proyecto\\Banerjee_et_al_2021.csv")
+data <- read.csv("Datasets/Banerjee_et_al_2021.csv")
 
 # Simple Regression for ind_fin_el1
 fit <- lm(ind_fin_el1 ~ treatment, data = subset(data, el1 == 1))
@@ -36,9 +37,10 @@ cat("Difference in means (Treatment - Control):", diff_means, "\n")
 # Display the comparison
 cat("The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.\n")
 ```
+
 ### Block 2.2
-Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method.
-In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
@@ -49,7 +51,7 @@ library(xtable)
 library(tidyr)
 library(haven)
 
-data <- read.csv("C:/Users/maria/Desktop/Proyecto/Banerjee_et_al_2021.csv")
+data <- read.csv("Datasets/Banerjee_et_al_2021.csv")
 
 ########Financial Index###########
 # Observed treatment effect
@@ -81,4 +83,3 @@ for (i in 1:n_permutations) {
 p_value <- mean(abs(permuted_effects) >= abs(obs_effect))
 list(observed_effect = obs_effect, p_value = p_value)
 ```
-

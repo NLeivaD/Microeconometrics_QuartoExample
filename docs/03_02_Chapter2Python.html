@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Microeconometrics: Methods and Applications - 10&nbsp; 3.2 – Details required for Chapter 2</title>
+<title>Microeconometrics: Methods and Applications - 11&nbsp; 3.2 – Details required for Chapter 2</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -237,6 +237,11 @@ div.csl-indent {
   <a href="./01_03_Chapter3R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 3</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_04_Chapter4R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 4</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -249,7 +254,7 @@ div.csl-indent {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></a>
+  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Stata</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -274,7 +279,7 @@ div.csl-indent {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3.1 Introduction to Python</span></a>
+  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Python</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -303,12 +308,16 @@ div.csl-indent {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preliminaries" id="toc-preliminaries" class="nav-link active" data-scroll-target="#preliminaries">Preliminaries</a></li>
+  <li><a href="#preliminaries" id="toc-preliminaries" class="nav-link active" data-scroll-target="#preliminaries">Preliminaries</a>
+  <ul class="collapse">
+  <li><a href="#block-2.1" id="toc-block-2.1" class="nav-link" data-scroll-target="#block-2.1">Block 2.1</a></li>
+  </ul></li>
   <li><a href="#regression-and-comparison-of-means-estimators" id="toc-regression-and-comparison-of-means-estimators" class="nav-link" data-scroll-target="#regression-and-comparison-of-means-estimators">Regression and Comparison of Means Estimators</a></li>
   <li><a href="#randomization-inference" id="toc-randomization-inference" class="nav-link" data-scroll-target="#randomization-inference">Randomization Inference</a>
   <ul class="collapse">
   <li><a href="#an-exact-p-value" id="toc-an-exact-p-value" class="nav-link" data-scroll-target="#an-exact-p-value">An Exact p-value</a></li>
   <li><a href="#randomization-inference-with-a-larger-dataset" id="toc-randomization-inference-with-a-larger-dataset" class="nav-link" data-scroll-target="#randomization-inference-with-a-larger-dataset">Randomization inference with a larger dataset</a></li>
+  <li><a href="#dehejia-and-wahba" id="toc-dehejia-and-wahba" class="nav-link" data-scroll-target="#dehejia-and-wahba">Dehejia and Wahba</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -406,7 +415,7 @@ C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\seabo
 <div id="fig-regscatter" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="03_02_Chapter2Python_files/figure-html/fig-regscatter-output-2.png" width="662" height="503" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;11.1: Two-way scatter plot with regression model</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;12.1: Two-way scatter plot with regression model</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -452,14 +461,90 @@ C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\seabo
 <div id="fig-reghist" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="03_02_Chapter2Python_files/figure-html/fig-reghist-output-2.png" width="670" height="509" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;11.2: Regression estimates in 500 simulations</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;12.2: Regression estimates in 500 simulations</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
+<section id="block-2.1" class="level3">
+<h3 class="anchored" data-anchor-id="block-2.1">Block 2.1</h3>
+<p>To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al.&nbsp;(2021).</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the household data</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"Datasets/Banerjee_et_al_2021.csv"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign the loaded data to subset_data</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>subset_data <span class="op">=</span> data</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows with missing values</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>subset_data <span class="op">=</span> subset_data.dropna(subset<span class="op">=</span>[<span class="st">'ind_fin_el1'</span>, <span class="st">'treatment'</span>])</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for missing values</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Missing values in 'ind_fin_el1':"</span>, subset_data[<span class="st">'ind_fin_el1'</span>].isna().<span class="bu">sum</span>())</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Missing values in 'treatment':"</span>, subset_data[<span class="st">'treatment'</span>].isna().<span class="bu">sum</span>())</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Re-run the regression</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> subset_data[<span class="st">'treatment'</span>]</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> subset_data[<span class="st">'ind_fin_el1'</span>]</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> sm.add_constant(X)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> sm.OLS(y, X).fit()</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model.summary())  <span class="co"># Note down the coefficient for the treatment variable</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Store the coefficient for the treatment variable</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>coef_treatment <span class="op">=</span> model.params[<span class="st">'treatment'</span>]</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the regression coefficient</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Coefficient for treatment in regression: </span><span class="sc">{</span>coef_treatment<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the means and difference in means</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>mean_treatment <span class="op">=</span> subset_data.loc[(subset_data[<span class="st">'treatment'</span>] <span class="op">==</span> <span class="dv">1</span>), <span class="st">'ind_fin_el1'</span>].mean()</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>mean_control <span class="op">=</span> subset_data.loc[(subset_data[<span class="st">'treatment'</span>] <span class="op">==</span> <span class="dv">0</span>), <span class="st">'ind_fin_el1'</span>].mean()</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>diff_means <span class="op">=</span> mean_treatment <span class="op">-</span> mean_control</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Difference in means (Treatment - Control): </span><span class="sc">{</span>diff_means<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the comparison</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The coefficient from the regression should be equal to the difference in means to demonstrate equivalence."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Missing values in 'ind_fin_el1': 0
+Missing values in 'treatment': 0
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:            ind_fin_el1   R-squared:                       0.000
+Model:                            OLS   Adj. R-squared:                 -0.001
+Method:                 Least Squares   F-statistic:                   0.05307
+Date:                Tue, 24 Oct 2023   Prob (F-statistic):              0.818
+Time:                        08:58:57   Log-Likelihood:                -729.69
+No. Observations:                 815   AIC:                             1463.
+Df Residuals:                     813   BIC:                             1473.
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P&gt;|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.1354      0.030      4.469      0.000       0.076       0.195
+treatment     -0.0096      0.042     -0.230      0.818      -0.091       0.072
+==============================================================================
+Omnibus:                      613.330   Durbin-Watson:                   1.913
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             9492.123
+Skew:                           3.359   Prob(JB):                         0.00
+Kurtosis:                      18.310   Cond. No.                         2.69
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+Coefficient for treatment in regression: -0.009589322745445057
+Difference in means (Treatment - Control): -0.009589322745445328
+The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.</code></pre>
+</div>
+</div>
+</section>
 </section>
 <section id="regression-and-comparison-of-means-estimators" class="level1">
 <h1>Regression and Comparison of Means Estimators</h1>
+<p>Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study “Long-Term effects of the Targeting the Ultra Poor Program” conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.</p>
 <p>Here we will work with data from <span class="citation" data-cites="Banerjeeetal2021">Banerjee, Duflo, and Sharma (<a href="06_references.html#ref-Banerjeeetal2021" role="doc-biblioref">2021</a>)</span></p>
 </section>
 <section id="randomization-inference" class="level1">
@@ -685,62 +770,62 @@ C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\seabo
 </tbody>
 </table>
 <p>We will set this up in Python. First, we will load the required libraries:</p>
-<div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Load required libraries</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> permutations</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Load required libraries</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> permutations</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We will now enter data as a Pandas data frame, and subsequently calculate the difference in means estimator in a number of lines. You will note that in calculating the differnce in means estimator, we are first sub-setting using logical indexing (for example: <code>data[data['W']==1]</code>, which means “choose all rows of data for which <span class="math inline">\(W=1\)</span>”). Then, we calculate the means in each group using the Pandas <code>mean()</code> operator.</p>
-<div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Enter data as Pandas data frame</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {<span class="st">'Y'</span>: [<span class="dv">34</span>, <span class="dv">27</span>, <span class="dv">29</span>, <span class="dv">14</span>, <span class="dv">18</span>, <span class="dv">24</span>],</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'W'</span>: [<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>]}</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(data)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculate Difference in means estimator  </span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>Y1 <span class="op">=</span> data[data[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">1</span>][<span class="st">'Y'</span>]</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>Y0 <span class="op">=</span> data[data[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">0</span>][<span class="st">'Y'</span>]</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>tau <span class="op">=</span> Y1.mean() <span class="op">-</span> Y0.mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Generate permutations of W</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>perm<span class="op">=</span>permutations([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Wperm=perm</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>Wperm <span class="op">=</span> <span class="bu">set</span>(perm)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>Taus <span class="op">=</span> []</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> Wperm:</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    dataP <span class="op">=</span> pd.DataFrame({<span class="st">'Y'</span>: [<span class="dv">34</span>, <span class="dv">27</span>, <span class="dv">29</span>, <span class="dv">14</span>, <span class="dv">18</span>, <span class="dv">24</span>], <span class="st">'W'</span>: p})</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    tauP <span class="op">=</span> dataP[dataP[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">1</span>][<span class="st">'Y'</span>].mean()<span class="op">-</span>dataP[dataP[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">0</span>][<span class="st">'Y'</span>].mean()</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    Taus.append(tauP)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>p_2side <span class="op">=</span> <span class="bu">sum</span>(np.absolute(Taus)<span class="op">&gt;=</span>tau)<span class="op">/</span><span class="bu">len</span>(Taus)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>p_1side <span class="op">=</span> <span class="bu">sum</span>(Taus<span class="op">&gt;=</span>tau)<span class="op">/</span><span class="bu">len</span>(Taus)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The two-sided p-value is: "</span> <span class="op">+</span> <span class="bu">str</span>(p_2side))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Enter data as Pandas data frame</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {<span class="st">'Y'</span>: [<span class="dv">34</span>, <span class="dv">27</span>, <span class="dv">29</span>, <span class="dv">14</span>, <span class="dv">18</span>, <span class="dv">24</span>],</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'W'</span>: [<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>]}</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.DataFrame(data)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculate Difference in means estimator  </span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>Y1 <span class="op">=</span> data[data[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">1</span>][<span class="st">'Y'</span>]</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>Y0 <span class="op">=</span> data[data[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">0</span>][<span class="st">'Y'</span>]</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>tau <span class="op">=</span> Y1.mean() <span class="op">-</span> Y0.mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Generate permutations of W</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>perm<span class="op">=</span>permutations([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Wperm=perm</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>Wperm <span class="op">=</span> <span class="bu">set</span>(perm)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>Taus <span class="op">=</span> []</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> Wperm:</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    dataP <span class="op">=</span> pd.DataFrame({<span class="st">'Y'</span>: [<span class="dv">34</span>, <span class="dv">27</span>, <span class="dv">29</span>, <span class="dv">14</span>, <span class="dv">18</span>, <span class="dv">24</span>], <span class="st">'W'</span>: p})</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    tauP <span class="op">=</span> dataP[dataP[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">1</span>][<span class="st">'Y'</span>].mean()<span class="op">-</span>dataP[dataP[<span class="st">'W'</span>]<span class="op">==</span><span class="dv">0</span>][<span class="st">'Y'</span>].mean()</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    Taus.append(tauP)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>p_2side <span class="op">=</span> <span class="bu">sum</span>(np.absolute(Taus)<span class="op">&gt;=</span>tau)<span class="op">/</span><span class="bu">len</span>(Taus)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>p_1side <span class="op">=</span> <span class="bu">sum</span>(Taus<span class="op">&gt;=</span>tau)<span class="op">/</span><span class="bu">len</span>(Taus)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The two-sided p-value is: "</span> <span class="op">+</span> <span class="bu">str</span>(p_2side))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>The two-sided p-value is: 0.1</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Generate graph</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sns.set_palette(<span class="st">"pastel"</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>plt.hist(Taus,bins<span class="op">=</span><span class="dv">10</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, density<span class="op">=</span><span class="va">True</span>, label<span class="op">=</span><span class="st">"Permutations"</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Density"</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Test statistic"</span>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>plt.axvline(tau, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'dashed'</span>, label<span class="op">=</span><span class="vs">r'$\widehat\tau$'</span>)</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>plt.legend() </span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Generate graph</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sns.set_palette(<span class="st">"pastel"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>plt.hist(Taus,bins<span class="op">=</span><span class="dv">10</span>, edgecolor<span class="op">=</span><span class="st">'black'</span>, density<span class="op">=</span><span class="va">True</span>, label<span class="op">=</span><span class="st">"Permutations"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Density"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Test statistic"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>plt.axvline(tau, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'dashed'</span>, label<span class="op">=</span><span class="vs">r'$\widehat\tau$'</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>plt.legend() </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="fig-permute" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="03_02_Chapter2Python_files/figure-html/fig-permute-output-1.png" width="597" height="429" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;13.1: Permutation inference</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;14.1: Permutation inference</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -748,7 +833,53 @@ C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\seabo
 </section>
 <section id="randomization-inference-with-a-larger-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="randomization-inference-with-a-larger-dataset">Randomization inference with a larger dataset</h2>
-<p>Here we will return to the example from <span class="citation" data-cites="Banerjeeetal2021">Banerjee, Duflo, and Sharma (<a href="06_references.html#ref-Banerjeeetal2021" role="doc-biblioref">2021</a>)</span>.</p>
+<p>Here we will return to the example from <span class="citation" data-cites="Banerjeeetal2021">Banerjee, Duflo, and Sharma (<a href="06_references.html#ref-Banerjeeetal2021" role="doc-biblioref">2021</a>)</span>. ### Block 2.2</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the data</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"Datasets/Banerjee_et_al_2021.csv"</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to perform randomization inference</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> randomization_inference(data, column_name):</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Observed treatment effect</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    treated <span class="op">=</span> data[data[<span class="st">'treatment'</span>] <span class="op">==</span> <span class="dv">1</span>]</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    control <span class="op">=</span> data[data[<span class="st">'treatment'</span>] <span class="op">==</span> <span class="dv">0</span>]</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    obs_effect <span class="op">=</span> treated[column_name].mean() <span class="op">-</span> control[column_name].mean()</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Randomization inference</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    n_permutations <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    permuted_effects <span class="op">=</span> np.zeros(n_permutations)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_permutations):</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        permuted_treatment <span class="op">=</span> np.random.permutation(data[<span class="st">'treatment'</span>].values)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        treated_effect <span class="op">=</span> data[column_name][permuted_treatment <span class="op">==</span> <span class="dv">1</span>].mean()</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        control_effect <span class="op">=</span> data[column_name][permuted_treatment <span class="op">==</span> <span class="dv">0</span>].mean()</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        permuted_effects[i] <span class="op">=</span> treated_effect <span class="op">-</span> control_effect</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate p-value</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    p_value <span class="op">=</span> np.mean(np.<span class="bu">abs</span>(permuted_effects) <span class="op">&gt;=</span> np.<span class="bu">abs</span>(obs_effect))</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"observed_effect"</span>: obs_effect, <span class="st">"p_value"</span>: p_value}</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to print results in a descriptive manner</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_results(index_name, results):</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    significance <span class="op">=</span> <span class="st">"significative"</span> <span class="cf">if</span> results[<span class="st">'p_value'</span>] <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="cf">else</span> <span class="st">"not significative"</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"The observed effect of </span><span class="sc">{</span>index_name<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>results[<span class="st">'observed_effect'</span>]<span class="sc">:.4f}</span><span class="ss"> and it's p-value is </span><span class="sc">{</span>results[<span class="st">'p_value'</span>]<span class="sc">:.4f}</span><span class="ss">, which is </span><span class="sc">{</span>significance<span class="sc">}</span><span class="ss">."</span>)</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Financial Index</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>financial_results <span class="op">=</span> randomization_inference(data, <span class="st">'ind_fin_el1'</span>)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>print_results(<span class="st">"Financial Index"</span>, financial_results)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Asset Index</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>asset_results <span class="op">=</span> randomization_inference(data, <span class="st">'asset_ind_tot_el1'</span>)</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>print_results(<span class="st">"Asset Index"</span>, asset_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The observed effect of Financial Index is -0.0096 and it's p-value is 0.8198, which is not significative.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The observed effect of Asset Index is 0.4078 and it's p-value is 0.0002, which is significative.</code></pre>
+</div>
+</div>
 <ol type="1">
 <li>Preserve the original treatment assignment.</li>
 <li>Generate placebo treatment statuses according to the original assignment method.</li>
@@ -756,6 +887,72 @@ C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\seabo
 <li>Repeat #1–3.</li>
 <li>The randomization inference p-value is the proportion of times the placebo treatment effect was larger than the estimated treatment effect.</li>
 </ol>
+</section>
+<section id="dehejia-and-wahba" class="level2">
+<h2 class="anchored" data-anchor-id="dehejia-and-wahba">Dehejia and Wahba</h2>
+<p>In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM). PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates. By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.</p>
+<p>You have data from an observational study on a job training program. The dataset contains information on individuals’ participation in the program (treat), their earnings in 1978 (re78), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975. The main objective of this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> NearestNeighbors</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the dataset</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_stata(<span class="st">'Datasets/Dehejia_Wahba_1999.dta'</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the covariates and the treatment variable</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> data[[<span class="st">'age'</span>, <span class="st">'education'</span>, <span class="st">'black'</span>, <span class="st">'hispanic'</span>, <span class="st">'married'</span>, <span class="st">'nodegree'</span>, <span class="st">'re74'</span>, <span class="st">'re75'</span>]]</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> data[<span class="st">'treat'</span>]</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate propensity scores using logistic regression</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>logit <span class="op">=</span> LogisticRegression(max_iter<span class="op">=</span><span class="dv">1000</span>)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>logit.fit(X, y)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>data[<span class="st">'propensity_score'</span>] <span class="op">=</span> logit.predict_proba(X)[:, <span class="dv">1</span>]</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform matching</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>treated <span class="op">=</span> data[data.treat <span class="op">==</span> <span class="dv">1</span>]</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>untreated <span class="op">=</span> data[data.treat <span class="op">==</span> <span class="dv">0</span>]</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>neigh <span class="op">=</span> NearestNeighbors(n_neighbors<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>neigh.fit(untreated[[<span class="st">'propensity_score'</span>]])</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>indices <span class="op">=</span> neigh.kneighbors(treated[[<span class="st">'propensity_score'</span>]], return_distance<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>matched <span class="op">=</span> untreated.iloc[indices.flatten()]</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset indexes for treated and matched DataFrames</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>treated <span class="op">=</span> treated.reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>matched <span class="op">=</span> matched.reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic Checks</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Check for Missing Values</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data[[<span class="st">'age'</span>, <span class="st">'education'</span>, <span class="st">'black'</span>, <span class="st">'hispanic'</span>, <span class="st">'married'</span>, <span class="st">'nodegree'</span>, <span class="st">'re74'</span>, <span class="st">'re75'</span>, <span class="st">'re78'</span>]].isnull().<span class="bu">sum</span>())</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Check Matching Results</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of treated individuals:"</span>, <span class="bu">len</span>(treated))</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of matched untreated individuals:"</span>, <span class="bu">len</span>(matched))</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Check Propensity Scores</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Unique propensity scores:"</span>, data[<span class="st">'propensity_score'</span>].nunique())</span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate ATT</span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>ATT <span class="op">=</span> (treated[<span class="st">'re78'</span>] <span class="op">-</span> matched[<span class="st">'re78'</span>]).mean()</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Average Treatment Effect on the Treated (ATT): </span><span class="sc">{</span>ATT<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>age          0
+education    0
+black        0
+hispanic     0
+married      0
+nodegree     0
+re74         0
+re75         0
+re78         0
+dtype: int64
+Number of treated individuals: 185
+Number of matched untreated individuals: 185
+Unique propensity scores: 336
+Average Treatment Effect on the Treated (ATT): 1454.528076171875</code></pre>
+</div>
+</div>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
@@ -903,7 +1100,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./03_01_IntroductionPython.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">3.1 Introduction to Python</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">An Introduction to Python</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

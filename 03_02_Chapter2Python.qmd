@@ -4,13 +4,14 @@ bibliography: refs.bib
 ---
 
 # Preliminaries
-We will begin by examining a number of details which will be required during the exercises encountered in this chapter.  This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
+
+We will begin by examining a number of details which will be required during the exercises encountered in this chapter. This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
 
 To start, we will simulate some data based on the following data generating process:
 
 $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
 
-where $\beta_0=1$, $\beta_1=2$, and both $x_i$ and $\varepsilon_i$ are distributed $\mathcal{N}(0,1)$.  Having conducted this simulation, we will estimate a regression model to estimate $\widehat\beta_1$.  In the book, you will be asked to consider examples which are more appropriate for the treatment effects framework which we are considering.
+where $\beta_0=1$, $\beta_1=2$, and both $x_i$ and $\varepsilon_i$ are distributed $\mathcal{N}(0,1)$. Having conducted this simulation, we will estimate a regression model to estimate $\widehat\beta_1$. In the book, you will be asked to consider examples which are more appropriate for the treatment effects framework which we are considering.
 
 ```{python}
 import numpy as np
@@ -42,7 +43,6 @@ print(f"beta 1 (Coefficient): {beta1hat}")
 print(f"Intercept: {beta0hat}")
 ```
 
-
 ```{python}
 #| label: fig-regscatter
 #| fig-cap: "Two-way scatter plot with regression model"
@@ -65,6 +65,7 @@ plt.show()
 ```
 
 Finally, we will do this 500 times, to see what the distribution of estimated paramters $\widehat\beta_1$ looks like:
+
 ```{python}
 #| label: fig-reghist
 #| fig-cap: "Regression estimates in 500 simulations"
@@ -102,14 +103,17 @@ plt.legend()
 plt.grid(True)
 plt.show()
 ```
+
 ### Block 2.1
+
 To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
+
 ```{python}
 import pandas as pd
 import statsmodels.api as sm
 
 # Load the household data
-data = pd.read_csv("C:\\Users\\maria\\Desktop\\Proyecto\\Banerjee_et_al_2021.csv")
+data = pd.read_csv("Datasets/Banerjee_et_al_2021.csv")
 
 # Assign the loaded data to subset_data
 subset_data = data
@@ -145,44 +149,44 @@ print("The coefficient from the regression should be equal to the difference in 
 
 ```
 
-
 # Regression and Comparison of Means Estimators
-Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method.
-In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
 
 Here we will work with data from @Banerjeeetal2021
 
 # Randomization Inference
+
 ## An Exact p-value
-It is perhaps useful to see a simple example.  Consider the case of 6 units, with 3 observations randomly assigned treatment.  Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$.  A simple comparison of means estimator suggests that the treatment effect is 11.33.  To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect.  If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below.  In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status).  Suggesting an exact p-value of $1/20=0.05$.
 
+It is perhaps useful to see a simple example. Consider the case of 6 units, with 3 observations randomly assigned treatment. Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$. A simple comparison of means estimator suggests that the treatment effect is 11.33. To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect. If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below. In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status). Suggesting an exact p-value of $1/20=0.05$.
 
-| Permutation | T1 | T2 | T3 | C1 | C2 | C3 | Estimate|
-|-------------|----|----|----|----|----|----|---------|
-Original (1)  | 34 | 27 | 29 | 14 | 18 | 24 | 11.33   |
-|   2         | 34 | 27 | 14 | 29 | 18 | 24 | 1.33    |
-|   3         | 34 | 27 | 18 | 14 | 29 | 24 | 4	      |
-|   4         | 34 | 27 | 24 | 14 | 18 | 29 | 8       |
-|   5         | 34 | 14 | 29 | 27 | 18 | 24 | 2.67    |
-|   6         | 34 | 18 | 29 | 14 | 27 | 24 | 5.33    |
-|   7         | 34 | 24 | 29 | 14 | 18 | 27 | 9.33    |
-|   8         | 14 | 27 | 29 | 34 | 18 | 24 | -2      |
-|   9         | 18 | 27 | 29 | 14 | 34 | 24 | 0.67    |
-|   10        | 24 | 27 | 29 | 14 | 18 | 34 | 4.67    |
-|   11        | 34 | 14 | 18 | 27 | 29 | 24 | -4.67   |
-|   12        | 34 | 14 | 24 | 27 | 18 | 29 | -0.67   |
-|   13        | 34 | 18 | 24 | 14 | 27 | 29 | 2       |
-|   14        | 14 | 27 | 18 | 34 | 29 | 24 | -9.33   |
-|   15        | 14 | 27 | 24 | 34 | 18 | 29 | -5.33   |
-|   16        | 18 | 27 | 24 | 14 | 34 | 29 | -2.67   |
-|   17        | 14 | 18 | 29 | 34 | 27 | 24 | -8      |
-|   18        | 14 | 24 | 29 | 34 | 18 | 27 | -4      |
-|   19        | 18 | 24 | 29 | 14 | 34 | 27 | -1.33   |
-|   20        | 14 | 18 | 24 | 34 | 27 | 29 | -11.33  |
-   
- : A Simple Illustration of Randomization Inference {.striped .hover .borderless .secondary}
+| Permutation  | T1  | T2  | T3  | C1  | C2  | C3  | Estimate |
+|--------------|-----|-----|-----|-----|-----|-----|----------|
+| Original (1) | 34  | 27  | 29  | 14  | 18  | 24  | 11.33    |
+| 2            | 34  | 27  | 14  | 29  | 18  | 24  | 1.33     |
+| 3            | 34  | 27  | 18  | 14  | 29  | 24  | 4        |
+| 4            | 34  | 27  | 24  | 14  | 18  | 29  | 8        |
+| 5            | 34  | 14  | 29  | 27  | 18  | 24  | 2.67     |
+| 6            | 34  | 18  | 29  | 14  | 27  | 24  | 5.33     |
+| 7            | 34  | 24  | 29  | 14  | 18  | 27  | 9.33     |
+| 8            | 14  | 27  | 29  | 34  | 18  | 24  | -2       |
+| 9            | 18  | 27  | 29  | 14  | 34  | 24  | 0.67     |
+| 10           | 24  | 27  | 29  | 14  | 18  | 34  | 4.67     |
+| 11           | 34  | 14  | 18  | 27  | 29  | 24  | -4.67    |
+| 12           | 34  | 14  | 24  | 27  | 18  | 29  | -0.67    |
+| 13           | 34  | 18  | 24  | 14  | 27  | 29  | 2        |
+| 14           | 14  | 27  | 18  | 34  | 29  | 24  | -9.33    |
+| 15           | 14  | 27  | 24  | 34  | 18  | 29  | -5.33    |
+| 16           | 18  | 27  | 24  | 14  | 34  | 29  | -2.67    |
+| 17           | 14  | 18  | 29  | 34  | 27  | 24  | -8       |
+| 18           | 14  | 24  | 29  | 34  | 18  | 27  | -4       |
+| 19           | 18  | 24  | 29  | 14  | 34  | 27  | -1.33    |
+| 20           | 14  | 18  | 24  | 34  | 27  | 29  | -11.33   |
 
-We will set this up in Python.  First, we will load the required libraries:
+: A Simple Illustration of Randomization Inference {.striped .hover .borderless .secondary}
+
+We will set this up in Python. First, we will load the required libraries:
 
 ```{python}
 #Load required libraries
@@ -193,7 +197,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 ```
 
-We will now enter data as a Pandas data frame, and subsequently calculate the difference in means estimator in a number of lines.  You will note that in calculating the differnce in means estimator, we are first sub-setting using logical indexing (for example: ```data[data['W']==1]```, which means "choose all rows of data for which $W=1$").  Then, we calculate the means in each group using the Pandas ```mean()``` operator.
+We will now enter data as a Pandas data frame, and subsequently calculate the difference in means estimator in a number of lines. You will note that in calculating the differnce in means estimator, we are first sub-setting using logical indexing (for example: `data[data['W']==1]`, which means "choose all rows of data for which $W=1$"). Then, we calculate the means in each group using the Pandas `mean()` operator.
 
 ```{python}
 #Enter data as Pandas data frame
@@ -227,8 +231,6 @@ p_1side = sum(Taus>=tau)/len(Taus)
 print("The two-sided p-value is: " + str(p_2side))
 ```
 
-
-
 ```{python}
 #| label: fig-permute
 #| fig-cap: "Permutation inference"
@@ -244,14 +246,15 @@ plt.show()
 ```
 
 ## Randomization inference with a larger dataset
-Here we will return to the example from @Banerjeeetal2021.
-### Block 2.2
+
+Here we will return to the example from @Banerjeeetal2021. \### Block 2.2
+
 ```{python}
 import pandas as pd
 import numpy as np
 
 # Read the data
-data = pd.read_csv("C:/Users/maria/Desktop/Proyecto/Banerjee_et_al_2021.csv")
+data = pd.read_csv("Datasets/Banerjee_et_al_2021.csv")
 
 # Function to perform randomization inference
 def randomization_inference(data, column_name):
@@ -287,21 +290,18 @@ asset_results = randomization_inference(data, 'asset_ind_tot_el1')
 print_results("Asset Index", asset_results)
 ```
 
-
-
-
-1. Preserve the original treatment assignment.
-2. Generate placebo treatment statuses according to the original assignment method.
-3. Estimate the original regression equation with an additional term for the placebo treatment.
-4. Repeat \#1–3.
-5. The randomization inference p-value is the proportion of times the placebo treatment effect was larger than the estimated treatment effect.
+1.  Preserve the original treatment assignment.
+2.  Generate placebo treatment statuses according to the original assignment method.
+3.  Estimate the original regression equation with an additional term for the placebo treatment.
+4.  Repeat #1--3.
+5.  The randomization inference p-value is the proportion of times the placebo treatment effect was larger than the estimated treatment effect.
 
 ## Dehejia and Wahba
-In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM). PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates.
-By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.
 
-You have data from an observational study on a job training program. The dataset contains information on individuals' participation in the program (treat), their earnings in 1978 (re78), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975.
-The main objective of this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.
+In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM). PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates. By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.
+
+You have data from an observational study on a job training program. The dataset contains information on individuals' participation in the program (treat), their earnings in 1978 (re78), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975. The main objective of this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.
+
 ```{python}
 import pandas as pd
 import numpy as np
@@ -309,7 +309,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import NearestNeighbors
 
 # Load the dataset
-data = pd.read_stata('C:/Users/maria/Desktop/Proyecto/Dehejia_Wahba_1999.dta')
+data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
 
 # Define the covariates and the treatment variable
 X = data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']]
@@ -348,4 +348,3 @@ ATT = (treated['re78'] - matched['re78']).mean()
 print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
 
 ```
-

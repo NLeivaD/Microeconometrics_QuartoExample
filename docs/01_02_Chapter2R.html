@@ -154,6 +154,11 @@ ul.task-list li input[type="checkbox"] {
   <a href="./01_03_Chapter3R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 3</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_04_Chapter4R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 4</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -166,7 +171,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></a>
+  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Stata</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -191,7 +196,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3.1 Introduction to Python</span></a>
+  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Python</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -216,7 +221,14 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#block-2.1" id="toc-block-2.1" class="nav-link active" data-scroll-target="#block-2.1">Block 2.1</a></li>
+  <li><a href="#block-2.2" id="toc-block-2.2" class="nav-link" data-scroll-target="#block-2.2">Block 2.2</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -239,8 +251,64 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 <p>Here will be the Chapter 2 excersises and examples.</p>
+<section id="block-2.1" class="level3">
+<h3 class="anchored" data-anchor-id="block-2.1">Block 2.1</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = ind_fin_el1 ~ treatment, data = subset(data, el1 == 
+    1))
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.2555 -0.3219 -0.1846  0.0458  4.6377 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.135439   0.030306   4.469 8.97e-06 ***
+treatment   -0.009589   0.041626  -0.230    0.818    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5931 on 813 degrees of freedom
+  (166 observations deleted due to missingness)
+Multiple R-squared:  6.527e-05, Adjusted R-squared:  -0.001165 
+F-statistic: 0.05307 on 1 and 813 DF,  p-value: 0.8179</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Coefficient for treatment in regression: -0.009589323 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Difference in means (Treatment - Control): -0.009589323 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.</code></pre>
+</div>
+</div>
+</section>
+<section id="block-2.2" class="level3">
+<h3 class="anchored" data-anchor-id="block-2.2">Block 2.2</h3>
+<p>Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study “Long-Term effects of the Targeting the Ultra Poor Program” conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$observed_effect
+[1] -0.009589323
+
+$p_value
+[1] 0.8263</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$observed_effect
+[1] 0.4077528
+
+$p_value
+[1] 8e-04</code></pre>
+</div>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

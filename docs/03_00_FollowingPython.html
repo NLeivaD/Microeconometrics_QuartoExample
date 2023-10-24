@@ -217,6 +217,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="./01_03_Chapter3R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 3</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_04_Chapter4R.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Details required for Chapter 4</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -229,7 +234,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Stata and Basic Tools Required for this book</span></a>
+  <a href="./02_01_IntroductionStata.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Stata</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -254,7 +259,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">3.1 Introduction to Python</span></a>
+  <a href="./03_01_IntroductionPython.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">An Introduction to Python</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -279,7 +284,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#installing-and-working-with-python" id="toc-installing-and-working-with-python" class="nav-link" data-scroll-target="#installing-and-working-with-python">Installing and Working with Python</a></li>
+  <li><a href="#further-resources" id="toc-further-resources" class="nav-link" data-scroll-target="#further-resources">Further Resources</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -301,20 +314,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<p>In this chapter we show you how to follow the book’s examples with Python. What is Python? Give a Python definition…</p>
+<section id="introduction" class="level3">
+<h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
+<p>In this section we will provide a primer in <a href="https://www.python.org/">Python</a>, which seeks to provide you with the necessary tools to explore the microeconometric methods introduced throughout the book. Python was developed in the late 1980s by Guido van Rossum, and is an open source language which has gained considerable traction with users and developers, meaning that a diverse array of packages now exist to expand the base language. Like R, it has an active community providing online support on forums such as <a href="https://stackoverflow.com/questions/tagged/python">Stack Overflow</a>, and a lot of online code available. It provides you with the large majority of tools you will need throughout this course, as well as the programming environment necessary to extend available tools where required. Python has had a number of major version upgrades throughout its history, but now versions 3 and above of Python are widely adopted. I recommend working with some version greater than 3 when you install Python, as code written in version 2 will not necessarily work in version 3.</p>
+<p>The goal of this site is not to provide you with a comprehensive introduction to the language, but instead we it seeks to provide you with an overview of the basic tools to understand the required tools that we will use to get up and running in this book. In the first section we will focus on a brief rundown of some principal elements of Python without yet getting into the empirical methods discussed in the textbook. Thereafter, we will focus on causal econometric methods, but in each section will also introduce any further tools required to complete key analyses or end-of-chapter questions. The goal of this resource is that after following along with these sections you will be sufficiently well-versed in Python that you will comfortably be able to work with real data and econometric implementations. Nevertheless, below we point you to further resources if you are seeking a comprehensive overview of Python as a language.</p>
+</section>
+<section id="installing-and-working-with-python" class="level3">
+<h3 class="anchored" data-anchor-id="installing-and-working-with-python">Installing and Working with Python</h3>
+<p>Information on how to install Python can be found at the Python <a href="https://www.python.org/about/gettingstarted/">website</a>, which has a brief wiki discussing installation on various operating systems. Once you have Python installed in your operating system you could work directly with Python from the command line by typing “Python” and you may see output like the below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ipython</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We recommend to work in an IDE like Spyder.</p>
+<pre><code>Python 3.8.10 (default, May 26 2023, 14:05:08)
+[GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.</code></pre>
+<p>I recommend that along with Python, you install in Integrated Development Environment (IDE). There are many IDEs which can be used with Python, see for example the list <a href="https://wiki.python.org/moin/IntegratedDevelopmentEnvironments">here</a>. I can recommend Spyder (see below for a screen shot of what this looks like). The value of having this IDE is that you can easily view any elements that you have generated in the memory in Python, output like graphics, help documentation, and so forth. An example of what Spyder looks like is provided below, where you can see that code is visible on the left, as well as graphical output, and calls to the command line on the right. You can also display other pieces of information such as documentation and information about what is in the your “environment”. For further information on installing Spyder, see the <a href="https://docs.spyder-ide.org/current/installation.html">Spyder website</a>. You are of course welcome to use Python however you prefer, and you may prefer to edit code in your favourite text editor and execute code from the command line. Throughout the rest of these resources, we will assume that you have Python installed on your computer and have some way to interact with it, either via an IDE or some other work flow that suits you.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="spyder.png" class="img-fluid figure-img"></p>
 <p></p><figcaption class="figure-caption">Spyder screenshot</figcaption><p></p>
 </figure>
 </div>
-<p>The rest of this chapter is organized as follow: First is shown an introduction to the language as a tutorial focused in giving the tools to following along the book’s material and procedures, next there is a series of sections focused on follow the book’s examples and make the applications in Python.</p>
+</section>
+<section id="further-resources" class="level3">
+<h3 class="anchored" data-anchor-id="further-resources">Further Resources</h3>
+<p>A number of broader resources are available about Python. A very nice free online text book is:</p>
+<ul>
+<li>McKinney, Wes (2023) <a href="https://wesmckinney.com/book/">Python for Data Analysis</a>. O’Reilly Media, 3rd Edition.</li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -458,7 +488,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   </div>
   <div class="nav-page nav-page-next">
       <a href="./03_01_IntroductionPython.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-title">3.1 Introduction to Python</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">An Introduction to Python</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
