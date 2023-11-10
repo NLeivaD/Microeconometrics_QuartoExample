@@ -1,8 +1,16 @@
-## Details required for Chapter 2
+---
+title: "Chapter 2"
+bibliography: refs.bib
+engine: knitr
+---
+
+## Tools Required for Chapter 2
 
 Here will be the Chapter 2 excersises and examples.
 
-### Block 2.1
+## Code Call Out 2.1
+@Banerjeeetal2021
+
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
