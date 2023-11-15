@@ -3,30 +3,30 @@ title: "Chapter 4"
 bibliography: references.bib
 engine: knitr
 ---
+
 ```{r echo=FALSE}
 knitr::opts_chunk$set(message = F, warning = F)
 rm(list = ls())
 ```
+
 ## Tools required for Chapter 4
 
 ## Code Call Out 4.1
-**Two-Way Fixed Effects Estimators and Heterogeneous Treatment Effects**
-To understand the potential issues related to heterogeneous treatment effects over time and two-way fixed effect estimators, we will examine a pair of numerical examples.  In particular, we will focus on  the composition of the two way FE estimator $\tau$ estimated from:
-$$
+
+**Two-Way Fixed Effects Estimators and Heterogeneous Treatment Effects** To understand the potential issues related to heterogeneous treatment effects over time and two-way fixed effect estimators, we will examine a pair of numerical examples. In particular, we will focus on the composition of the two way FE estimator $\tau$ estimated from: $$
 y_{st} = \gamma_s + \lambda_t + \tau w_{st} + \varepsilon_{st}
-$$ {#eq-twfe}
-where $y_{st}$ is the outcome variable, $\gamma_s$ and $\lambda_t$ are state (unit) and time fixed effects, $w_{st}$ is the binary treatment variable that takes the value of 1 if a state (unit) $s$ is treated at time $t$ and otherwise takes 0.  We will work with a quite tractable example based on three units and 10 time periods, and will document how the approaches taken by @GoodmanBacon2018 and by @deChaisemartinDhaultfoeuille2019 to understand the two-way FE estimator compare.
+$$ {#eq-twfe} where $y_{st}$ is the outcome variable, $\gamma_s$ and $\lambda_t$ are state (unit) and time fixed effects, $w_{st}$ is the binary treatment variable that takes the value of 1 if a state (unit) $s$ is treated at time $t$ and otherwise takes 0. We will work with a quite tractable example based on three units and 10 time periods, and will document how the approaches taken by @GoodmanBacon2018 and by @deChaisemartinDhaultfoeuille2019 to understand the two-way FE estimator compare.
 
-The results from @GoodmanBacon2018 and those from @deChaisemartinDhaultfoeuille2019 are similar, however they take quite different paths to get there. Goodman-Bacon's (like that laid out in @AtheyImbens2018) is "mechanical" in that it is based on the underlying difference-in-differences comparisons between all groups. The result in @deChaisemartinDhaultfoeuille2019 is based on a potential outcomes frame-work, and counterfactuals under parallel trend assumptions. Thus to examine how these methods work requires somewhat different frameworks. In the case of @GoodmanBacon2018, we should consider all possible DD comparisons, while in the case of @deChaisemartinDhaultfoeuille2019 we should consider the treatment effect for each unit and time period,  which requires knowing the observed and counterfactual state.  While the approaches the two papers take to understand the content of the estimator differ, they refer to the same estimator, so always recover the same parameter estimate.  To examine this in a more applied way, we will look at a simulated example.
+The results from @GoodmanBacon2018 and those from @deChaisemartinDhaultfoeuille2019 are similar, however they take quite different paths to get there. Goodman-Bacon's (like that laid out in @AtheyImbens2018) is "mechanical" in that it is based on the underlying difference-in-differences comparisons between all groups. The result in @deChaisemartinDhaultfoeuille2019 is based on a potential outcomes frame-work, and counterfactuals under parallel trend assumptions. Thus to examine how these methods work requires somewhat different frameworks. In the case of @GoodmanBacon2018, we should consider all possible DD comparisons, while in the case of @deChaisemartinDhaultfoeuille2019 we should consider the treatment effect for each unit and time period, which requires knowing the observed and counterfactual state. While the approaches the two papers take to understand the content of the estimator differ, they refer to the same estimator, so always recover the same parameter estimate. To examine this in a more applied way, we will look at a simulated example.
 
-To do this, let's consider a panel of 3 states/areas over the 10 years ($t$) of 2000 to 2009. One of these units is entirely untreated ($unit = 1$ or group $U$), one is treated at an early time period, 2003, ($unit = 2$ or group $k$), and the other is treated at a later time period, 2006, ($unit = 3$ or group $l$).  We will construct a general structure for this data below:
+To do this, let's consider a panel of 3 states/areas over the 10 years ($t$) of 2000 to 2009. One of these units is entirely untreated ($unit = 1$ or group $U$), one is treated at an early time period, 2003, ($unit = 2$ or group $k$), and the other is treated at a later time period, 2006, ($unit = 3$ or group $l$). We will construct a general structure for this data below:
 
 ```{r}
 Data <- data.frame(unit = ceiling(1:30/10), year = rep(2000:2009, 3))
 head(Data)
 ```
 
-We will consider a simple-case where the actual data-generating process is known as: $$y_{unit,t} = 2 + 0.2 \times (t - 2000) + 1 \times unit + \beta_1 \times post \times unit + \beta_2 \times post \times unit \times (t - treat).$$ Here $unit$ refers to the unit number listed above (1, 2 or 3), $post$ indicates that a unit is receiving treatment in the relevant time period $t$, and $treat$ refers to the treatment period (2003 for unit 2, and 2006 for unit 3).  Let's generate treatment, time to treatment, and post-treatment variables in `R`:
+We will consider a simple-case where the actual data-generating process is known as: $$y_{unit,t} = 2 + 0.2 \times (t - 2000) + 1 \times unit + \beta_1 \times post \times unit + \beta_2 \times post \times unit \times (t - treat).$$ Here $unit$ refers to the unit number listed above (1, 2 or 3), $post$ indicates that a unit is receiving treatment in the relevant time period $t$, and $treat$ refers to the treatment period (2003 for unit 2, and 2006 for unit 3). Let's generate treatment, time to treatment, and post-treatment variables in `R`:
 
 ```{r}
 Data$treat <- ifelse(Data$unit == 2, 2006, ifelse(Data$unit == 3, 2003, 0))
@@ -34,14 +34,14 @@ Data$time  <- ifelse(Data$treat == 0, 0, Data$year - Data$treat)
 Data$post  <- ifelse(Data$time >= 0 & Data$treat != 0, 1, 0)
 ```
 
-This specification allows for each unit to have its own fixed effect, given that $unit$ is multiplied by 1, and allows for a general time trend increasing by 0.2 units each period across the whole sample. These parameters are not so important, as what we care about are the treatment effects themselves.  The impact of treatment comes from the units $\beta_1$ and $\beta_2$. The first of these, $\beta_1$, captures an immediate unit-specific jump when treatment is implemented which remains stable over time. The second of these, $\beta_2$, implies a trend break occurring *only* for the treated units once treatment comes into place. We will consider 2 cases below. In the first case $\beta_1 = 1$ and $\beta_2 = 0$ (a simple case with a constant treatment effect per unit):
+This specification allows for each unit to have its own fixed effect, given that $unit$ is multiplied by 1, and allows for a general time trend increasing by 0.2 units each period across the whole sample. These parameters are not so important, as what we care about are the treatment effects themselves. The impact of treatment comes from the units $\beta_1$ and $\beta_2$. The first of these, $\beta_1$, captures an immediate unit-specific jump when treatment is implemented which remains stable over time. The second of these, $\beta_2$, implies a trend break occurring *only* for the treated units once treatment comes into place. We will consider 2 cases below. In the first case $\beta_1 = 1$ and $\beta_2 = 0$ (a simple case with a constant treatment effect per unit):
 
 ```{r}
 Data$y1 <- 2 + (Data$year - 2000) * 0.2 + 1 * Data$unit + 1 * Data$post * Data$unit + 
   0 * Data$post * Data$unit * (Data$time)
 ```
 
-and in a second case $\beta_1 = 1$ and $\beta_2 = 0.45$.  This is a more complex case in which there are heterogeneous treatment effects over time:
+and in a second case $\beta_1 = 1$ and $\beta_2 = 0.45$. This is a more complex case in which there are heterogeneous treatment effects over time:
 
 ```{r}
 Data$y2 <- 2 + (Data$year - 2000) * 0.2 + 1 * Data$unit + 1 * Data$post * Data$unit +
@@ -93,26 +93,36 @@ rm(p1, p2, t1, t2)
 ```
 
 ### The Two-way Fixed Effect Estimator
-First we will estimate the parameter by two-way fixed effects regression.  This will provide us with the parameter estimate that both @GoodmanBacon2018 and @deChaisemartinDhaultfoeuille2019 will construct in a piece-wise fashion.  This is done relatively simply in `R`.  We simply estimate @eq-twfe by linear regression using `lm` as laid out below:
 
-XXXXX CODE HERE TO ESTIMATE EQUATION 1 ABOVE FOR BOTH y1 AND y2XXXXX
+First we will estimate the parameter by two-way fixed effects regression. This will provide us with the parameter estimate that both @GoodmanBacon2018 and @deChaisemartinDhaultfoeuille2019 will construct in a piece-wise fashion. This is done relatively simply in `R`. We simply estimate @eq-twfe by linear regression using `lm` as laid out below:
 
-Here we see that the coefficient of interest is 2.454545.  We can see that this is between the two unit-specific jumps that occur with treatment (2 and 3).  We will see below why it takes this particular weighted average. 
+```{r}
+case1 <- lm(data = Data,
+            formula = y1 ~ factor(unit) + factor(year) + post)
+paste0("The parameter estimates by two-way fixed effects regression for the ",
+       "case 1 is: ", case1$coefficients["post"])
+case2 <- lm(data = Data,
+            formula = y2 ~ factor(unit) + factor(year) + post)
+paste0("The parameter estimates by two-way fixed effects regression for the ",
+       "case 2 is: ", case2$coefficients["post"])
+```
 
+Here we see that the coefficient of interest is 2.454545. We can see that this is between the two unit-specific jumps that occur with treatment (2 and 3). We will see below why it takes this particular weighted average.
 
 ### @GoodmanBacon2018 Decomposition
-Using the values simulated above, let's see how the @GoodmanBacon2018 decomposition allows us to understand estimated treatment effects.  We will consider both:  
-- (a) Simple Decomposition  
-- (b) Decomposition with trends  
 
-The methodology @GoodmanBacon2018 decomposition suggests that we should calculate all $2 \times 2$ combinations of states and time where post-treatment units are compared to "untreated" unit (laid out at more length in the boo).  In this example, this provides four specific effects, which contribute to $\widehat{\tau}$ as a weighted mean. The specific effects desired are:  
+Using the values simulated above, let's see how the @GoodmanBacon2018 decomposition allows us to understand estimated treatment effects. We will consider both:\
+- (a) Simple Decomposition\
+- (b) Decomposition with trends
 
-- A. $\widehat{\beta}^{2\times2}_{kU}$ from the comparison of the early treated unit with the untreated unit.  
-- B. $\widehat{\beta}^{2\times2}_{lU}$, from the comparison of the latter treated unit with the untreated unit.  
-- C. $\widehat{\beta}^{2\times2,k}_{kl}$, from the comparison of the early and latter treated units, when the early unit begin to be treated.  
-- D. $\widehat{\beta}^{2\times2,l}_{kl}$, from the comparison of the early and latter treated units, when the latter unit begin to be treated.  
+The methodology @GoodmanBacon2018 decomposition suggests that we should calculate all $2 \times 2$ combinations of states and time where post-treatment units are compared to "untreated" unit (laid out at more length in the boo). In this example, this provides four specific effects, which contribute to $\widehat{\tau}$ as a weighted mean. The specific effects desired are:
 
-These will then be weighted as laid out in @GoodmanBacon2018 to provide the regression-based estimate.  
+-   A. $\widehat{\beta}^{2\times2}_{kU}$ from the comparison of the early treated unit with the untreated unit.\
+-   B. $\widehat{\beta}^{2\times2}_{lU}$, from the comparison of the latter treated unit with the untreated unit.\
+-   C. $\widehat{\beta}^{2\times2,k}_{kl}$, from the comparison of the early and latter treated units, when the early unit begin to be treated.\
+-   D. $\widehat{\beta}^{2\times2,l}_{kl}$, from the comparison of the early and latter treated units, when the latter unit begin to be treated.
+
+These will then be weighted as laid out in @GoodmanBacon2018 to provide the regression-based estimate.
 
 #### (a) Simple Decomposition
 
@@ -204,7 +214,7 @@ ggarrange(plotlist = list(t1, t2, p1, p2, t3, t4, p3, p4), ncol = 2, nrow = 4,
 rm(p1, p2, p3, p4, t1, t2, t3, t4)
 ```
 
-As seen in the plots, in the simple decomposition these effects are constants of 3 and 2 for early and later treated units given that the "treatment effect" is simply $1 \times unit$ in each case.  
+As seen in the plots, in the simple decomposition these effects are constants of 3 and 2 for early and later treated units given that the "treatment effect" is simply $1 \times unit$ in each case.
 
 ##### A. Early Group v/s Untreated Group
 
@@ -238,7 +248,8 @@ bku <- lm(y1 ~ post + factor(year) + factor(unit), data = Data,
 ```
 
 ##### B. Later Group v/s Untreated Group
-The next DD comparison we calculate is that which compares the later treated group $l$ ($unit = 2$) with the untreated group $U$ ($unit = 1$), resulting in $\widehat{\beta}^{2 \times 2}_{lU}$.  As above, we can generate this DD estimate in a number of ways (most simply by double-differencing with means), and this will then be stored.
+
+The next DD comparison we calculate is that which compares the later treated group $l$ ($unit = 2$) with the untreated group $U$ ($unit = 1$), resulting in $\widehat{\beta}^{2 \times 2}_{lU}$. As above, we can generate this DD estimate in a number of ways (most simply by double-differencing with means), and this will then be stored.
 
 ```{r}
 blu <- lm(y1 ~ post + factor(year) + factor(unit), data = Data, 
@@ -254,9 +265,7 @@ summary(lm(y1 ~ factor(year >= 2006) + factor(unit) + factor(year >= 2006):facto
 
 ##### C. Early Group v/s Later Group Before 2006
 
-Next we calculate the effects from the DD comparisons of early and later treated groups, up until the later treated group receives treatment (2006).  This is:
-$$\widehat{\beta}^{2 \times 2, k}_{kl} \equiv \left( \overline{y}^{Mid(k,l)}_{k} - \overline{y}^{Pre(k)}_{k} \right) - \left( \overline{y}^{Mid(k,l)}_{l} - \overline{y}^{Pre(k)}_{l} \right)$$
-where $\overline{y}^{Mid(k,l)}_{k}$ is the mean of the outcome variable for the early treated group $k$ ($unit = 3$) in the period between the treatment for the group $k$ and the group $l$ ($unit = 2$), from 2003 to 2005, $\overline{y}^{Pre(k)}_{k}$ is the mean for of the outcome variable for the early treated group $k$ ($unit = 3$) previous to treatment, until 2002, and $\overline{y}^{Mid(k,l)}_{l}, \overline{y}^{Pre(k)}_{l}$ are the analogous for the later treated group $l$ ($unit = 2$)
+Next we calculate the effects from the DD comparisons of early and later treated groups, up until the later treated group receives treatment (2006). This is: $$\widehat{\beta}^{2 \times 2, k}_{kl} \equiv \left( \overline{y}^{Mid(k,l)}_{k} - \overline{y}^{Pre(k)}_{k} \right) - \left( \overline{y}^{Mid(k,l)}_{l} - \overline{y}^{Pre(k)}_{l} \right)$$ where $\overline{y}^{Mid(k,l)}_{k}$ is the mean of the outcome variable for the early treated group $k$ ($unit = 3$) in the period between the treatment for the group $k$ and the group $l$ ($unit = 2$), from 2003 to 2005, $\overline{y}^{Pre(k)}_{k}$ is the mean for of the outcome variable for the early treated group $k$ ($unit = 3$) previous to treatment, until 2002, and $\overline{y}^{Mid(k,l)}_{l}, \overline{y}^{Pre(k)}_{l}$ are the analogous for the later treated group $l$ ($unit = 2$)
 
 ```{r}
 bklk <- lm(y1 ~ post + factor(year) + factor(unit), data = Data,
@@ -272,7 +281,7 @@ summary(lm(y1 ~ factor(year >= 2003) + factor(unit) + factor(year >= 2003):facto
 
 ##### D. Early Group v/s Later Group After 2003
 
-The last DD comparison is for early and later treated groups, starting from 2006 $$\widehat{\beta}^{2 \times 2, l}_{kl} \equiv \left( \overline{y}^{Post(l)}_{l} - \overline{y}^{Mid(k,l)}_{l} \right) - \left( \overline{y}^{Post(l)}_{k} - \overline{y}^{Mid(k,l)}_{k} \right)$$ Where $\overline{y}^{Post(l)}_{l}$ is the mean of the outcome variable for the later treated group $l$ ($unit = 2$) in the period after this group received the treatment, from 2006, $\overline{y}^{Mid(k,l)}_{l}$ is the mean for of the outcome variable for the later treated group $l$ ($unit = 2$) in the period between the treatment for the group $k$ ($unit = 3$) and the group $l$, from 2003 to 2005, and $\overline{y}^{Post(l)}_{k}, \overline{y}^{Mid(k,l)}_{k}$ are the analogous quantities for the early treated group $k$ ($unit = 3$).  We can generate and save this quantity as we have previously:
+The last DD comparison is for early and later treated groups, starting from 2006 $$\widehat{\beta}^{2 \times 2, l}_{kl} \equiv \left( \overline{y}^{Post(l)}_{l} - \overline{y}^{Mid(k,l)}_{l} \right) - \left( \overline{y}^{Post(l)}_{k} - \overline{y}^{Mid(k,l)}_{k} \right)$$ Where $\overline{y}^{Post(l)}_{l}$ is the mean of the outcome variable for the later treated group $l$ ($unit = 2$) in the period after this group received the treatment, from 2006, $\overline{y}^{Mid(k,l)}_{l}$ is the mean for of the outcome variable for the later treated group $l$ ($unit = 2$) in the period between the treatment for the group $k$ ($unit = 3$) and the group $l$, from 2003 to 2005, and $\overline{y}^{Post(l)}_{k}, \overline{y}^{Mid(k,l)}_{k}$ are the analogous quantities for the early treated group $k$ ($unit = 3$). We can generate and save this quantity as we have previously:
 
 ```{r}
 bkll <- lm(y1 ~ post + factor(year) + factor(unit), data = Data,
@@ -286,16 +295,14 @@ summary(lm(y1 ~ factor(year >= 2006) + factor(unit) + factor(year >= 2006):facto
            data = Data, subset = (unit != 1 & year > 2002)))
 ```
 
-This comparison is the comparison which can potentially result in undesired results if treatment effects are dynamic over time because it views group 3 (the previously treated group) as a control.  However, in this case, given that treatment effects are homogenous over time we do not have a major problem here, and we observe that $\widehat{\beta}^{2 \times 2, l}_{kl}=2$.
+This comparison is the comparison which can potentially result in undesired results if treatment effects are dynamic over time because it views group 3 (the previously treated group) as a control. However, in this case, given that treatment effects are homogenous over time we do not have a major problem here, and we observe that $\widehat{\beta}^{2 \times 2, l}_{kl}=2$.
 
 ##### Weights
 
-We can now arrive to the OLS estimate of this two-way fixed effect model by generating the weighted mean of the previous estimates as: $$\widehat{\tau} = W_{kU} \cdot \widehat{\beta}^{2\times 2}_{kU} + W_{lU} \cdot \widehat{\beta}^{2\times 2}_{lU} + W_{kl}^{k} \cdot \widehat{\beta}^{2\times 2,k}_{kl} + W_{kl}^{l} \cdot \widehat{\beta}^{2\times 2,l}_{kl}$$ Where each $W$ is the weight that the respective $\beta$ has in this weighted mean, specifically:
-\begin{align*} 
+We can now arrive to the OLS estimate of this two-way fixed effect model by generating the weighted mean of the previous estimates as: $$\widehat{\tau} = W_{kU} \cdot \widehat{\beta}^{2\times 2}_{kU} + W_{lU} \cdot \widehat{\beta}^{2\times 2}_{lU} + W_{kl}^{k} \cdot \widehat{\beta}^{2\times 2,k}_{kl} + W_{kl}^{l} \cdot \widehat{\beta}^{2\times 2,l}_{kl}$$ Where each $W$ is the weight that the respective $\beta$ has in this weighted mean, specifically: \begin{align*} 
 W_{kU} & = \frac{(n_k + n_U)^2\widehat{V}^D_{kU}}{\widehat{V}^D} \quad &  \quad W_{lU} & = \frac{(n_l + n_U)^2\widehat{V}^D_{lU}}{\widehat{V}^D} \\ 
 W_{kl}^k & = \frac{[(n_k + n_l)(1 - \overline{D}_l)]^2\widehat{V}^{D,k}_{kl}}{\widehat{V}^D} \quad &  \quad W_{kl}^l & = \frac{[(n_k + n_l)(1 - \overline{D}_k)]^2\widehat{V}^{D,l}_{kl}}{\widehat{V}^D}
-\end{align*}
-Where $n$ refers to the sample share of the group
+\end{align*} Where $n$ refers to the sample share of the group
 
 ```{r}
 nk = 1/3
@@ -334,12 +341,13 @@ wkll = (((nk + nl)*Dk)^2*Vkll)/VD
 wkll
 ```
 
-With this in mind the $\tau$ estimate is 
+With this in mind the $\tau$ estimate is
 
 ```{r}
 tau = wkU * bku + wlU * blu + wklk * bklk + wkll * bkll
 tau
 ```
+
 as observed in the two-way fixed effect estimate above.
 
 #### (b) Decomposition with trends
@@ -432,7 +440,7 @@ ggarrange(plotlist = list(t1, t2, p1, p2, t3, t4, p3, p4), ncol = 2, nrow = 4,
 rm(p1, p2, p3, p4, t1, t2, t3, t4)
 ```
 
-As seen in the plots, in the decomposition with trends these effects are no longer constants of 3 and 2 for early and later treated units given that the "treatment effect" is no longer simply $1 \times unit$ in each case.  
+As seen in the plots, in the decomposition with trends these effects are no longer constants of 3 and 2 for early and later treated units given that the "treatment effect" is no longer simply $1 \times unit$ in each case.
 
 ```{r}
 # 2X2 DD Regressions
@@ -468,8 +476,56 @@ wkll = (((nk + nl)*Dk)^2*Vkll)/VD
 tau = bkUk*wkUk + bkUl*wkUl + bklk*wklk + bkll*wkll
 tau
 ```
-What is noteworthy here is the surprising behaviour flagged by @GoodmanBacon2018 for the final comparison based on the case where the earlier treated unit (unit 3) is used as a control for the later trated unit (unit 2).  In this case, given that there *are* time-varying treatment effects, despite the fact that each unit-specific treatment effect is positive, we observe that the parameter $\widehat{\beta}^{2 \times 2, l}_{kl}$ is actually *negative*.  In this particular example this negative value (-1.375) is not sufficient to turn the weighted treatment effect estimate negative, but if you play around with the size of the parameters $\beta_1$ and $\beta_2$ above, you will see that large enough differences in trends *can* result in such estimates!  Here, as above, we see that when we aggregate unit-specific estimates as `tau`, the estimate (by definition) agrees with the estimate generated by two-way fixed effect models previously.
 
+What is noteworthy here is the surprising behaviour flagged by @GoodmanBacon2018 for the final comparison based on the case where the earlier treated unit (unit 3) is used as a control for the later trated unit (unit 2). In this case, given that there *are* time-varying treatment effects, despite the fact that each unit-specific treatment effect is positive, we observe that the parameter $\widehat{\beta}^{2 \times 2, l}_{kl}$ is actually *negative*. In this particular example this negative value (-1.375) is not sufficient to turn the weighted treatment effect estimate negative, but if you play around with the size of the parameters $\beta_1$ and $\beta_2$ above, you will see that large enough differences in trends *can* result in such estimates! Here, as above, we see that when we aggregate unit-specific estimates as `tau`, the estimate (by definition) agrees with the estimate generated by two-way fixed effect models previously.
 
 ### @deChaisemartinDhaultfoeuille2019's Procedure
-Now, we will show that the procedures described in @deChaisemartinDhaultfoeuille2019, despite arriving to the estimator in a different way, also let us understand how the regression weights the two-way fixed effect estimator.  
+
+Now, we will show that the procedures described in @deChaisemartinDhaultfoeuille2019, despite arriving to the estimator in a different way, also let us understand how the regression weights the two-way fixed effect estimator. The authors define $\widehat{\beta}_{fe}$ as the coefficient estimated in the following (standard) two-way fixed effects regression: $$y_{i,s,t} = \beta_0 + \beta_{fe} D_{s,t} + \mu_s + \lambda_t + \varepsilon_{s,t}$$ Where $D_{s,t}$ is the mean over $i$ of a binary indicator variable that takes value of 1 if the unit $i$ in state $s$ is treated at period $t$ and 0 otherwise, in our case as we have one observartion per state $D_{s,t} = post_{s,t}$, meanwhile $\mu_s$ and $\lambda_t$ are state and time fixed effects. Following we example with both outcomes
+
+```{r}
+case1 <- lm(data = Data,
+            formula = y1 ~ factor(unit) + factor(year) + post)
+paste0("The parameter estimates by two-way fixed effects regression for the ",
+       "case 1 is: ", case1$coefficients["post"])
+case2 <- lm(data = Data,
+            formula = y2 ~ factor(unit) + factor(year) + post)
+paste0("The parameter estimates by two-way fixed effects regression for the ",
+       "case 2 is: ", case2$coefficients["post"])
+```
+
+Same as @eq-twfe. also define the ATE for any ($s,t$) cell as: $$\Delta_{s,t} = \frac{1}{N_{s,t}} \sum_{i = 1}^{N_{s,t}}[Y_{i,s,t}(1) - Y_{i,s,t}(0)]$$ Next an example for the simple decomposition case. First is created the counterfactual
+
+```{r}
+Data$y1_c <- 2 + (Data$year - 2000) * 0.2 + 1 * Data$unit + 0 * Data$post * Data$unit + 
+  0 * Data$post * Data$unit * (Data$time)
+```
+
+Next $\Delta_{s,t}$
+
+```{r}
+Data$Delta_st[Data$post == 1] = Data$y1[Data$post == 1] - Data$y1_c[Data$post == 1]
+```
+
+One of the key results of @deChaisemartinDhaultfoeuille2019 is to show that under a series of standard assumptions $$\beta_{fe} = E \left[ \sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}w_{s,t}\Delta_{s,t} \right]$$ Where $N_1$ refers to the sum of all treated observations and $$w_{s,t} = \frac{\varepsilon_{s,t}}{\sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}\varepsilon_{s,t}}$$ Where $\varepsilon_{s,t}$ is the residual from a regression of $D_{s,t}$ on state and time fixed-effects.
+
+```{r}
+auxreg <- lm(post ~ factor(unit) + factor(year), data = Data)
+Data$eps_st = auxreg$residuals
+Data$eps_st[Data$post != 1] = NA
+Data$w_st = Data$eps_st / sum(Data$eps_st, na.rm = T)
+print(paste0("Clément de Chaisemartin and Xavier D'Haultfoeuille's procudure ",
+             "gives an estimates of: ", 
+             sum(Data$Delta_st*Data$w_st, na.rm = T)))
+```
+
+Next you can find the code for the decomposition with trends
+
+```{r}
+Data$y2_c <- 2 + (Data$year - 2000) * 0.2 + 1 * Data$unit + 0 * Data$post * Data$unit + 
+  0 * Data$post * Data$unit * (Data$time)
+Data$Delta_st2[Data$post == 1] = Data$y2[Data$post == 1] - Data$y2_c[Data$post == 1]
+print(paste0("Clément de Chaisemartin and Xavier D'Haultfoeuille's procudure ",
+             "gives an estimates of: ", 
+             sum(Data$Delta_st2*Data$w_st, na.rm = T)))
+```
