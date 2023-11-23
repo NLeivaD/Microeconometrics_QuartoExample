@@ -1,3 +1,63 @@
-## Details required for Chapter 3
+---
+title: "Chapter 3"
+bibliography: refs.bib
+---
 
-Here will be the Chapter 3 excersises and examples.
+# Code Call Outs
+## Block 3.1 - Distances between observations
+
+## Block 3.2 - Propensity Score Matching and Job Training Programs
+
+@DeheijaWahba2002...
+
+In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM). PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates. By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.
+
+You have data from an observational study on a job training program. The dataset contains information on individuals' participation in the program (treat), their earnings in 1978 (re78), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975. The main objective of this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.
+
+```{python}
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import NearestNeighbors
+
+# Load the dataset
+data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
+
+# Define the covariates and the treatment variable
+X = data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']]
+y = data['treat']
+
+# Estimate propensity scores using logistic regression
+logit = LogisticRegression(max_iter=1000)
+logit.fit(X, y)
+data['propensity_score'] = logit.predict_proba(X)[:, 1]
+
+# Perform matching
+treated = data[data.treat == 1]
+untreated = data[data.treat == 0]
+neigh = NearestNeighbors(n_neighbors=1)
+neigh.fit(untreated[['propensity_score']])
+indices = neigh.kneighbors(treated[['propensity_score']], return_distance=False)
+matched = untreated.iloc[indices.flatten()]
+
+# Reset indexes for treated and matched DataFrames
+treated = treated.reset_index(drop=True)
+matched = matched.reset_index(drop=True)
+
+# Diagnostic Checks
+# 1. Check for Missing Values
+print(data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75', 're78']].isnull().sum())
+
+# 2. Check Matching Results
+print("Number of treated individuals:", len(treated))
+print("Number of matched untreated individuals:", len(matched))
+
+# 3. Check Propensity Scores
+print("Unique propensity scores:", data['propensity_score'].nunique())
+
+# Calculate ATT
+ATT = (treated['re78'] - matched['re78']).mean()
+print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
+
+```
+

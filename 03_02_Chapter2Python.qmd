@@ -1,12 +1,16 @@
 ---
-title: "3.2 -- Details required for Chapter 2"
+title: "Chapter 2"
 bibliography: refs.bib
 ---
 
-# Preliminaries
-
+# Tools Required for Chapter 2
 We will begin by examining a number of details which will be required during the exercises encountered in this chapter. This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
 
+## Loops and Control Flow
+
+**INCLUIMOS AQUÍ SECCIÓN SOBRE LOOPS, ETC.**
+
+## Simulation and Regression
 To start, we will simulate some data based on the following data generating process:
 
 $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
@@ -104,7 +108,8 @@ plt.grid(True)
 plt.show()
 ```
 
-### Block 2.1
+# Code Call Outs
+## Block 2.1: Regression versus comparison of means
 
 To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
 
@@ -149,15 +154,11 @@ print("The coefficient from the regression should be equal to the difference in 
 
 ```
 
-# Regression and Comparison of Means Estimators
+## Block 2.2: Randomisation Inference
 
-Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.  Here we will work with data from @Banerjeeetal2021
 
-Here we will work with data from @Banerjeeetal2021
-
-# Randomization Inference
-
-## An Exact p-value
+### An Exact p-value
 
 It is perhaps useful to see a simple example. Consider the case of 6 units, with 3 observations randomly assigned treatment. Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$. A simple comparison of means estimator suggests that the treatment effect is 11.33. To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect. If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below. In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status). Suggesting an exact p-value of $1/20=0.05$.
 
@@ -245,9 +246,9 @@ plt.legend()
 plt.show()
 ```
 
-## Randomization inference with a larger dataset
+### Randomization inference with a larger dataset
 
-Here we will return to the example from @Banerjeeetal2021. \### Block 2.2
+Here we will return to the example from @Banerjeeetal2021. 
 
 ```{python}
 import pandas as pd
@@ -296,55 +297,4 @@ print_results("Asset Index", asset_results)
 4.  Repeat #1--3.
 5.  The randomization inference p-value is the proportion of times the placebo treatment effect was larger than the estimated treatment effect.
 
-## Dehejia and Wahba
 
-In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM). PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates. By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.
-
-You have data from an observational study on a job training program. The dataset contains information on individuals' participation in the program (treat), their earnings in 1978 (re78), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975. The main objective of this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.
-
-```{python}
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import NearestNeighbors
-
-# Load the dataset
-data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
-
-# Define the covariates and the treatment variable
-X = data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']]
-y = data['treat']
-
-# Estimate propensity scores using logistic regression
-logit = LogisticRegression(max_iter=1000)
-logit.fit(X, y)
-data['propensity_score'] = logit.predict_proba(X)[:, 1]
-
-# Perform matching
-treated = data[data.treat == 1]
-untreated = data[data.treat == 0]
-neigh = NearestNeighbors(n_neighbors=1)
-neigh.fit(untreated[['propensity_score']])
-indices = neigh.kneighbors(treated[['propensity_score']], return_distance=False)
-matched = untreated.iloc[indices.flatten()]
-
-# Reset indexes for treated and matched DataFrames
-treated = treated.reset_index(drop=True)
-matched = matched.reset_index(drop=True)
-
-# Diagnostic Checks
-# 1. Check for Missing Values
-print(data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75', 're78']].isnull().sum())
-
-# 2. Check Matching Results
-print("Number of treated individuals:", len(treated))
-print("Number of matched untreated individuals:", len(matched))
-
-# 3. Check Propensity Scores
-print("Unique propensity scores:", data['propensity_score'].nunique())
-
-# Calculate ATT
-ATT = (treated['re78'] - matched['re78']).mean()
-print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
-
-```
