@@ -4,9 +4,13 @@ bibliography: refs.bib
 engine: knitr
 ---
 
-## Tools Required for Chapter 2
+# Tools Required for Chapter 2
 
-Here will be the Chapter 2 excersises and examples.
+**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
+
+# Code Call Outs
+
+**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
 
 ## Code Call Out 2.1
 @Banerjeeetal2021

@@ -3,7 +3,7 @@ title: "Chapter 2"
 bibliography: refs.bib
 ---
 
-# Preliminaries
+# Tools Required for Chapter 2
 We will begin by examining a number of details which will be required during the exercises encountered in this chapter. This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
 
 ## Loops and Control Flow

@@ -1,3 +1,8 @@
-## Details required for Chapter 3
+---
+title: "Chapter 3"
+bibliography: refs.bib
+---
 
-Here will be the Chapter 3 excersises and examples.
+# Code Call Outs
+
+**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
