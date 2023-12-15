@@ -1,7 +1,6 @@
 ---
 title: "Chapter 4"
 bibliography: references.bib
-engine: knitr
 ---
 
 ## Synthetic Control Exercise
@@ -22,7 +21,7 @@ import pandas as pd
 from SyntheticControlMethods import Synth
 
 # Load the Dataset
-df = pd.read_stata("C:/Users/maria/Desktop/RA Microeconometría/Cap4/Abadie/smoking.dta")
+df = pd.read_csv("Datasets/Abadie_data.csv")
 
 # Prepare the Data
 df = df.sort_values(by=['state', 'year'])

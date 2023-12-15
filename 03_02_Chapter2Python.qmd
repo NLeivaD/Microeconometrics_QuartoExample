@@ -7,6 +7,9 @@ bibliography: refs.bib
 We will begin by examining a number of details which will be required during the exercises encountered in this chapter. This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
 
 ## Loops and Control Flow
+**ESTO VA A LA INTRODUCCIÓN**
+
+**Y REEMPLAZAMOS ESTO CON INTRODUCCIÓN A FUNCTIONS [PERO NO VA EN STATA]**
 
 **Loops in Python**
 
@@ -172,7 +175,7 @@ plt.show()
 ```
 
 # Code Call Outs
-## Block 2.1: Regression versus comparison of means
+## Call Out 2.1: Regression versus comparison of means
 
 To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
 
@@ -218,6 +221,11 @@ print("The coefficient from the regression should be equal to the difference in 
 ```
 
 
+
+## Call Out 2.2: Randomization Inference
+
+*FIX INTRO**
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.  Here we will work with data from @Banerjeeetal2021
 
 ### An Exact p-value
 
@@ -307,9 +315,9 @@ plt.legend()
 plt.show()
 ```
 
-## Block 2.2: Randomization Inference
 
-Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.  Here we will work with data from @Banerjeeetal2021
+### A Real Example
+@Banerjeeetal2021
 
 ```{python}
 import pandas as pd
@@ -351,5 +359,8 @@ print_results("Financial Index", financial_results)
 asset_results = randomization_inference(data, 'asset_ind_tot_el1')
 print_results("Asset Index", asset_results)
 ```
+
+## Call Out 2.3: Bootstrapping
+
 
 
