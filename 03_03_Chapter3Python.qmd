@@ -4,6 +4,7 @@ bibliography: refs.bib
 ---
 
 # Code Call Outs
+
 ## Block 3.1 - Distances between observations
 
 ## Block 3.2 - Propensity Score Matching and Job Training Programs
@@ -59,5 +60,71 @@ print("Unique propensity scores:", data['propensity_score'].nunique())
 ATT = (treated['re78'] - matched['re78']).mean()
 print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
 
+# Plot the histograms with outlined bars and a chosen fill color
+plt.figure(figsize=(10, 6))
+plt.hist(treated['propensity_score'], bins=50, alpha=0.5, color = "lightcoral", ec="red", linewidth=1.2, label='Treated (NSW)')
+plt.hist(untreated['propensity_score'], bins=50, alpha=0.5, color = "lightblue", ec="blue", linewidth=1.2, label='Control (CPS or PSID)')
+
+plt.legend(loc='best')
+plt.title('FIGURE 1.—HISTOGRAM OF ESTIMATED PROPENSITY SCORE')
+plt.xlabel('Propensity Score')
+plt.ylabel('Frequency')
+plt.grid(axis='y', alpha=0.75)
+plt.show()
+
+
+
 ```
 
+**Estimating the Causal Impact of Lottery Wins**
+
+In observational studies, Propensity Score Matching (PSM) offers a way to estimate the effect of a treatment, policy, or other intervention when randomized controlled trials are not possible. PSM attempts to mimic randomization by creating a sample of units that received the treatment that is comparable on all observed covariates to a sample of units that did not receive the treatment. The study by Imbens, Rubin, and Sacerdote utilizes PSM to analyze the impact of winning substantial lottery prizes on economic behavior. The authors exploit the randomness in lottery wins to assess how additional income affects labor earnings.
+
+You will analyze a dataset that mirrors the one used in the study, focusing on 496 lottery participants, some of whom won large prizes while others did not.
+
+```{python}
+import pandas as pd
+from sklearn.linear_model import LogisticRegressionCV
+from sklearn.neighbors import NearestNeighbors
+import numpy as np
+
+# Load the dataset
+data = pd.read_stata('C:/Users/maria/Desktop/RA Microeconometría/PSM/Data/LotteryDataSet.dta')
+
+# Define the treatment: any non-zero prize value indicates a winner
+data['treatment'] = (data['prize'] > 0).astype(int)
+
+# Define covariates
+covariates = ['tixbot', 'yearw', 'workthen', 'yearm1']
+X = data[covariates]
+y = data['treatment']
+
+# Assuming that winners have a 'prize' value over a certain threshold, 
+# which you mentioned is on average $50,000 per year for twenty years.
+# You'll need to define this threshold based on your data and the specifics of your study.
+big_prize_threshold = 50000 * 20
+data['treatment'] = (data['prize'] >= big_prize_threshold).astype(int)
+
+# Check again after redefining the treatment
+print(data['treatment'].value_counts())
+
+
+# Fit the logistic regression model with cross-validation and L2 regularization
+logit_cv_model = LogisticRegressionCV(cv=5, penalty='l2', scoring='neg_log_loss', solver='liblinear')
+logit_cv_model.fit(X, y)
+
+# Retrieve the propensity scores
+data['propensity_score'] = logit_cv_model.predict_proba(X)[:, 1]
+
+# Matching treatment and control using Nearest Neighbors
+nn_model = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(data.loc[data['treatment'] == 0, ['propensity_score']])
+distances, indices = nn_model.kneighbors(data.loc[data['treatment'] == 1, ['propensity_score']])
+matched_controls = indices.flatten()
+treatment_outcomes = data.loc[data['treatment'] == 1, 'yearm1'].to_numpy()
+control_outcomes = data.loc[data['treatment'] == 0, 'yearm1'].to_numpy()[matched_controls]
+
+# Calculate the Average Treatment Effect on the Treated (ATT)
+ATT = np.mean(treatment_outcomes - control_outcomes)
+print(f'The estimated ATT is: {ATT}')
+
+```

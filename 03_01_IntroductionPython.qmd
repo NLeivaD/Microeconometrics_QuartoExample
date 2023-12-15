@@ -451,7 +451,6 @@ from numpy import sqrt as squareroot
 squareroot(4)
 ```
 
-
 # Working with Data
 ## Loading and viewing data
 In most -- if not all -- of our research projects, we will not actually type in data to `Python` by hand which is a cumbersome and highly error-prone activity, but rather we will wish to read in data which we have stored on our disk in one or a number of files.  Such data may be stored in many formats; among others this may be free formats such as `csv` or `txt`, or even proprietry formats such as `excel` or `dta`. We will generally do this using functions which are a part of `Python` which has the added benefit of importing our data as an easy to use data frame.

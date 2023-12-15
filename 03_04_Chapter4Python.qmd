@@ -1,0 +1,51 @@
+---
+title: "Chapter 4"
+bibliography: references.bib
+engine: knitr
+---
+
+## Synthetic Control Exercise
+
+The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
+
+-   Use the 'synth' command to construct the synthetic control for California
+-   Predictor variables: cigsale from specific years, beer, lnincome, retprice, age15to24
+-   Treated unit: California (state==3)
+-   Treatment period: 1989
+-   Periods used to construct the synthetic control: 1980-1988
+
+Once the synthetic control is constructed, we can compare the trends of the treated unit and the synthetic control in the post-treatment period. Any divergence in trends is interpreted as the treatment effect. In this case, we are assessing the impact of a hypothetical policy implemented in California in 1989 on cigarette sales.
+
+```{python}
+
+import pandas as pd
+from SyntheticControlMethods import Synth
+
+# Load the Dataset
+df = pd.read_stata("C:/Users/maria/Desktop/RA Microeconometría/Cap4/Abadie/smoking.dta")
+
+# Prepare the Data
+df = df.sort_values(by=['state', 'year'])
+
+# Define the treatment period and the unit receiving the treatment
+treatment_period = 1989
+treated_unit = 'California'
+
+# Predictor variables - Ensure these are present in your dataset
+predictors = ['cigsale', 'beer', 'lnincome', 'retprice', 'age15to24']
+
+# Fit the Synthetic Control Model
+sc = Synth(df, "cigsale", "state", "year", treatment_period, treated_unit, pen=0)
+
+# Visualize the Synthetic Control
+sc.plot(["original", "pointwise", "cumulative"], treated_label="California", 
+        synth_label="Synthetic California", treatment_label="Tobacco Policy Change")
+
+```
+
+**Results:**
+
+-   The synthetic control for California is constructed using a combination of other states. Specifically, weights are assigned to states like Colorado, Connecticut, Montana, Nevada, New Mexico, and Utah.
+-   The RMSPE (Root Mean Squared Prediction Error) is a measure of how well the synthetic control approximates California in the pre-treatment period. A lower RMSPE indicates a better fit. In this case, the RMSPE is 1.756235, suggesting a reasonably good fit.
+-   The "Predictor Balance" table shows how California and the synthetic control compare in terms of the predictor variables. The figures show that there is a good balance between the treated unit and the synthetic control on these variables.
+-   The graph displays per capita cigarette sales in California and the synthetic control over time. The divergence between the two lines post-1989 represents the estimated effect of the policy

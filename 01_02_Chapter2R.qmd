@@ -12,8 +12,72 @@ engine: knitr
 
 **TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
 
+## Simulation and Regression
+To start, we will simulate some data based on the following data generating process:
+
+$y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
+
+where $\beta_0=1$, $\beta_1=2$, and both $x_i$ and $\varepsilon_i$ are distributed $\mathcal{N}(0,1)$. Having conducted this simulation, we will estimate a regression model to estimate $\widehat\beta_1$. In the book, you will be asked to consider examples which are more appropriate for the treatment effects framework which we are considering.
+
+```{r}
+set.seed(1213)
+N <- 1000
+x <- matrix(rnorm(N), N, 1)  # 1000 observations of a single independent variable
+y <- 1 + 2 * x + matrix(rnorm(N), N, 1)  # Linear relationship with some noise
+
+data <- data.frame(x = x, y = y)
+
+# Linear Regression
+model <- lm(y ~ x, data = data)
+
+# Coefficients
+beta1hat <- coef(model)["x"]
+beta0hat <- coef(model)["(Intercept)"]
+
+print(paste("beta 1 (Coefficient):", beta1hat))
+print(paste("Intercept:", beta0hat))
+
+# Predictions
+data$yhat <- predict(model, newdata = data)
+
+# Plot
+plot(data$x, data$y, main = "Two-way scatter plot with regression model",
+     xlab = expression(x), ylab = expression(y), pch = 19, col = 'blue')
+abline(model, col = 'red', lwd = 2)
+legend("topleft", legend = c("Data Points", "Regression Line"), 
+       col = c("blue", "red"), pch = c(19, NA), lty = c(NA, 1))
+```
+
+Finally, we will do this 500 times, to see what the distribution of estimated paramters $\widehat\beta_1$ looks like:
+
+```{r}
+set.seed(1213)
+beta1hats <- numeric(500)
+
+for (i in 1:500) {
+  x <- matrix(rnorm(N), N, 1)
+  y <- 1 + 2 * x + matrix(rnorm(N), N, 1)
+  data <- data.frame(x = x, y = y)
+  model <- lm(y ~ x, data = data)
+  beta1hats[i] <- coef(model)["x"]
+}
+
+# Mean estimate
+mean_beta1hat <- mean(beta1hats)
+print(paste('Mean coefficient estimate is:', mean_beta1hat))
+
+# Histogram
+hist(beta1hats, breaks = 30, col = 'lightblue', border = 'black', main = "Regression estimates in 500 simulations",
+     xlab = expression(hat(beta)[1]), ylab = "Frequency")
+abline(v = 2, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c(expression(beta[1]), "Estimates"), 
+       col = c("red", "lightblue"), lty = c(2, NA), lwd = c(2, NA))
+
+```
+
+
 ## Code Call Out 2.1
-@Banerjeeetal2021
+To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -48,6 +112,73 @@ cat("Difference in means (Treatment - Control):", diff_means, "\n")
 
 # Display the comparison
 cat("The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.\n")
+```
+### An Exact p-value
+
+It is perhaps useful to see a simple example. Consider the case of 6 units, with 3 observations randomly assigned treatment. Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$. A simple comparison of means estimator suggests that the treatment effect is 11.33. To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect. If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below. In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status). Suggesting an exact p-value of $1/20=0.05$.
+
+| Permutation  | T1  | T2  | T3  | C1  | C2  | C3  | Estimate |
+|--------------|-----|-----|-----|-----|-----|-----|----------|
+| Original (1) | 34  | 27  | 29  | 14  | 18  | 24  | 11.33    |
+| 2            | 34  | 27  | 14  | 29  | 18  | 24  | 1.33     |
+| 3            | 34  | 27  | 18  | 14  | 29  | 24  | 4        |
+| 4            | 34  | 27  | 24  | 14  | 18  | 29  | 8        |
+| 5            | 34  | 14  | 29  | 27  | 18  | 24  | 2.67     |
+| 6            | 34  | 18  | 29  | 14  | 27  | 24  | 5.33     |
+| 7            | 34  | 24  | 29  | 14  | 18  | 27  | 9.33     |
+| 8            | 14  | 27  | 29  | 34  | 18  | 24  | -2       |
+| 9            | 18  | 27  | 29  | 14  | 34  | 24  | 0.67     |
+| 10           | 24  | 27  | 29  | 14  | 18  | 34  | 4.67     |
+| 11           | 34  | 14  | 18  | 27  | 29  | 24  | -4.67    |
+| 12           | 34  | 14  | 24  | 27  | 18  | 29  | -0.67    |
+| 13           | 34  | 18  | 24  | 14  | 27  | 29  | 2        |
+| 14           | 14  | 27  | 18  | 34  | 29  | 24  | -9.33    |
+| 15           | 14  | 27  | 24  | 34  | 18  | 29  | -5.33    |
+| 16           | 18  | 27  | 24  | 14  | 34  | 29  | -2.67    |
+| 17           | 14  | 18  | 29  | 34  | 27  | 24  | -8       |
+| 18           | 14  | 24  | 29  | 34  | 18  | 27  | -4       |
+| 19           | 18  | 24  | 29  | 14  | 34  | 27  | -1.33    |
+| 20           | 14  | 18  | 24  | 34  | 27  | 29  | -11.33   |
+
+: A Simple Illustration of Randomization Inference {.striped .hover .borderless .secondary}
+
+```{r}
+# Load required libraries
+library(gtools)
+library(ggplot2)
+
+# Enter data
+Y <- c(34, 27, 29, 14, 18, 24)
+W <- c(1, 1, 1, 0, 0, 0)
+data <- data.frame(Y, W)
+
+# Calculate Difference in means estimator
+tau <- mean(data$Y[data$W == 1]) - mean(data$Y[data$W == 0])
+
+# Generate permutations of W
+Wperm <- permutations(n = 6, r = 6, v = c(1,1,1,0,0,0), set = FALSE, repeats.allowed = FALSE)
+
+# Calculate permuted treatment effects
+Taus <- apply(Wperm, 1, function(p) {
+  dataP <- data.frame(Y, W = p)
+  mean(dataP$Y[dataP$W == 1]) - mean(dataP$Y[dataP$W == 0])
+})
+
+# Calculate p-values
+p_2side <- sum(abs(Taus) >= tau) / length(Taus)
+p_1side <- sum(Taus >= tau) / length(Taus)
+
+cat("The two-sided p-value is:", p_2side, "\n")
+cat("The one-sided p-value is:", p_1side, "\n")
+
+# Generate graph
+ggplot(data.frame(Taus), aes(x = Taus)) +
+  geom_histogram(bins = 10, color = "black", fill = "lightblue", aes(y = ..density..)) +
+  geom_vline(xintercept = tau, color = "red", linetype = "dashed") +
+  labs(x = "Test statistic", y = "Density") +
+  theme_minimal() +
+  ggtitle("Permutation Inference")
+
 ```
 
 ### Block 2.2

@@ -6,3 +6,72 @@ bibliography: refs.bib
 # Code Call Outs
 
 **TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
+
+# Assessing the Impact of Maternal Smoking on Birth Weight 
+Maternal smoking during pregnancy has been a subject of extensive study due to its potential impact on infant health outcomes, such as birth weight. However, simply comparing the birth weights of infants born to smokers versus non-smokers may not account for confounding factors that influence both the likelihood of smoking and birth outcomes.
+```{r}
+
+# Load necessary libraries
+install.packages("tableone")
+install.packages("pastecs")
+library(MatchIt)
+library(dplyr)
+library(ggplot2)
+library(pastecs)
+library(tableone)
+library(cobalt)
+
+# Read the dataset
+birth_weight <- read.csv("Birth_Weight.csv")
+
+# Recode variables
+birth_weight <- birth_weight %>% dplyr::mutate(
+  mmarried = as.integer(mmarried == "Married"), # 1 if Married, 0 otherwise
+  fbaby = as.integer(fbaby == "Yes"),           # 1 if Yes, 0 otherwise
+  mbsmoke = as.integer(mbsmoke == "Smoker")     # 1 if Smoker, 0 otherwise
+)
+
+# Perform OLS regression
+ols_model <- lm(bweight ~ mbsmoke + mmarried + mage + medu + fbaby, data = birth_weight)
+summary(ols_model)
+
+
+# Estimate propensity scores using logistic regression
+ps_model <- glm(mbsmoke ~ mmarried + mage + medu + fbaby, family = binomial(), data = birth_weight)
+birth_weight$pscore <- predict(ps_model, type = "response")
+
+# Diagnose the overlap in propensity scores
+ggplot(birth_weight, aes(x = pscore, fill = as.factor(mbsmoke))) +
+  geom_density(alpha = 0.5) +
+  labs(fill = "Mother Smoked", x = "Propensity Score", y = "Density")
+
+
+# Perform nearest neighbor matching
+match_nearest <- matchit(mbsmoke ~ mmarried + mage + medu + fbaby, method = "nearest", data = birth_weight)
+
+# Assess covariate balance before and after matching
+bal.tab(match_nearest, un = TRUE)  # Before matching
+bal.tab(match_nearest, un = FALSE) # After matching
+
+
+# Estimate the ATT using the matched sample
+matched_data <- match.data(match_nearest)
+t.test(bweight ~ mbsmoke, data = matched_data)
+
+
+# Density plot for propensity score overlap
+ggplot(birth_weight, aes(x = pscore, fill = as.factor(mbsmoke))) +
+  geom_density(alpha = 0.5) +
+  labs(fill = "Mother Smoked", x = "Propensity Score", y = "Density")
+
+# Covariate balance plot
+love.plot(match_nearest)
+
+# Boxplot for birth weight distribution comparison
+ggplot(matched_data, aes(x = as.factor(mbsmoke), y = bweight)) +
+  geom_boxplot() +
+  labs(x = "Mother Smoked", y = "Birth Weight") +
+  theme_minimal()
+
+```
+

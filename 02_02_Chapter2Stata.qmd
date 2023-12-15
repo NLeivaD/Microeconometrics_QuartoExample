@@ -10,6 +10,81 @@ bibliography: refs.bib
 
 **TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
 
+## Simulation and Regression
+To start, we will simulate some data based on the following data generating process:
+
+$y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
+
+where $\beta_0=1$, $\beta_1=2$, and both $x_i$ and $\varepsilon_i$ are distributed $\mathcal{N}(0,1)$. Having conducted this simulation, we will estimate a regression model to estimate $\widehat\beta_1$. In the book, you will be asked to consider examples which are more appropriate for the treatment effects framework which we are considering.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(Statamarkdown)
+```
+
+```{stata}
+clear all
+set seed 1213
+set obs 1000
+gen x = rnormal()
+gen epsilon = rnormal()
+gen y = 1 + 2*x + epsilon
+
+reg y x
+predict yhat
+scatter y x || line yhat x, legend(label(1 "Data Points") label(2 "Regression Line"))
+
+```
+
+Finally, we will do this 500 times, to see what the distribution of estimated paramters $\widehat\beta_1$ looks like:
+```{stata}
+set seed 1213
+set obs 1000
+gen beta1hat = .
+
+forvalues i = 1/500 {
+    quietly {
+        replace x = rnormal()
+        replace epsilon = rnormal()
+        replace y = 1 + 2*x + epsilon
+        reg y x
+        replace beta1hat = _b[x] in `i'
+    }
+}
+
+sum beta1hat
+histogram beta1hat, frequency title("Regression estimates in 500 simulations") ///
+    xtitle("{&beta}1 hat") ytitle("Frequency") lcolor(black) ///
+	xline(2)
+```
+### An Exact p-value
+
+It is perhaps useful to see a simple example. Consider the case of 6 units, with 3 observations randomly assigned treatment. Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$. A simple comparison of means estimator suggests that the treatment effect is 11.33. To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect. If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below. In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status). Suggesting an exact p-value of $1/20=0.05$.
+
+| Permutation  | T1  | T2  | T3  | C1  | C2  | C3  | Estimate |
+|--------------|-----|-----|-----|-----|-----|-----|----------|
+| Original (1) | 34  | 27  | 29  | 14  | 18  | 24  | 11.33    |
+| 2            | 34  | 27  | 14  | 29  | 18  | 24  | 1.33     |
+| 3            | 34  | 27  | 18  | 14  | 29  | 24  | 4        |
+| 4            | 34  | 27  | 24  | 14  | 18  | 29  | 8        |
+| 5            | 34  | 14  | 29  | 27  | 18  | 24  | 2.67     |
+| 6            | 34  | 18  | 29  | 14  | 27  | 24  | 5.33     |
+| 7            | 34  | 24  | 29  | 14  | 18  | 27  | 9.33     |
+| 8            | 14  | 27  | 29  | 34  | 18  | 24  | -2       |
+| 9            | 18  | 27  | 29  | 14  | 34  | 24  | 0.67     |
+| 10           | 24  | 27  | 29  | 14  | 18  | 34  | 4.67     |
+| 11           | 34  | 14  | 18  | 27  | 29  | 24  | -4.67    |
+| 12           | 34  | 14  | 24  | 27  | 18  | 29  | -0.67    |
+| 13           | 34  | 18  | 24  | 14  | 27  | 29  | 2        |
+| 14           | 14  | 27  | 18  | 34  | 29  | 24  | -9.33    |
+| 15           | 14  | 27  | 24  | 34  | 18  | 29  | -5.33    |
+| 16           | 18  | 27  | 24  | 14  | 34  | 29  | -2.67    |
+| 17           | 14  | 18  | 29  | 34  | 27  | 24  | -8       |
+| 18           | 14  | 24  | 29  | 34  | 18  | 27  | -4       |
+| 19           | 18  | 24  | 29  | 14  | 34  | 27  | -1.33    |
+| 20           | 14  | 18  | 24  | 34  | 27  | 29  | -11.33   |
+
+: A Simple Illustration of Randomization Inference {.striped .hover .borderless .secondary}
+
 ## Block 2.1
 
 To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
@@ -51,3 +126,59 @@ di "The coefficient from the regression should be equal to the difference in mea
 ```
 
 By following these steps, we can empirically verify that in a binary regression set-up, the coefficient for the treatment variable in a simple OLS regression is equivalent to the difference in means between the treatment and control groups. This serves as a useful check for the validity of our regression model and strengthens the causal interpretation of the treatment effect.
+
+## Block 2.2: Randomization Inference
+
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.  Here we will work with data from @Banerjeeetal2021
+```{stata}
+clear all
+set more off
+
+// Replace "path_to_file" with the actual path to your CSV file
+import delimited "C:/Users/maria/Desktop/Proyecto/Banerjee_et_al_2021.csv", clear
+
+program randomization_inference
+    args varname
+    tempvar treated_effect control_effect
+    quietly {
+        sum `varname' if treatment == 1
+        scalar treated_effect = r(mean)
+        sum `varname' if treatment == 0
+        scalar control_effect = r(mean)
+    }
+    scalar obs_effect = treated_effect - control_effect
+
+    // Set number of permutations
+    local n_permutations = 10000
+    scalar p_value = 0
+
+    forvalues i = 1/`n_permutations' {
+        // Generate a permuted treatment variable
+        gen perm_treatment = runiform() > 0.5
+        quietly {
+            sum `varname' if perm_treatment
+            scalar treated_effect = r(mean)
+            sum `varname' if !perm_treatment
+            scalar control_effect = r(mean)
+        }
+        scalar perm_effect = treated_effect - control_effect
+
+        // Update p-value count
+        if (abs(perm_effect) >= abs(obs_effect)) {
+            scalar p_value = p_value + 1
+        }
+        drop perm_treatment
+    }
+
+    // Calculate p-value
+    scalar p_value = p_value / `n_permutations'
+    display "The observed effect of " "`varname'" " is " obs_effect " and its p-value is " p_value
+end
+
+
+randomization_inference ind_fin_el1
+randomization_inference asset_ind_tot_el1
+
+
+```
+
