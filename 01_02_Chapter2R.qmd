@@ -5,12 +5,7 @@ engine: knitr
 ---
 
 # Tools Required for Chapter 2
-
-**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
-
-# Code Call Outs
-
-**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
+## An Introduction to Functions
 
 ## Simulation and Regression
 To start, we will simulate some data based on the following data generating process:
@@ -76,11 +71,13 @@ legend("topright", legend = c(expression(beta[1]), "Estimates"),
 ```
 
 
-## Code Call Out 2.1
+# Code Call Outs
+
+## Code Call Out 2.1: Regression versus comparison of means
 To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(readxl)
 library(plyr)
@@ -113,6 +110,11 @@ cat("Difference in means (Treatment - Control):", diff_means, "\n")
 # Display the comparison
 cat("The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.\n")
 ```
+
+## Call Out 2.2: Randomisation Inference
+
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+
 ### An Exact p-value
 
 It is perhaps useful to see a simple example. Consider the case of 6 units, with 3 observations randomly assigned treatment. Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$. A simple comparison of means estimator suggests that the treatment effect is 11.33. To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect. If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below. In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status). Suggesting an exact p-value of $1/20=0.05$.
@@ -181,11 +183,10 @@ ggplot(data.frame(Taus), aes(x = Taus)) +
 
 ```
 
-### Block 2.2
+### A Real world example
+@Banerjeeetal2021
 
-Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(readxl)
 library(plyr)
@@ -226,3 +227,5 @@ for (i in 1:n_permutations) {
 p_value <- mean(abs(permuted_effects) >= abs(obs_effect))
 list(observed_effect = obs_effect, p_value = p_value)
 ```
+
+## Call out 2.3: Bootstrap

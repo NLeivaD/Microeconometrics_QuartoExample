@@ -28,7 +28,7 @@ set more off
 *ssc install synth, replace
 
 * Load the dataset 'smoking.dta'
-use "C:\Users\maria\Desktop\RA Microeconometría\Cap4\Abadie\smoking.dta"
+insheet using "Datasets/Abadie_data.csv", comma	
 
 * Set the data as panel data with 'state' as the panel unit and 'year' as the time variable
 tsset state year

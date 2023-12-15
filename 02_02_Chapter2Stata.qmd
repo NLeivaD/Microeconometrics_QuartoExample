@@ -135,7 +135,7 @@ clear all
 set more off
 
 // Replace "path_to_file" with the actual path to your CSV file
-import delimited "C:/Users/maria/Desktop/Proyecto/Banerjee_et_al_2021.csv", clear
+import delimited "Datasets/Banerjee_et_al_2021.csv", clear
 
 program randomization_inference
     args varname
