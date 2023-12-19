@@ -353,25 +353,29 @@ display "Approximated square root: " round(guess, .01)
 ```
 ### **3. Loop Control Mechanisms in Stata**
 
-Stata introduces the **`continue`** and **`exit`** commands to influence loop execution:
+The continue command in Stata's foreach, forvalues, or while loops interrupts the current iteration and omits the rest of the loop's commands, restarting from the loop's beginning. However, when paired with the break option, it exits the loop completely and proceeds with the next command outside the loop. This feature allows for flexible control within looping constructs, either to skip an iteration or to terminate the loop based on specific conditions.
 
-- **continue**: Skips the current iteration, moving to the next one.
-- **exit**: Exits the loop prematurely.
-
-**3.1. Utilizing `exit` in Prime Number Detection**
+**3.1. Utilizing `continue, break` in Odd Numbers and Least Common Multiple (LCM) **
 ```{stata}
 clear
-scalar number = 29
-scalar is_prime = 1
 
-forvalues i=2(sqrt(`number')) {
-    if `number' % `i' == 0 {
-        scalar is_prime = 0
-        exit
+// Loop through numbers 1 to 10
+forvalues i = 1/10 {
+    // Display odd numbers and break the loop when the number reaches 7
+    if mod(`i', 2) == 1 {
+        display "Odd number: `i'"
+        if `i' == 7 {
+        continue, break // Break out of the loop when the number reaches 7
+        }
     }
 }
 
-display "Is `number' a prime number? " is_prime
+forvalues x = 1/10000 {
+    if mod(`x',7)==0 & mod(`x',8)==0 & mod(`x',9)==0 {
+        display "The least common multiple of 7, 8, and 9 is `x'"
+        continue, break
+    }
+}
 
 ```
 In conclusion, loops are indispensable in Stata, facilitating repetitive tasks and complex computations. Mastery of these constructs is essential for academic research, statistical analysis, and data visualization.
