@@ -1,0 +1,622 @@
+---
+title: "Chapter 4"
+bibliography: refs.bib
+---
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(warning = FALSE, eval = T, message = F)
+library(Statamarkdown)
+```
+
+
+## Code Call Out 4.1
+
+**Two-Way Fixed Effects Estimators and Heterogeneous Treatment Effects** To understand the potential issues related to heterogeneous treatment effects over time and two-way fixed effect estimators, we will examine a pair of numerical examples. In particular, we will focus on the composition of the two way FE estimator $\tau$ estimated from: $$
+y_{st} = \gamma_s + \lambda_t + \tau w_{st} + \varepsilon_{st}
+$$ {#eq-twfe} where $y_{st}$ is the outcome variable, $\gamma_s$ and $\lambda_t$ are state (unit) and time fixed effects, $w_{st}$ is the binary treatment variable that takes the value of 1 if a state (unit) $s$ is treated at time $t$ and otherwise takes 0. We will work with a quite tractable example based on three units and 10 time periods, and will document how the approaches taken by @GoodmanBacon2018 and by @deChaisemartinDhaultfoeuille2019 to understand the two-way FE estimator compare.
+
+The results from @GoodmanBacon2018 and those from @deChaisemartinDhaultfoeuille2019 are similar, however they take quite different paths to get there. Goodman-Bacon's (like that laid out in @AtheyImbens2018) is "mechanical" in that it is based on the underlying difference-in-differences comparisons between all groups. The result in @deChaisemartinDhaultfoeuille2019 is based on a potential outcomes frame-work, and counterfactuals under parallel trend assumptions. Thus to examine how these methods work requires somewhat different frameworks. In the case of @GoodmanBacon2018, we should consider all possible DD comparisons, while in the case of @deChaisemartinDhaultfoeuille2019 we should consider the treatment effect for each unit and time period, which requires knowing the observed and counterfactual state. While the approaches the two papers take to understand the content of the estimator differ, they refer to the same estimator, so always recover the same parameter estimate. To examine this in a more applied way, we will look at a simulated example.
+
+To do this, let's consider a panel of 3 states/areas over the 10 years ($t$) of 2000 to 2009. One of these units is entirely untreated ($unit = 1$ or group $U$), one is treated at an early time period, 2003, ($unit = 2$ or group $k$), and the other is treated at a later time period, 2006, ($unit = 3$ or group $l$). We will construct a general structure for this data below:
+
+```{stata}
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+list in 1/5
+```
+
+We will consider a simple-case where the actual data-generating process is known as: $$y_{unit,t} = 2 + 0.2 \times (t - 2000) + 1 \times unit + \beta_1 \times post \times unit + \beta_2 \times post \times unit \times (t - treat).$$ Here $unit$ refers to the unit number listed above (1, 2 or 3), $post$ indicates that a unit is receiving treatment in the relevant time period $t$, and $treat$ refers to the treatment period (2003 for unit 2, and 2006 for unit 3). Let's generate treatment, time to treatment, and post-treatment variables in `Stata`:
+
+```{stata echo=7:14}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+}
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+list in 1/5
+```
+
+This specification allows for each unit to have its own fixed effect, given that $unit$ is multiplied by 1, and allows for a general time trend increasing by 0.2 units each period across the whole sample. These parameters are not so important, as what we care about are the treatment effects themselves. The impact of treatment comes from the units $\beta_1$ and $\beta_2$. The first of these, $\beta_1$, captures an immediate unit-specific jump when treatment is implemented which remains stable over time. The second of these, $\beta_2$, implies a trend break occurring *only* for the treated units once treatment comes into place. We will consider 2 cases below. In the first case $\beta_1 = 1$ and $\beta_2 = 0$ (a simple case with a constant treatment effect per unit):
+
+```{stata echo=14:15}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+}
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+list in 1/5
+```
+
+and in a second case $\beta_1 = 1$ and $\beta_2 = 0.45$. This is a more complex case in which there are heterogeneous treatment effects over time:
+
+```{stata echo=15:16}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+list in 1/5
+```
+
+These two cases are plotted next where the line with empty circles refers to group $U$, the line with black filled circles refers to group $k$ and the line with squares refers to group $l$
+
+![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-6-1.png)
+
+### The Two-way Fixed Effect Estimator
+
+First we will estimate the parameter by two-way fixed effects regression. This will provide us with the parameter estimate that both @GoodmanBacon2018 and @deChaisemartinDhaultfoeuille2019 will construct in a piece-wise fashion. This is done relatively simply in `R`. We simply estimate @eq-twfe by linear regression using `lm` as laid out below:
+
+```{stata echo=16:19}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+}
+qui reg y1 i.unit i.year post
+di as text "The parameter estimates by two-way fixed effects regression for the case 1 is: " _b[post]
+qui reg y2 i.unit i.year post
+di as text "The parameter estimates by two-way fixed effects regression for the case 2 is: " _b[post]
+```
+
+Here we see that the coefficient of interest is 2.454545. We can see that this is between the two unit-specific jumps that occur with treatment (2 and 3). We will see below why it takes this particular weighted average.
+
+### @GoodmanBacon2018 Decomposition
+
+Using the values simulated above, let's see how the @GoodmanBacon2018 decomposition allows us to understand estimated treatment effects. We will consider both:\
+- (a) Simple Decomposition\
+- (b) Decomposition with trends
+
+The methodology @GoodmanBacon2018 decomposition suggests that we should calculate all $2 \times 2$ combinations of states and time where post-treatment units are compared to "untreated" unit (laid out at more length in the boo). In this example, this provides four specific effects, which contribute to $\widehat{\tau}$ as a weighted mean. The specific effects desired are:
+
+-   A. $\widehat{\beta}^{2\times2}_{kU}$ from the comparison of the early treated unit with the untreated unit.\
+-   B. $\widehat{\beta}^{2\times2}_{lU}$, from the comparison of the latter treated unit with the untreated unit.\
+-   C. $\widehat{\beta}^{2\times2,k}_{kl}$, from the comparison of the early and latter treated units, when the early unit begin to be treated.\
+-   D. $\widehat{\beta}^{2\times2,l}_{kl}$, from the comparison of the early and latter treated units, when the latter unit begin to be treated.
+
+These will then be weighted as laid out in @GoodmanBacon2018 to provide the regression-based estimate.
+
+#### (a) Simple Decomposition
+
+In this case the @GoodmanBacon2018 methodology estimate $\widehat{\tau}$ weighting the next four DD comparisons
+
+![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-9-1.png)
+
+As seen in the plots, in the simple decomposition these effects are constants of 3 and 2 for early and later treated units given that the "treatment effect" is simply $1 \times unit$ in each case.
+
+##### A. Early Group v/s Untreated Group
+
+In order to calculate the effects we start making the simple DD comparison of the untreated group $U$ ($unit = 1$) with the early treated group $k$ ($unit = 3$) getting $\widehat{\beta}^{2 \times 2}_{kU}$ as $$\widehat{\beta}^{2 \times 2}_{kU} = \left( \overline{y}_k^{Post(k)} - \overline{y}_k^{Pre(k)} \right) - \left( \overline{y}_U^{Post(k)} - \overline{y}_U^{Pre(k)} \right)$$ Where $\overline{y}_k^{Post(k)}$ is the mean of the outcome variable for the early treated group $k$ ($unit = 3$) posterior to treatment, from 2003, $\overline{y}_k^{Pre(k)}$ is the mean for of the outcome variable for the early treated group $U$ ($unit = 3$) prior to treatment, (up until 2002), and $\overline{y}_U^{Post(k)}, \overline{y}_U^{Post(k)}$ are the analogous quantities for the untreated group $U$ ($unit = 1$)
+
+```{stata echo=15:25}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+qui sum y1 if unit == 3 & post == 1
+scalar y1treatmeanpost = r(mean)
+qui sum y1 if unit == 3 & post == 0
+scalar y1treatmeanpre = r(mean)
+scalar dify1treat = y1treatmeanpost - y1treatmeanpre
+qui sum y1 if unit == 1 & year >= 2003
+scalar y1controlmeanpost = r(mean)
+qui sum y1 if unit == 1 & year < 2003
+scalar y1controlmeanpre = r(mean)
+scalar dify1control = y1controlmeanpost - y1controlmeanpre
+di as result round(dify1treat - dify1control, 0.01)
+```
+
+This result also can be obtained from the linear regression with the canonical DD formula $$y_{unit,t} = \alpha_0 + \alpha_1 \times Post(k) + \alpha_2 \times \mathbf{1}(unit = 3) + \beta_{kU}^{2\times2} \times Post(k) \times \mathbf{1}(unit = 3) + \varepsilon_i$$ Where $Post(k)$ indicates that the year is equal or greater than the year where the group $k$ ($unit = 3$) received the treatment (2003) and $\mathbf{1}(unit = 3)$ indicates if the observation is from the early treated group $k$ ($unit = 3$)
+
+```{stata echo = 15:16}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+gen post2003 = (year >= 2003)
+reg y1 i.post2003 i.unit i.post2003#i.unit if unit != 2
+```
+
+A third way to obtain this is from the next linear regression $$y_{unit,t} = \alpha_0 + \beta_{kU}^{2 \times 2} \times Post + \sum_{i = 2001}^{2009} \alpha_{i-2000} \times \mathbf{1}(year = i) + \alpha_{10} \times \mathbf{1}(unit = 3) + \varepsilon_i$$ Where in this case $Post$ indicates if the unit is treated (note for group $U$ this will be always 0), $\mathbf{1}(year = i)$ indicates if the observation is in period $i \in \{2001, \ldots, 2009\}$ and $\mathbf{1}(unit = 3)$ keep its meaning
+
+```{stata echo = 15}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+reg y1 post i.year i.unit if unit != 2
+```
+
+Now we store this result for posterior use
+
+```{stata echo = 16}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+reg y1 post i.year i.unit if unit != 2
+}
+scalar bku = _b[post]
+```
+
+##### B. Later Group v/s Untreated Group
+
+The next DD comparison we calculate is that which compares the later treated group $l$ ($unit = 2$) with the untreated group $U$ ($unit = 1$), resulting in $\widehat{\beta}^{2 \times 2}_{lU}$. As above, we can generate this DD estimate in a number of ways (most simply by double-differencing with means), and this will then be stored.
+
+```{stata echo = 15:26}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+qui sum y1 if unit == 2 & post == 1
+scalar y1treatmeanpost = r(mean)
+qui sum y1 if unit == 2 & post == 0
+scalar y1treatmeanpre = r(mean)
+scalar dify1treat = y1treatmeanpost - y1treatmeanpre
+qui sum y1 if unit == 1 & year >= 2006
+scalar y1controlmeanpost = r(mean)
+qui sum y1 if unit == 1 & year < 2006
+scalar y1controlmeanpre = r(mean)
+scalar dify1control = y1controlmeanpost - y1controlmeanpre
+scalar blu = dify1treat - dify1control
+di as result round(blu, 0.01)
+```
+
+##### C. Early Group v/s Later Group Before 2006
+
+Next we calculate the effects from the DD comparisons of early and later treated groups, up until the later treated group receives treatment (2006). This is: $$\widehat{\beta}^{2 \times 2, k}_{kl} \equiv \left( \overline{y}^{Mid(k,l)}_{k} - \overline{y}^{Pre(k)}_{k} \right) - \left( \overline{y}^{Mid(k,l)}_{l} - \overline{y}^{Pre(k)}_{l} \right)$$ where $\overline{y}^{Mid(k,l)}_{k}$ is the mean of the outcome variable for the early treated group $k$ ($unit = 3$) in the period between the treatment for the group $k$ and the group $l$ ($unit = 2$), from 2003 to 2005, $\overline{y}^{Pre(k)}_{k}$ is the mean for of the outcome variable for the early treated group $k$ ($unit = 3$) previous to treatment, until 2002, and $\overline{y}^{Mid(k,l)}_{l}, \overline{y}^{Pre(k)}_{l}$ are the analogous for the later treated group $l$ ($unit = 2$)
+
+```{stata echo = 15:17}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+reg y1 post i.year i.unit if unit != 1 & year < 2006
+scalar bklk = _b[post]
+di round(bklk, 0.01)
+```
+
+##### D. Early Group v/s Later Group After 2003
+
+The last DD comparison is for early and later treated groups, starting from 2006 $$\widehat{\beta}^{2 \times 2, l}_{kl} \equiv \left( \overline{y}^{Post(l)}_{l} - \overline{y}^{Mid(k,l)}_{l} \right) - \left( \overline{y}^{Post(l)}_{k} - \overline{y}^{Mid(k,l)}_{k} \right)$$ Where $\overline{y}^{Post(l)}_{l}$ is the mean of the outcome variable for the later treated group $l$ ($unit = 2$) in the period after this group received the treatment, from 2006, $\overline{y}^{Mid(k,l)}_{l}$ is the mean for of the outcome variable for the later treated group $l$ ($unit = 2$) in the period between the treatment for the group $k$ ($unit = 3$) and the group $l$, from 2003 to 2005, and $\overline{y}^{Post(l)}_{k}, \overline{y}^{Mid(k,l)}_{k}$ are the analogous quantities for the early treated group $k$ ($unit = 3$). We can generate and save this quantity as we have previously:
+
+```{stata echo = 15:17}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+reg y1 post i.year i.unit if unit != 1 & year > 2002
+scalar bkll = _b[post]
+di round(bkll, 0.01)
+```
+
+This comparison is the comparison which can potentially result in undesired results if treatment effects are dynamic over time because it views group 3 (the previously treated group) as a control. However, in this case, given that treatment effects are homogenous over time we do not have a major problem here, and we observe that $\widehat{\beta}^{2 \times 2, l}_{kl}=2$.
+
+##### Weights
+
+We can now arrive to the OLS estimate of this two-way fixed effect model by generating the weighted mean of the previous estimates as: $$\widehat{\tau} = W_{kU} \cdot \widehat{\beta}^{2\times 2}_{kU} + W_{lU} \cdot \widehat{\beta}^{2\times 2}_{lU} + W_{kl}^{k} \cdot \widehat{\beta}^{2\times 2,k}_{kl} + W_{kl}^{l} \cdot \widehat{\beta}^{2\times 2,l}_{kl}$$ Where each $W$ is the weight that the respective $\beta$ has in this weighted mean, specifically: \begin{align*} 
+W_{kU} & = \frac{(n_k + n_U)^2\widehat{V}^D_{kU}}{\widehat{V}^D} \quad &  \quad W_{lU} & = \frac{(n_l + n_U)^2\widehat{V}^D_{lU}}{\widehat{V}^D} \\ 
+W_{kl}^k & = \frac{[(n_k + n_l)(1 - \overline{D}_l)]^2\widehat{V}^{D,k}_{kl}}{\widehat{V}^D} \quad &  \quad W_{kl}^l & = \frac{[(n_k + n_l)(1 - \overline{D}_k)]^2\widehat{V}^{D,l}_{kl}}{\widehat{V}^D}
+\end{align*} Where $n$ refers to the sample share of the group
+
+```{stata}
+scalar nk = 1/3
+scalar nl = 1/3
+scalar nu = 1/3
+```
+
+$\overline{D}$ referes to the share of time the group is treated
+
+```{stata echo = 15:18}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+qui sum post if unit == 3
+scalar Dk = r(mean)
+qui sum post if unit == 2
+scalar Dl = r(mean)
+```
+
+and $\widehat{V}$ refers to how much treatment varies
+
+```{stata echo = 15:27}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+qui sum post if unit == 3
+scalar Dk = r(mean)
+qui sum post if unit == 2
+scalar Dl = r(mean)
+scalar VkU = 0.5*0.5*(Dk)*(1-Dk)
+scalar VlU = 0.5*0.5*(Dl)*(1-Dl)
+scalar Vklk = 0.5*0.5*((Dk-Dl)/(1-Dl))*((1-Dk)/(1-Dl))
+scalar Vkll = 0.5*0.5*(Dl/Dk)*((Dk-Dl)/(Dk))
+qui reg post i.unit i.year
+predict residuals, residuals
+gen residuals2 = residuals^2
+qui sum residuals2
+scalar VD = r(mean)
+```
+
+The weights are thus the following:
+
+```{stata echo = 31:38}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+qui sum post if unit == 3
+scalar Dk = r(mean)
+qui sum post if unit == 2
+scalar Dl = r(mean)
+scalar VkU = 0.5*0.5*(Dk)*(1-Dk)
+scalar VlU = 0.5*0.5*(Dl)*(1-Dl)
+scalar Vklk = 0.5*0.5*((Dk-Dl)/(1-Dl))*((1-Dk)/(1-Dl))
+scalar Vkll = 0.5*0.5*(Dl/Dk)*((Dk-Dl)/(Dk))
+qui reg post i.unit i.year
+predict residuals, residuals
+gen residuals2 = residuals^2
+qui sum residuals2
+scalar VD = r(mean)
+scalar nk = 1/3
+scalar nl = 1/3
+scalar nu = 1/3
+}
+scalar wkU = ((nk + nu)^2*VkU)/VD
+di wkU
+scalar wlU = ((nl + nu)^2*VlU)/VD
+di wlU
+scalar wklk = (((nk + nl)*(1-Dl))^2*Vklk)/VD
+di wklk
+scalar wkll = (((nk + nl)*Dk)^2*Vkll)/VD
+di wkll
+```
+
+With this in mind the $\tau$ estimate is
+
+```{stata echo = 47:48}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+qui sum post if unit == 3
+scalar Dk = r(mean)
+qui sum post if unit == 2
+scalar Dl = r(mean)
+scalar VkU = 0.5*0.5*(Dk)*(1-Dk)
+scalar VlU = 0.5*0.5*(Dl)*(1-Dl)
+scalar Vklk = 0.5*0.5*((Dk-Dl)/(1-Dl))*((1-Dk)/(1-Dl))
+scalar Vkll = 0.5*0.5*(Dl/Dk)*((Dk-Dl)/(Dk))
+qui reg post i.unit i.year
+predict residuals, residuals
+gen residuals2 = residuals^2
+qui sum residuals2
+scalar VD = r(mean)
+scalar nk = 1/3
+scalar nl = 1/3
+scalar nu = 1/3
+scalar wkU = ((nk + nu)^2*VkU)/VD
+di wkU
+scalar wlU = ((nl + nu)^2*VlU)/VD
+di wlU
+scalar wklk = (((nk + nl)*(1-Dl))^2*Vklk)/VD
+di wklk
+scalar wkll = (((nk + nl)*Dk)^2*Vkll)/VD
+di wkll
+reg y1 post i.year i.unit if unit != 2
+scalar bku = _b[post]
+reg y1 post i.year i.unit if unit != 3
+scalar blu = _b[post]
+reg y1 post i.year i.unit if unit != 1 & year < 2006
+scalar bklk = _b[post]
+reg y1 post i.year i.unit if unit != 1 & year > 2002
+scalar bkll = _b[post]
+}
+scalar tau = wkU * bku + wlU * blu + wklk * bklk + wkll * bkll
+di tau
+```
+
+as observed in the two-way fixed effect estimate above.
+
+#### (b) Decomposition with trends
+
+In this case the @GoodmanBacon2018 decomposition follows as above generating the treatment effect as follows:
+
+![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-22-1.png)
+
+As seen in the plots, in the decomposition with trends these effects are no longer constants of 3 and 2 for early and later treated units given that the "treatment effect" is no longer simply $1 \times unit$ in each case.
+
+```{stata echo = 15:54}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+}
+* 2x2 DD Regressions for betas
+qui reg y2 post i.year i.unit if unit != 2
+scalar bku = _b[post]
+qui reg y2 post i.year i.unit if unit != 3
+scalar blu = _b[post]
+qui reg y2 post i.year i.unit if unit != 1 & year < 2006
+scalar bklk = _b[post]
+qui reg y2 post i.year i.unit if unit != 1 & year > 2002
+scalar bkll = _b[post]
+* Share of time treated
+qui sum post if unit == 3
+scalar Dk = r(mean)
+qui sum post if unit == 2
+scalar Dl = r(mean)
+* How much treatment varies
+scalar VkU = 0.5*0.5*(Dk)*(1-Dk)
+scalar VlU = 0.5*0.5*(Dl)*(1-Dl)
+scalar Vklk = 0.5*0.5*((Dk-Dl)/(1-Dl))*((1-Dk)/(1-Dl))
+scalar Vkll = 0.5*0.5*(Dl/Dk)*((Dk-Dl)/(Dk))
+qui reg post i.unit i.year
+predict residuals, residuals
+gen residuals2 = residuals^2
+qui sum residuals2
+scalar VD = r(mean)
+* Share of sample
+scalar nk = 1/3
+scalar nl = 1/3
+scalar nu = 1/3
+* Weights
+scalar wkU = ((nk + nu)^2*VkU)/VD
+di wkU
+scalar wlU = ((nl + nu)^2*VlU)/VD
+di wlU
+scalar wklk = (((nk + nl)*(1-Dl))^2*Vklk)/VD
+di wklk
+scalar wkll = (((nk + nl)*Dk)^2*Vkll)/VD
+di wkll
+* Tau
+scalar tau = wkU * bku + wlU * blu + wklk * bklk + wkll * bkll
+di tau
+```
+
+What is noteworthy here is the surprising behaviour flagged by @GoodmanBacon2018 for the final comparison based on the case where the earlier treated unit (unit 3) is used as a control for the later trated unit (unit 2). In this case, given that there *are* time-varying treatment effects, despite the fact that each unit-specific treatment effect is positive, we observe that the parameter $\widehat{\beta}^{2 \times 2, l}_{kl}$ is actually *negative*. In this particular example this negative value (-1.375) is not sufficient to turn the weighted treatment effect estimate negative, but if you play around with the size of the parameters $\beta_1$ and $\beta_2$ above, you will see that large enough differences in trends *can* result in such estimates! Here, as above, we see that when we aggregate unit-specific estimates as `tau`, the estimate (by definition) agrees with the estimate generated by two-way fixed effect models previously.
+
+### @deChaisemartinDhaultfoeuille2019's Procedure
+
+Now, we will show that the procedures described in @deChaisemartinDhaultfoeuille2019, despite arriving to the estimator in a different way, also let us understand how the regression weights the two-way fixed effect estimator. In this case, rather than considering each treatment-control comparison pair, the authors note that the two-way fixed estimator can be conceived as a weighted sum of each single group by time period in any post-treatment group.
+
+The authors define $\widehat{\beta}_{fe}$ as the coefficient estimated in the following (standard) two-way fixed effects regression: $$y_{i,s,t} = \beta_0 + \beta_{fe} D_{s,t} + \mu_s + \lambda_t + \varepsilon_{s,t}$$ Where $D_{s,t}$ is the mean over $i$ of a binary indicator variable that takes value of 1 if the unit $i$ in state $s$ is treated at period $t$ and 0 otherwise, in our case as we have one observartion per state $D_{s,t} = post_{s,t}$, meanwhile $\mu_s$ and $\lambda_t$ are state and time fixed effects. This is, of course, precisely the same model as we have estimated in @eq-twfe, implying that $\beta_{fe}=2.4545$ in cases without post-treatment trends (`y1`), or $\beta_{fe}=3.8045$ in cases with post-treatment dynamics (`y2`).
+
+## Synthetic Control Exercise
+
+The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
+
+-   Use the 'synth' command to construct the synthetic control for California
+-   Predictor variables: cigsale from specific years, beer, lnincome, retprice, age15to24
+-   Treated unit: California (state==3)
+-   Treatment period: 1989
+-   Periods used to construct the synthetic control: 1980-1988
+
+Once the synthetic control is constructed, we can compare the trends of the treated unit and the synthetic control in the post-treatment period. Any divergence in trends is interpreted as the treatment effect. In this case, we are assessing the impact of a hypothetical policy implemented in California in 1989 on cigarette sales.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(Statamarkdown)
+```
+
+```{stata eval = FALSE}
+* Clear the workspace and turn off result pagination
+clear all
+set more off
+
+* Install the 'synth' package if not already installed
+*ssc install synth, replace
+
+* Load the dataset 'smoking.dta'
+use "C:\Users\maria\Desktop\RA Microeconometría\Cap4\Abadie\smoking.dta"
+
+* Set the data as panel data with 'state' as the panel unit and 'year' as the time variable
+tsset state year
+
+* The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
+
+* Use the 'synth' command to construct the synthetic control for California
+* - Predictor variables: cigsale from specific years, beer, lnincome, retprice, age15to24
+* - Treated unit: California (state==3)
+* - Treatment period: 1989
+* - Periods used to construct the synthetic control: 1980-1988
+synth cigsale beer lnincome retprice age15to24 cigsale(1988) cigsale(1980) cigsale(1975), ///
+      trunit(3) trperiod(1989) xperiod(1980(1)1988) nested fig keep(results) replace
+	  
+use results.dta, clear
+tsset _time
+
+* Create the graph with a dotted line at the treatment period
+twoway (tsline _Y_treated _Y_synthetic, graphregion(color(white)) lcolor(blue red) ///
+    title("Cigarette Sales in California vs. Synthetic Control") ///
+    legend(label(1 "California") label(2 "Synthetic California") order(1 2 3))) ///
+    (function y = _Y_treated, range(1989 1989) lpattern(dash) lcolor(gs8) legend(label(3 "Tobacco Policy Change (1989)"))), ///
+    ytitle("Cigarette Sales") xtitle("Year")
+
+
+* Once the synthetic control is constructed, we can compare the trends of the treated unit and the synthetic control in the post-treatment period. Any divergence in trends is interpreted as the treatment effect. In this case, we are assessing the impact of a hypothetical policy implemented in California in 1989 on cigarette sales.
+
+* Results:
+
+* 1. The synthetic control for California is constructed using a combination of other states. Specifically, weights are assigned to states like Colorado, Connecticut, Montana, Nevada, New Mexico, and Utah.
+* 2. The RMSPE (Root Mean Squared Prediction Error) is a measure of how well the synthetic control approximates California in the pre-treatment period. A lower RMSPE indicates a better fit. In this case, the RMSPE is 1.756235, suggesting a reasonably good fit.
+* 3. The "Predictor Balance" table shows how California and the synthetic control compare in terms of the predictor variables. The figures show that there is a good balance between the treated unit and the synthetic control on these variables.
+
+* The graph displays per capita cigarette sales in California and the synthetic control over time. The divergence between the two lines post-1989 represents the estimated effect of the policy.
+
+```
