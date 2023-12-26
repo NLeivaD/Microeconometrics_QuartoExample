@@ -4,79 +4,102 @@ bibliography: refs.bib
 ---
 
 # Tools Required for Chapter 2
+
 We will begin by examining a number of details which will be required during the exercises encountered in this chapter. This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
 
-## Loops and Control Flow
-**ESTO VA A LA INTRODUCCIÓN**
+## **Introduction to Functions in Python**
 
-**Y REEMPLAZAMOS ESTO CON INTRODUCCIÓN A FUNCTIONS [PERO NO VA EN STATA]**
+Functions in Python are key to efficient and organized programming. They allow you to encapsulate specific tasks into reusable blocks of code, enhancing modularity and readability. Functions are fundamental in Python, whether for simple operations or complex data analysis tasks.
 
-**Loops in Python**
+## **Basics of Function Writing**
 
-Looping constructs in programming languages provide a mechanism to execute a set of instructions multiple times, contingent upon certain conditions. Python, renowned for its clarity and efficiency, offers several looping paradigms. Among these, the **`for`** and **`while`** loops are paramount.
+### **Creating a Simple Function**
 
-### **1. The `for` Loop**
+In Python, functions are defined using the **`def`** keyword. A basic function typically includes a name, arguments, and a return statement. Here's an example of a simple function that adds two numbers:
 
-In Python, the **`for`** loop is adept at iterating over sequences, be they lists, tuples, dictionaries, sets, strings, or other iterable objects.
-
-**1.1. Iteration Over Data Structures**
-
-Consider a dataset of student grades:
 ```{python}
-grades = {"David": 85, "Victoria": 90, "Daniel": 78, "Megan": 92}
-for student, grade in grades.items():
-    print(f"{student} received a grade of {grade}.")
-```
-**1.2. The `range()` Function**
 
-For tasks requiring iteration over a series of numbers, Python's **`range()`** function is invaluable:
-```{python}
-for i in range(3, 8):
-    print(f"Processing data point {i}.")
-```
-### **2. The `while` Loop**
+def add_numbers(a, b):
+    return a + b
 
-The **`while`** loop offers a means to execute statements as long as a particular condition remains true.
-
-Consider a scenario where we're approximating the square root of a number using the Babylonian method:
-```{python}
-number = 49
-guess = number / 2  # Initial guess
-difference = 1
-tolerance = 0.01
-
-while difference > tolerance:
-    new_guess = 0.5 * (guess + number / guess)
-    difference = abs(new_guess - guess)
-    guess = new_guess
-
-print(f"Approximated square root: {guess:.2f}")
+result = add_numbers(5, 3)
+print(result)  # Outputs 8
 
 ```
-### **3. Loop Control Mechanisms**
 
-Python introduces several control statements to influence loop execution:
+This function, **`add_numbers`**, takes two arguments, **`a`** and **`b`**, adds them together, and returns the sum.
 
-- **break**: Exits the loop prematurely, proceeding to the next statement.
-- **continue**: Skips the current iteration, moving to the next one.
-- **pass**: A no-op statement, serving as a syntactical placeholder.
+### **Understanding Function Arguments**
 
-**3.1. Utilizing `break` in Prime Number Detection**
+Function arguments are the values passed to the function when it is called. They can be mandatory or optional. Optional arguments have default values, allowing the function to be called with fewer arguments:
+
 ```{python}
-number = 29
-is_prime = True
 
-for i in range(2, int(number ** 0.5) + 1):
-    if number % i == 0:
-        is_prime = False
-        break
+def multiply_numbers(a, b=2):
+    return a * b
 
-print(f"Is {number} a prime number? {is_prime}")
+multiply_numbers(10)
 ```
 
+In this function, **`multiply_numbers`**, **`b`** is an optional argument with a default value of 2.
 
+## **Advanced Functions with Arguments**
+
+Using functions with arguments is extremely useful in Python, particularly for tasks like data manipulation and analysis.
+
+### **Example: Linear Regression Analysis Function**
+
+For a more complex example, we can create a function to perform linear regression analysis using Python's **`statsmodels`** library:
+
+```{python}
+
+import statsmodels.api as sm
+
+def perform_linear_regression(X, y):
+    X = sm.add_constant(X)  # Adding a constant
+    model = sm.OLS(y, X).fit()
+    return model.summary()
+
+```
+
+This function, **`perform_linear_regression`**, takes two arguments: **`X`** (independent variables) and **`y`** (dependent variable), performs the regression analysis, and returns the summary of the model.
+
+### **Simulating Data for Demonstration**
+
+To demonstrate the linear regression function, we first create some simulated data:
+
+```{python}
+
+import numpy as np
+import pandas as pd
+
+np.random.seed(123)
+data = pd.DataFrame({
+    'marketing_spend': np.random.uniform(1, 1000, 100),
+    'sales': np.random.normal(500, 50, 100)
+})
+
+```
+
+### **Using the Linear Regression Function**
+
+We then apply the linear regression function to our simulated data:
+
+```{python}
+
+X = data['marketing_spend']
+y = data['sales']
+
+# Perform Linear Regression
+regression_results = perform_linear_regression(X, y)
+
+# Print Regression Results
+print(regression_results)
+
+```
 
 ## Simulation and Regression
+
 To start, we will simulate some data based on the following data generating process:
 
 $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
@@ -175,6 +198,7 @@ plt.show()
 ```
 
 # Code Call Outs
+
 ## Call Out 2.1: Regression versus comparison of means
 
 To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
@@ -220,12 +244,9 @@ print("The coefficient from the regression should be equal to the difference in 
 
 ```
 
-
-
 ## Call Out 2.2: Randomization Inference
 
-*FIX INTRO**
-Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.  Here we will work with data from @Banerjeeetal2021
+\*FIX INTRO\*\* Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma. Here we will work with data from @Banerjeeetal2021
 
 ### An Exact p-value
 
@@ -313,10 +334,11 @@ plt.xlabel("Test statistic")
 plt.axvline(tau, color='red', linestyle='dashed', label=r'$\widehat\tau$')
 plt.legend() 
 plt.show()
+
 ```
 
-
 ### A Real Example
+
 @Banerjeeetal2021
 
 ```{python}
@@ -361,6 +383,3 @@ print_results("Asset Index", asset_results)
 ```
 
 ## Call Out 2.3: Bootstrapping
-
-
-

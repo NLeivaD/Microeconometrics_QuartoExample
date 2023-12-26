@@ -9,11 +9,10 @@ bibliography: refs.bib
 
 # Assessing the Impact of Maternal Smoking on Birth Weight 
 Maternal smoking during pregnancy has been a subject of extensive study due to its potential impact on infant health outcomes, such as birth weight. However, simply comparing the birth weights of infants born to smokers versus non-smokers may not account for confounding factors that influence both the likelihood of smoking and birth outcomes.
-```{r}
-
+```{r ,message=FALSE, warning=FALSE}
 # Load necessary libraries
-install.packages("tableone")
-install.packages("pastecs")
+#install.packages("tableone")
+#install.packages("pastecs")
 library(MatchIt)
 library(dplyr)
 library(ggplot2)
@@ -22,7 +21,12 @@ library(tableone)
 library(cobalt)
 
 # Read the dataset
-birth_weight <- read.csv("Birth_Weight.csv")
+birth_weight <- read.csv("Datasets/Birth_Weight.csv")
+
+"
+The original dataset included nearly 500,000 births. 
+This dataset is a subset of 4,642 births that includes information about infant/mother/father characteristics from singleton births in Pennsylvania between 1989 and 1991. 
+"
 
 # Recode variables
 birth_weight <- birth_weight %>% dplyr::mutate(
@@ -58,20 +62,12 @@ bal.tab(match_nearest, un = FALSE) # After matching
 matched_data <- match.data(match_nearest)
 t.test(bweight ~ mbsmoke, data = matched_data)
 
-
-# Density plot for propensity score overlap
-ggplot(birth_weight, aes(x = pscore, fill = as.factor(mbsmoke))) +
-  geom_density(alpha = 0.5) +
-  labs(fill = "Mother Smoked", x = "Propensity Score", y = "Density")
-
-# Covariate balance plot
-love.plot(match_nearest)
-
 # Boxplot for birth weight distribution comparison
 ggplot(matched_data, aes(x = as.factor(mbsmoke), y = bweight)) +
   geom_boxplot() +
   labs(x = "Mother Smoked", y = "Birth Weight") +
   theme_minimal()
+
 
 ```
 

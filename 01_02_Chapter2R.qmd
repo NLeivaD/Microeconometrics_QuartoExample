@@ -5,9 +5,105 @@ engine: knitr
 ---
 
 # Tools Required for Chapter 2
+
 ## An Introduction to Functions
 
+### **Introduction to Functions in R**
+
+Functions in R are essential for efficient and organized programming. They allow you to encapsulate code for specific tasks, making your scripts more modular, reusable, and easier to understand and debug.
+
+### **Creating a Simple Function**
+
+A simple function in R typically includes a name, arguments (inputs), a body (code that performs the operation), and a return value (the output). Here's an example of a basic function that adds two numbers:
+
+```{r}
+
+addNumbers <- function(a, b) {
+  sum <- (a + b)
+  return(sum)
+}
+addNumbers(10,5)
+
+```
+
+### **Understanding Function Arguments**
+
+Arguments are placeholders for the data you pass to the function. They can be mandatory or optional, with optional arguments having default values:
+
+```{r}
+
+multiplyNumbers <- function(a, b = 2) {
+  return(a * b)
+}
+multiplyNumbers(10)
+```
+
+### **Variable Scope and Return Value**
+
+Variables defined inside a function are local to that function. The **`return()`** function specifies the output of your function. If **`return()`** is not explicitly called, R will return the last evaluated expression.
+
+### **Advanced Functions with Arguments**
+
+Functions with arguments are particularly useful in data analysis, as they can be applied to various datasets or variables.
+
+**Example: Linear Regression Analysis Functions**
+
+We will create two functions for linear regression analysis:
+
+1.  **Perform Linear Regression**: This function performs a linear regression analysis and returns the model summary.
+
+    ```{r}
+
+    perform_linear_regression <- function(data, independent_var, dependent_var) {
+      formula <- as.formula(paste(dependent_var, "~", independent_var))
+      model <- lm(formula, data = data)
+      return(summary(model))
+    }
+
+    ```
+
+2.  **Print Regression Results**: This function prints the key results from the linear regression summary.
+
+    ```{r}
+    print_regression_results <- function(model_summary, description) {
+      cat("Results for", description, ":\n")
+      print(model_summary$coefficients)
+      cat("R-squared:", model_summary$r.squared, "\n")
+      cat("P-value:", pf(model_summary$fstatistic[1],
+                         model_summary$fstatistic[2],
+                         model_summary$fstatistic[3],
+                         lower.tail = FALSE), "\n")
+    }
+
+    ```
+
+### **Simulating Data for Demonstration**
+
+To demonstrate the linear regression functions, let's create some simulated data:
+
+```{r}
+set.seed(123)
+data <- data.frame(
+  marketing_spend = runif(100, 1, 1000),
+  sales = rnorm(100, 500, 50)
+)
+
+```
+
+### **Using the Linear Regression Functions**
+
+Apply the functions to the simulated data:
+
+```{r}
+# Perform Linear Regression
+regression_results <- perform_linear_regression(data, "marketing_spend", "sales")
+
+# Print Regression Results
+print_regression_results(regression_results, "Sales vs Marketing Spend")
+```
+
 ## Simulation and Regression
+
 To start, we will simulate some data based on the following data generating process:
 
 $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
@@ -70,12 +166,11 @@ legend("topright", legend = c(expression(beta[1]), "Estimates"),
 
 ```
 
-
 # Code Call Outs
 
 ## Code Call Out 2.1: Regression versus comparison of means
-To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
 
+To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
 
 ```{r message=FALSE, warning=FALSE}
 library(dplyr)
@@ -184,6 +279,7 @@ ggplot(data.frame(Taus), aes(x = Taus)) +
 ```
 
 ### A Real world example
+
 @Banerjeeetal2021
 
 ```{r message=FALSE, warning=FALSE}

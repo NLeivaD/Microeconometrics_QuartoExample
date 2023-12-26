@@ -5,4 +5,65 @@ bibliography: refs.bib
 
 # Code Call Outs
 
-**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
+### Low Birth
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(Statamarkdown)
+```
+
+```{stata}
+clear all
+cd "C:/Users/maria/Desktop/RA Microeconometría/PSM/Data"
+
+webuse cattaneo2, clear
+drop if prenatal == 0 | mage == 0 | medu == 0 | order == 0
+order *, sequential // put variables in alphabetical order (personal preference)
+egen float medu2 = cut(medu), at(0 9 12 13 17 18) // create coarse education groups
+* Save dataset
+save Birth_Weight.dta, replace
+
+
+
+teffects psmatch (bweight) (mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenatal), atet caliper(.25)
+
+
+pstest alcohol deadkids foreign mage i.medu2 mhisp ///
+ mmarried mrace nprenatal order i.prenatal ///
+ , raw treated(mbsmoke)
+
+* INDIVIDUAL CONTINUOUS COVARIATES
+pstest mage, density raw treated(mbsmoke)
+
+* MODEL ALCOHOL CONSUMPTION
+logistic mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenatal
+
+* LOG ODDS OF SMOKING
+predict logodds, xb
+
+* GET A SENSE OF .25 SD OF LINEAR PROPENSITY SCORE
+summarize logodds
+
+* CONSTRUCT MATCHES
+psmatch2 mbsmoke, outcome(bweight) pscore(logodds) neighbor(1) noreplace caliper(.25)
+
+* MATCHES variable _weight indicates which observations were selected
+list _* // show constructed variables
+
+* ASSESS MATCHES
+
+* PLOT PROPENSITY SCORE BEFORE
+twoway ///
+ (kdensity logodds if mbsmoke == 1, lcolor(navy) lwidth(thick)) ///
+ (kdensity logodds if mbsmoke == 0, lcolor(red) lwidth(thick))  ///
+ , legend(order(1 "SMOKER" 2 "NON-SMOKER"))
+
+* PLOT PROPENSITY SCORE AFTER
+twoway ///
+ (kdensity logodds if mbsmoke == 1, lcolor(navy) lwidth(thick)) ///
+ (kdensity logodds if mbsmoke == 0, lcolor(red) lwidth(thick))  ///
+ if _weight == 1 ///
+ , legend(order(1 "SMOKER" 2 "NON-SMOKER"))
+
+
+regress bweight mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenatal if _weight == 1
+```
+
