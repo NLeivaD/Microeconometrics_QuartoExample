@@ -2,13 +2,11 @@
 
 Current Pending Tasks
 
-1. Fix bugs [MFC]
-2. Functions [MFC]
-3. Translate exact p-value [MFC] 
-4. Code call out 3.1 -- incorporate covariate balance & outcome boxplot [MFC]
-5. Code call out 3.2 -- make and translate [DC/NLD]
-6. Goodman-Bacon a Stata [NLD]
-7. Check de Chaisemartin & D'Haultfoueille in code [DC]
-8. Bootstrap [NLD]
-9. Code call out 3.3 -- IPW [DC/??]
-10. Applied examples of papers to use as questions for end of chapter [??? DC/MFC/NLD] 
+1. Ordenarnos con el sitio [All]
+2. Ordenamos code call out 3.1-3.3 (DC/MFC)
+3. Check de Chaisemartin & D'Haultfoueille in code [DC]
+4. Bootstrap [DC review -> pasar a Python y Stata]
+5. Simular figuras 6.4-6.6 y generar figura 7.2 en formato libro [NLC]
+6. Empezar a revisar marginal treatment effects (partir con Carneiro, Heckman, and Vytlacil (2010); Cornelissen et al. (2016)) [NLC]
+7. Goodman-Bacon a Stata GRAPH ONLY NOT URGENT [NLD]
+8. Applied examples of papers to use as questions for end of chapter [??? DC/MFC/NLD] 
