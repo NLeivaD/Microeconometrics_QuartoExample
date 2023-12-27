@@ -325,3 +325,74 @@ list(observed_effect = obs_effect, p_value = p_value)
 ```
 
 ## Call out 2.3: Bootstrap
+
+Some introduction to the topic, see manuscript and transcript a short summary of the motivation and work with Banerjee et al. (2021). First we consider the main regression in Code Call-Out 2.1 $$Y_i = \mu + \tau_{ATE}W_i + \varepsilon_i$$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+fit <- lm(ind_fin_el1 ~ treatment, data = subset(data, el1 == 1))
+summary(fit)  # Note down the coefficient for the treatment variable
+```
+
+In this case the standard errors are computed as the standard OLS formula assuming homocedastic errors, also heterocedasticity-robust standard errors may be computed but in both cases depending on distribution assumptions or aproximations based on asymptotic theory. This assumptions to compute standard errors consequently affect the statistic and *p-value* to determine the estimator significance. An alternative that does not depend on these assumptions is to use resampling methods like bootstrap to compute a consistent estimator of the variance or statistic.  
+
+There is more than one way to make bootstrap, within this ways we can find parametric and non-parametric methods. In this example we show a non-parametric bootstrap. The first step is to sample with replacement the residuals $\left\{\widehat{\varepsilon}_i\right\}_{i=1}^{N} = \left\{y_i - \widehat{\mu} - \widehat{\tau}w_i\right\}_{i=1}^{N}$ from the original regression, obtaining $N$ resampled errors $\left\{\widehat{\varepsilon}_i^{(1)}\right\}_{i}^{N}$
+
+```{r}
+resampled <- sample(fit$residuals, replace = T, 
+                    size = length(fit$residuals))
+```
+
+With this resampled errors build an artificial outcome using the estimates from the original regression $$\left\{y_i^{(1)}\right\}_{i=1}^{N} = \left\{\widehat{\mu} + \widehat{\tau} w_i + \widehat{\varepsilon}_i^{(1)}\right\}_{i=1}^{N}$$
+
+```{r}
+artificial <- data.frame(treatment = fit$model$treatment,
+                         errors = resampled)
+artificial$outcome <- fit$coefficients["(Intercept)"] + fit$coefficients["treatment"] + artificial$treatment + artificial$errors
+```
+
+With this artificial sample estimates with standard OLS procedure the coefficient of interest 
+
+```{r}
+artificialModel <- lm(formula = outcome ~ treatment,
+                      data = artificial)
+summary(artificialModel)
+```
+
+Now repeat the previous steps $B$ times and get $B$ estimates of $\widehat{\tau}$
+
+```{r}
+taus <- numeric(1000)
+for (i in 1:1000) {
+  resampled <- sample(fit$residuals, replace = T, 
+                    size = length(fit$residuals))
+  artificial <- data.frame(treatment = fit$model$treatment,
+                         errors = resampled)
+  artificial$outcome <- fit$coefficients["(Intercept)"] + fit$coefficients["treatment"] * artificial$treatment + artificial$errors
+  artificialModel <- lm(formula = outcome ~ treatment,
+                      data = artificial)
+  taus[i] <- artificialModel$coefficients["treatment"]
+}
+```
+
+Now you have $B$ estimates of $\tau$, $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$, with which can get an empirical distribution as follows:
+
+```{r}
+ggplot() + geom_density(aes(x = taus)) +
+  labs(title = latex2exp::TeX(input = "$\\widehat{\\tau}$ Empirical Distribution"),
+       x = latex2exp::TeX(input = "$\\widehat{\\tau}$"),
+       y = "Density")
+```
+
+As there can be seen in the empirical distribution the distribution is almost centered at 0 with the greater density around 0 so is reasonable to not reject the null hypothesis of $\tau = 0$.
+
+With $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$ also can be computed an empirical variance or confidence interval based on empirical quantiles as follows
+
+```{r}
+var_tau <- var(taus)
+lower <- quantile(taus, 0.025)
+upper <- quantile(taus, 0.975)
+print(paste0("The empirical 95% confidence interval is: [",
+             round(lower, 3), ",", round(upper,3), "]."))
+```
+
+As seen in the empirical 95% confidence interval zero is included.
