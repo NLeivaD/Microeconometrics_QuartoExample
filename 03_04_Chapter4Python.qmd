@@ -45,7 +45,54 @@ Data['y2'] = 2 + (Data['year'] - 2000) * 0.2 + 1 * Data['unit'] + 1 * Data['post
 
 These two cases are plotted next where the line with empty circles refers to group $U$, the line with black filled circles refers to group $k$ and the line with squares refers to group $l$
 
-![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-6-1.png)
+```{python fig.width=10}
+#| code-fold: true
+#| code-summary: "Show the plot code"
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.set_theme()
+[Fig1, ax] = plt.subplots(1,2)
+PanelA = sns.lineplot(data=Data[Data['unit'] == 1], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0]) 
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 1], x ='year', y='y1',
+                      color='black', marker="$\circ$", ax = ax[0])
+PanelA = sns.lineplot(data=Data[Data['unit'] == 2], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0])
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 2], x ='year', y='y1',
+                      color='black', ax = ax[0])
+PanelA = sns.lineplot(data=Data[Data['unit'] == 3], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0])
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 3], x ='year', y='y1',
+                      color='black', marker='s', ax = ax[0])
+PanelA.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelA.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelA.set_yticks([0, 2, 4, 6, 8, 10, 12])
+PanelA.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelA.legend([],[], frameon=False)
+PanelA.set_ylabel('Outcome Variable')
+PanelA.set_xlabel('Time')
+PanelA.set_title('(a) Simple Decomposition')
+PanelB = sns.lineplot(data=Data[Data['unit'] == 1], x ='year', y='y2',
+                      color='black', size=1, ax = ax[1])
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 1], x ='year', y='y2',
+                      color='black', marker="$\circ$", ax = ax[1])
+PanelB = sns.lineplot(data=Data[Data['unit'] == 2], x ='year', y='y2',
+                      color='black', size=1, ax = ax[1])
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 2], x ='year', y='y2',
+                      color='black', ax = ax[1])
+PanelB = sns.lineplot(data=Data[Data['unit'] == 3], x ='year', y='y2',
+                      color='black', size=1, ax = ax[1])
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 3], x ='year', y='y2',
+                      color='black', marker='s', ax = ax[1])
+PanelB.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelB.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelB.set_yticks([0, 5, 10, 15, 20])
+PanelB.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelB.legend([],[], frameon=False)
+PanelB.set_ylabel('Outcome Variable')
+PanelB.set_xlabel('Time')
+PanelB.set_title('(b) Decomposition with trends')
+```
 
 ### The Two-way Fixed Effect Estimator
 
@@ -81,8 +128,101 @@ These will then be weighted as laid out in @GoodmanBacon2018 to provide the regr
 
 In this case the @GoodmanBacon2018 methodology estimate $\widehat{\tau}$ weighting the next four DD comparisons
 
-![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-9-1.png)
-
+```{python}
+#| code-fold: true
+#| code-summary: "Show the plot code"
+[Fig2, ax] = plt.subplots(2,2)
+### PanelA
+PanelA = sns.lineplot(data=Data[Data['unit'] == 1], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0,0]) 
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 1], x ='year', y='y1',
+                      color='black', marker="$\circ$", ax = ax[0,0])
+PanelA = sns.lineplot(data=Data[Data['unit'] == 2], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0,0], alpha = 0.1)
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 2], x ='year', y='y1',
+                      color='black', ax = ax[0,0], alpha = 0.1)
+PanelA = sns.lineplot(data=Data[Data['unit'] == 3], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0,0])
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 3], x ='year', y='y1',
+                      color='black', marker='s', ax = ax[0,0])
+PanelA.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelA.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelA.set_yticks([0, 2, 4, 6, 8, 10, 12])
+PanelA.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelA.legend([],[], frameon=False)
+PanelA.set_ylabel('Outcome Variable')
+PanelA.set_xlabel('Time')
+PanelA.set_title('A. Early Group v/s Untreated Group')
+### PanelB
+PanelB = sns.lineplot(data=Data[Data['unit'] == 1], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0,1])
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 1], x ='year', y='y1',
+                      color='black', marker="$\circ$", ax = ax[0,1])
+PanelB = sns.lineplot(data=Data[Data['unit'] == 2], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0,1])
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 2], x ='year', y='y1',
+                      color='black', ax = ax[0,1])
+PanelB = sns.lineplot(data=Data[Data['unit'] == 3], x ='year', y='y1',
+                      color='black', size=1, ax = ax[0,1], alpha = 0.1)
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 3], x ='year', y='y1',
+                      color='black', marker='s', ax = ax[0,1], alpha = 0.1)
+PanelB.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelB.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelB.set_yticks([0, 2, 4, 6, 8, 10, 12])
+PanelB.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelB.legend([],[], frameon=False)
+PanelB.set_ylabel('Outcome Variable')
+PanelB.set_xlabel('Time')
+PanelB.set_title('B. Later Group v/s Untreated Group')
+### PanelC
+PanelC = sns.lineplot(data=Data[(Data['unit'] == 1) & (Data['year'] < 2006)], 
+                      x ='year', y='y1', color='black', size=1, ax = ax[1,0], 
+                      alpha = 0.1) 
+PanelC = sns.scatterplot(data=Data[(Data['unit'] == 1) & (Data['year'] < 2006)], 
+                         x ='year', y='y1', color='black', marker="$\circ$", 
+                         ax = ax[1,0], alpha = 0.1)
+PanelC = sns.lineplot(data=Data[(Data['unit'] == 2) & (Data['year'] < 2006)], 
+                      x ='year', y='y1', color='black', size=1, ax = ax[1,0])
+PanelC = sns.scatterplot(data=Data[(Data['unit'] == 2) & (Data['year'] < 2006)], 
+                         x ='year', y='y1', color='black', ax = ax[1,0])
+PanelC = sns.lineplot(data=Data[(Data['unit'] == 3) & (Data['year'] < 2006)], 
+                      x ='year', y='y1', color='black', size=1, ax = ax[1,0])
+PanelC = sns.scatterplot(data=Data[(Data['unit'] == 3) & (Data['year'] < 2006)], 
+                         x ='year', y='y1', color='black', marker='s', 
+                         ax = ax[1,0])
+PanelC.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelC.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelC.set_yticks([0, 2, 4, 6, 8, 10, 12])
+PanelC.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelC.legend([],[], frameon=False)
+PanelC.set_ylabel('Outcome Variable')
+PanelC.set_xlabel('Time')
+PanelC.set_title('C. Early Group v/s Later Group Before 2006')
+### PanelD
+PanelD = sns.lineplot(data=Data[(Data['unit'] == 1) & (Data['year'] > 2002)], 
+                      x ='year', y='y1', color='black', size=1, ax = ax[1,1], 
+                      alpha = 0.1)
+PanelD = sns.scatterplot(data=Data[(Data['unit'] == 1) & (Data['year'] > 2002)], 
+                         x ='year', y='y1', color='black', marker="$\circ$", 
+                         ax = ax[1,1], alpha = 0.1)
+PanelD = sns.lineplot(data=Data[(Data['unit'] == 2) & (Data['year'] > 2002)], 
+                      x ='year', y='y1', color='black', size=1, ax = ax[1,1])
+PanelD = sns.scatterplot(data=Data[(Data['unit'] == 2) & (Data['year'] > 2002)], 
+                         x ='year', y='y1', color='black', ax = ax[1,1])
+PanelD = sns.lineplot(data=Data[(Data['unit'] == 3) & (Data['year'] > 2002)], 
+                      x ='year', y='y1', color='black', size=1, ax = ax[1,1])
+PanelD = sns.scatterplot(data=Data[(Data['unit'] == 3) & (Data['year'] > 2002)], 
+                         x ='year', y='y1', color='black', marker='s', 
+                         ax = ax[1,1])
+PanelD.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelD.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelD.set_yticks([0, 2, 4, 6, 8, 10, 12])
+PanelD.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelD.legend([],[], frameon=False)
+PanelD.set_ylabel('Outcome Variable')
+PanelD.set_xlabel('Time')
+PanelD.set_title('D. Early Group v/s Later Group After 2003')
+```
 As seen in the plots, in the simple decomposition these effects are constants of 3 and 2 for early and later treated units given that the "treatment effect" is simply $1 \times unit$ in each case.
 
 ##### A. Early Group v/s Untreated Group
@@ -226,7 +366,101 @@ as observed in the two-way fixed effect estimate above.
 
 In this case the @GoodmanBacon2018 decomposition follows as above generating the treatment effect as follows:
 
-![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-22-1.png)
+```{python}
+#| code-fold: true
+#| code-summary: "Show the plot code"
+[Fig3, ax] = plt.subplots(2,2)
+### PanelA
+PanelA = sns.lineplot(data=Data[Data['unit'] == 1], x ='year', y='y2',
+                      color='black', size=1, ax = ax[0,0]) 
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 1], x ='year', y='y2',
+                      color='black', marker="$\circ$", ax = ax[0,0])
+PanelA = sns.lineplot(data=Data[Data['unit'] == 2], x ='year', y='y2',
+                      color='black', size=1, ax = ax[0,0], alpha = 0.1)
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 2], x ='year', y='y2',
+                      color='black', ax = ax[0,0], alpha = 0.1)
+PanelA = sns.lineplot(data=Data[Data['unit'] == 3], x ='year', y='y2',
+                      color='black', size=1, ax = ax[0,0])
+PanelA = sns.scatterplot(data=Data[Data['unit'] == 3], x ='year', y='y2',
+                      color='black', marker='s', ax = ax[0,0])
+PanelA.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelA.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelA.set_yticks([0, 5, 10, 15, 20])
+PanelA.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelA.legend([],[], frameon=False)
+PanelA.set_ylabel('Outcome Variable')
+PanelA.set_xlabel('Time')
+PanelA.set_title('A. Early Group v/s Untreated Group')
+### PanelB
+PanelB = sns.lineplot(data=Data[Data['unit'] == 1], x ='year', y='y2',
+                      color='black', size=1, ax = ax[0,1])
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 1], x ='year', y='y2',
+                      color='black', marker="$\circ$", ax = ax[0,1])
+PanelB = sns.lineplot(data=Data[Data['unit'] == 2], x ='year', y='y2',
+                      color='black', size=1, ax = ax[0,1])
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 2], x ='year', y='y2',
+                      color='black', ax = ax[0,1])
+PanelB = sns.lineplot(data=Data[Data['unit'] == 3], x ='year', y='y2',
+                      color='black', size=1, ax = ax[0,1], alpha = 0.1)
+PanelB = sns.scatterplot(data=Data[Data['unit'] == 3], x ='year', y='y2',
+                      color='black', marker='s', ax = ax[0,1], alpha = 0.1)
+PanelB.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelB.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelB.set_yticks([0, 5, 10, 15, 20])
+PanelB.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelB.legend([],[], frameon=False)
+PanelB.set_ylabel('Outcome Variable')
+PanelB.set_xlabel('Time')
+PanelB.set_title('B. Later Group v/s Untreated Group')
+### PanelC
+PanelC = sns.lineplot(data=Data[(Data['unit'] == 1) & (Data['year'] < 2006)], 
+                      x ='year', y='y2', color='black', size=1, ax = ax[1,0], 
+                      alpha = 0.1) 
+PanelC = sns.scatterplot(data=Data[(Data['unit'] == 1) & (Data['year'] < 2006)], 
+                         x ='year', y='y2', color='black', marker="$\circ$", 
+                         ax = ax[1,0], alpha = 0.1)
+PanelC = sns.lineplot(data=Data[(Data['unit'] == 2) & (Data['year'] < 2006)], 
+                      x ='year', y='y2', color='black', size=1, ax = ax[1,0])
+PanelC = sns.scatterplot(data=Data[(Data['unit'] == 2) & (Data['year'] < 2006)], 
+                         x ='year', y='y2', color='black', ax = ax[1,0])
+PanelC = sns.lineplot(data=Data[(Data['unit'] == 3) & (Data['year'] < 2006)], 
+                      x ='year', y='y2', color='black', size=1, ax = ax[1,0])
+PanelC = sns.scatterplot(data=Data[(Data['unit'] == 3) & (Data['year'] < 2006)], 
+                         x ='year', y='y2', color='black', marker='s', 
+                         ax = ax[1,0])
+PanelC.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelC.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelC.set_yticks([0, 5, 10, 15, 20])
+PanelC.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelC.legend([],[], frameon=False)
+PanelC.set_ylabel('Outcome Variable')
+PanelC.set_xlabel('Time')
+PanelC.set_title('C. Early Group v/s Later Group Before 2006')
+### PanelD
+PanelD = sns.lineplot(data=Data[(Data['unit'] == 1) & (Data['year'] > 2002)], 
+                      x ='year', y='y2', color='black', size=1, ax = ax[1,1], 
+                      alpha = 0.1)
+PanelD = sns.scatterplot(data=Data[(Data['unit'] == 1) & (Data['year'] > 2002)], 
+                         x ='year', y='y2', color='black', marker="$\circ$", 
+                         ax = ax[1,1], alpha = 0.1)
+PanelD = sns.lineplot(data=Data[(Data['unit'] == 2) & (Data['year'] > 2002)], 
+                      x ='year', y='y2', color='black', size=1, ax = ax[1,1])
+PanelD = sns.scatterplot(data=Data[(Data['unit'] == 2) & (Data['year'] > 2002)], 
+                         x ='year', y='y2', color='black', ax = ax[1,1])
+PanelD = sns.lineplot(data=Data[(Data['unit'] == 3) & (Data['year'] > 2002)], 
+                      x ='year', y='y2', color='black', size=1, ax = ax[1,1])
+PanelD = sns.scatterplot(data=Data[(Data['unit'] == 3) & (Data['year'] > 2002)], 
+                         x ='year', y='y2', color='black', marker='s', 
+                         ax = ax[1,1])
+PanelD.axvline(2002, color = 'red', linestyle='dashed', linewidth=1)
+PanelD.axvline(2005, color = 'red', linestyle='dashed', linewidth=1)
+PanelD.set_yticks([0, 5, 10, 15, 20])
+PanelD.set_xticks([2000, 2002, 2004, 2006, 2008])
+PanelD.legend([],[], frameon=False)
+PanelD.set_ylabel('Outcome Variable')
+PanelD.set_xlabel('Time')
+PanelD.set_title('D. Early Group v/s Later Group After 2003')
+```
 
 As seen in the plots, in the decomposition with trends these effects are no longer constants of 3 and 2 for early and later treated units given that the "treatment effect" is no longer simply $1 \times unit$ in each case.
 
