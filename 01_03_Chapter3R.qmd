@@ -159,7 +159,7 @@ library(survey)
 library(haven)
 
 # Cargar los datos
-data <- read_dta('C:/Users/maria/Desktop/Proyecto/Dehejia_Wahba_1999.dta')
+data <- read_dta('Datasets/Dehejia_Wahba_1999.dta')
 
 # Definir covariables y variable de tratamiento
 covariates <- c('age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75')
