@@ -153,44 +153,64 @@ love.plot(matchit_model)
 ```
 # Code call-out 3.3
 ```{r ,message=FALSE, warning=FALSE}
-# Loading necessary libraries
+# Cargar las bibliotecas necesarias
 library(MatchIt)
-library(ggplot2)
-library(cobalt)
+library(survey)
 library(haven)
 
-# Loading the data (adjust the file path as needed)
-data <- read_dta("Datasets/Dehejia_Wahba_1999.dta")
+# Cargar los datos
+data <- read_dta('C:/Users/maria/Desktop/Proyecto/Dehejia_Wahba_1999.dta')
 
-# Fitting a logistic regression model for propensity scores
+# Definir covariables y variable de tratamiento
+covariates <- c('age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75')
+treatment <- 'treat'
+outcome <- 're78'
+
+# Estimación de Propensity Scores para IPTW
 logit_model <- glm(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
                    family = binomial(), data = data)
-data$propensity_score <- predict(logit_model, type = "response")
+ps <- predict(logit_model, type = "response")
 
-# Propensity score matching
+# Calcular pesos para IPTW
+weights <- ifelse(data$treat == 1, 1 / ps, 1 / (1 - ps))
+svy_design <- svydesign(ids = ~1, data = data, weights = ~weights)
+
+# ATE usando IPTW
+ate_iptw <- svyglm(re78 ~ treat, design = svy_design)
+
+# ATT usando IPTW
+att_iptw <- svyglm(re78 ~ treat, design = svydesign(ids = ~1, data = data, weights = ifelse(data$treat == 1, 1, ps / (1 - ps))))
+
+# Matching para ATT
 matchit_model <- matchit(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
-                         method = "nearest", data = data, ratio = 5)
-
-# Extracting matched data
+                         data = data, method = "nearest")
 matched_data <- match.data(matchit_model)
 
-# Calculating Average Treatment Effect on the Treated (ATT)
-ATT <- with(matched_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
-print(paste("Average Treatment Effect on the Treated (ATT):", ATT))
+# Calcular ATT usando Matching
+att_match <- with(matched_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
 
-# Histograms of propensity scores
-ggplot(data, aes(x = propensity_score, fill = factor(treat))) +
-  geom_histogram(position = "identity", alpha = 0.5, bins = 50) +
-  scale_fill_manual(values = c("lightblue", "lightcoral")) +
-  labs(fill = "Group", x = "Propensity Score", y = "Frequency") +
-  theme_minimal()
+# Full Matching para ATE
+matchit_full <- matchit(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
+                        data = data, method = "full")
+matched_full_data <- match.data(matchit_full)
 
-ggplot(matched_data, aes(x = factor(treat), y = re78)) +
-  geom_boxplot() +
-  labs(x = "Treatment", y = "Earnings in 1978 (re78)") +
-  theme_minimal()
+# Calcular ATE usando Full Matching
+ate_match <- with(matched_full_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
 
-love.plot(matchit_model)
+# Regression para ATT y ATE
+reg_model_att <- lm(re78 ~ treat + age + education + black + hispanic + married + nodegree + re74 + re75, 
+                    data = matched_data)
+reg_model_ate <- lm(re78 ~ treat + age + education + black + hispanic + married + nodegree + re74 + re75, 
+                    data = data)
+
+# Mostrar los resultados
+print(paste("ATT por Matching:", att_match))
+print(paste("ATT por IPTW:", coef(att_iptw)["treat"]))
+print(paste("ATE por IPTW:", coef(ate_iptw)["treat"]))
+print(paste("ATE por Full Matching:", ate_match))
+print(paste("ATT por Regression:", coef(reg_model_att)["treat"]))
+print(paste("ATE por Regression:", coef(reg_model_ate)["treat"]))
+
 
 ```
 
