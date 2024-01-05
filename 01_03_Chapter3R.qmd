@@ -21,7 +21,7 @@ library(tableone)
 library(cobalt)
 
 # Read the dataset
-birth_weight <- read.csv("C:/Users/maria/Desktop/RA Microeconometría/PSM/Data/Birth_Weight.csv")
+birth_weight <- read.csv("Datasets/Birth_Weight.csv")
 
 "
 The original dataset included nearly 500,000 births. 
@@ -118,7 +118,7 @@ library(cobalt)
 library(haven)
 
 # Loading the data (adjust the file path as needed)
-data <- read_dta("C:/Users/maria/Desktop/Project/Dehejia_Wahba_1999.dta")
+data <- read_dta("Datasets/Dehejia_Wahba_1999.dta")
 
 # Fitting a logistic regression model for propensity scores
 logit_model <- glm(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
@@ -160,7 +160,7 @@ library(cobalt)
 library(haven)
 
 # Loading the data (adjust the file path as needed)
-data <- read_dta("C:/Users/maria/Desktop/Project/Dehejia_Wahba_1999.dta")
+data <- read_dta("Datasets/Dehejia_Wahba_1999.dta")
 
 # Fitting a logistic regression model for propensity scores
 logit_model <- glm(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
