@@ -529,7 +529,7 @@ import pandas as pd
 from SyntheticControlMethods import Synth
 
 # Load the Dataset
-df = pd.read_csv("Datasets/Abadie_data.csv")
+df = pd.read_stata("Datasets/smoking.dta")
 
 # Prepare the Data
 df = df.sort_values(by=['state', 'year'])
@@ -547,6 +547,7 @@ sc = Synth(df, "cigsale", "state", "year", treatment_period, treated_unit, pen=0
 # Visualize the Synthetic Control
 sc.plot(["original", "pointwise", "cumulative"], treated_label="California", 
         synth_label="Synthetic California", treatment_label="Tobacco Policy Change")
+
 
 ```
 
