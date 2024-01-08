@@ -8,7 +8,6 @@ knitr::opts_chunk$set(warning = FALSE, eval = T, message = F)
 library(Statamarkdown)
 ```
 
-
 ## Code Call Out 4.1
 
 **Two-Way Fixed Effects Estimators and Heterogeneous Treatment Effects** To understand the potential issues related to heterogeneous treatment effects over time and two-way fixed effect estimators, we will examine a pair of numerical examples. In particular, we will focus on the composition of the two way FE estimator $\tau$ estimated from: $$
@@ -574,7 +573,7 @@ Once the synthetic control is constructed, we can compare the trends of the trea
 library(Statamarkdown)
 ```
 
-```{stata eval = FALSE}
+```{stata}
 * Clear the workspace and turn off result pagination
 clear all
 set more off
@@ -583,7 +582,7 @@ set more off
 *ssc install synth, replace
 
 * Load the dataset 'smoking.dta'
-use "C:\Users\maria\Desktop\RA Microeconometría\Cap4\Abadie\smoking.dta"
+insheet using "Datasets/Abadie_data.csv", comma	
 
 * Set the data as panel data with 'state' as the panel unit and 'year' as the time variable
 tsset state year

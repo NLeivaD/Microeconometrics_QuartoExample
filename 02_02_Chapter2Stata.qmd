@@ -84,6 +84,78 @@ It is perhaps useful to see a simple example. Consider the case of 6 units, with
 | 20           | 14  | 18  | 24  | 34  | 27  | 29  | -11.33   |
 
 : A Simple Illustration of Randomization Inference {.striped .hover .borderless .secondary}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(Statamarkdown)
+```
+```{stata}
+clear
+input Y W
+34 1
+27 1
+29 1
+14 0
+18 0
+24 0
+end
+
+
+sum Y if W == 1
+scalar mean_Y1 = r(mean)
+sum Y if W == 0
+scalar mean_Y0 = r(mean)
+
+scalar tau_hat = mean_Y1 - mean_Y0
+
+
+set seed 12345
+local num_perm 20
+tempfile originaldata
+save `originaldata'
+tempfile permresults
+clear
+
+* Crear permutaciones y calcular las diferencias de medias
+qui forval i = 1/`num_perm' {
+    clear
+    use `originaldata', clear
+    generate double u = runiform()
+    sort u
+    generate Wperm = cond(_n <= 3, 1, 0)
+    drop u
+
+    sum Y if Wperm == 1
+    scalar mean_Y1_perm = r(mean)
+    sum Y if Wperm == 0
+    scalar mean_Y0_perm = r(mean)
+    scalar tau_perm = mean_Y1_perm - mean_Y0_perm
+
+    clear
+    set obs 1
+    gen tau_perm_i = scalar(tau_perm)
+    if `i' == 1 {
+        save `permresults', replace
+    }
+    else {
+        append using `permresults'
+        save `permresults', replace
+    }
+}
+
+* Cargar los resultados de permutaciones y calcular p-valores
+use `permresults', clear
+gen abs_tau_perm = abs(tau_perm_i)
+gen abs_tau_hat = abs(scalar(tau_hat))
+
+
+count if abs_tau_perm >= abs_tau_hat
+scalar p_2side = r(N) / `num_perm'
+
+display "Two sided p-value: " p_2side
+
+histogram tau_perm_i, bin(5) 
+```
+
+
 
 ## Block 2.1
 
@@ -135,7 +207,7 @@ clear all
 set more off
 
 // Replace "path_to_file" with the actual path to your CSV file
-import delimited "C:/Users/maria/Desktop/Proyecto/Banerjee_et_al_2021.csv", clear
+import delimited "Datasets/Banerjee_et_al_2021.csv", clear
 
 program randomization_inference
     args varname

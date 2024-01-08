@@ -537,7 +537,7 @@ library(Synth)
 library(haven)
 
 
-california_data_url <- "C:\\Users\\maria\\Desktop\\RA Microeconometría\\Cap4\\data-abadie-diamond-hainmueller-california-proposition-99-tobacco.csv"
+california_data_url <- "Datasets/Abadie_data.csv"
 
 california_dataframe <- read.csv(california_data_url)
 
@@ -603,7 +603,7 @@ p <- ggplot(data = plot_data, aes(x = Year, y = Cigsale, color = Type, linetype 
   scale_linetype_manual(values = line_types)  # Set line types
 
 p
-ggsave("C:\\Users\\maria\\Desktop\\RA Microeconometría\\Cap4\\Abadie\\synthetic_control_plot.jpg", plot = p, width = 7, height = 5, dpi = 300)
+#ggsave("C:\\Users\\maria\\Desktop\\RA Microeconometría\\Cap4\\Abadie\\synthetic_control_plot.jpg", plot = p, width = 7, height = 5, dpi = 300)
 ```
 **Results:**
 

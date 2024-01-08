@@ -6,13 +6,104 @@ engine: knitr
 
 # Tools Required for Chapter 2
 
-**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
+## An Introduction to Functions
 
-# Code Call Outs
+### **Introduction to Functions in R**
 
-**TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
+Functions in R are essential for efficient and organized programming. They allow you to encapsulate code for specific tasks, making your scripts more modular, reusable, and easier to understand and debug.
+
+### **Creating a Simple Function**
+
+A simple function in R typically includes a name, arguments (inputs), a body (code that performs the operation), and a return value (the output). Here's an example of a basic function that adds two numbers:
+
+```{r}
+
+addNumbers <- function(a, b) {
+  sum <- (a + b)
+  return(sum)
+}
+addNumbers(10,5)
+
+```
+
+### **Understanding Function Arguments**
+
+Arguments are placeholders for the data you pass to the function. They can be mandatory or optional, with optional arguments having default values:
+
+```{r}
+
+multiplyNumbers <- function(a, b = 2) {
+  return(a * b)
+}
+multiplyNumbers(10)
+```
+
+### **Variable Scope and Return Value**
+
+Variables defined inside a function are local to that function. The **`return()`** function specifies the output of your function. If **`return()`** is not explicitly called, R will return the last evaluated expression.
+
+### **Advanced Functions with Arguments**
+
+Functions with arguments are particularly useful in data analysis, as they can be applied to various datasets or variables.
+
+**Example: Linear Regression Analysis Functions**
+
+We will create two functions for linear regression analysis:
+
+1.  **Perform Linear Regression**: This function performs a linear regression analysis and returns the model summary.
+
+    ```{r}
+
+    perform_linear_regression <- function(data, independent_var, dependent_var) {
+      formula <- as.formula(paste(dependent_var, "~", independent_var))
+      model <- lm(formula, data = data)
+      return(summary(model))
+    }
+
+    ```
+
+2.  **Print Regression Results**: This function prints the key results from the linear regression summary.
+
+    ```{r}
+    print_regression_results <- function(model_summary, description) {
+      cat("Results for", description, ":\n")
+      print(model_summary$coefficients)
+      cat("R-squared:", model_summary$r.squared, "\n")
+      cat("P-value:", pf(model_summary$fstatistic[1],
+                         model_summary$fstatistic[2],
+                         model_summary$fstatistic[3],
+                         lower.tail = FALSE), "\n")
+    }
+
+    ```
+
+### **Simulating Data for Demonstration**
+
+To demonstrate the linear regression functions, let's create some simulated data:
+
+```{r}
+set.seed(123)
+data <- data.frame(
+  marketing_spend = runif(100, 1, 1000),
+  sales = rnorm(100, 500, 50)
+)
+
+```
+
+### **Using the Linear Regression Functions**
+
+Apply the functions to the simulated data:
+
+```{r}
+# Perform Linear Regression
+regression_results <- perform_linear_regression(data, "marketing_spend", "sales")
+
+# Print Regression Results
+print_regression_results(regression_results, "Sales vs Marketing Spend")
+```
 
 ## Simulation and Regression
+
 To start, we will simulate some data based on the following data generating process:
 
 $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
@@ -75,12 +166,13 @@ legend("topright", legend = c(expression(beta[1]), "Estimates"),
 
 ```
 
+# Code Call Outs
 
-## Code Call Out 2.1
+## Code Call Out 2.1: Regression versus comparison of means
+
 To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
 
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(readxl)
 library(plyr)
@@ -113,6 +205,11 @@ cat("Difference in means (Treatment - Control):", diff_means, "\n")
 # Display the comparison
 cat("The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.\n")
 ```
+
+## Call Out 2.2: Randomisation Inference
+
+Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+
 ### An Exact p-value
 
 It is perhaps useful to see a simple example. Consider the case of 6 units, with 3 observations randomly assigned treatment. Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$. A simple comparison of means estimator suggests that the treatment effect is 11.33. To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect. If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below. In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status). Suggesting an exact p-value of $1/20=0.05$.
@@ -181,11 +278,11 @@ ggplot(data.frame(Taus), aes(x = Taus)) +
 
 ```
 
-### Block 2.2
+### A Real world example
 
-Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
+@Banerjeeetal2021
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(readxl)
 library(plyr)
@@ -226,3 +323,76 @@ for (i in 1:n_permutations) {
 p_value <- mean(abs(permuted_effects) >= abs(obs_effect))
 list(observed_effect = obs_effect, p_value = p_value)
 ```
+
+## Call out 2.3: Bootstrap
+
+Some introduction to the topic, see manuscript and transcript a short summary of the motivation and work with Banerjee et al. (2021). First we consider the main regression in Code Call-Out 2.1 $$Y_i = \mu + \tau_{ATE}W_i + \varepsilon_i$$
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+fit <- lm(ind_fin_el1 ~ treatment, data = subset(data, el1 == 1))
+summary(fit)  # Note down the coefficient for the treatment variable
+```
+
+In this case the standard errors are computed as the standard OLS formula assuming homocedastic errors, also heterocedasticity-robust standard errors may be computed but in both cases depending on distribution assumptions or aproximations based on asymptotic theory. This assumptions to compute standard errors consequently affect the statistic and *p-value* to determine the estimator significance. An alternative that does not depend on these assumptions is to use resampling methods like bootstrap to compute a consistent estimator of the variance or statistic.  
+
+There is more than one way to make bootstrap, within this ways we can find parametric and non-parametric methods. In this example we show a non-parametric bootstrap. The first step is to sample with replacement the residuals $\left\{\widehat{\varepsilon}_i\right\}_{i=1}^{N} = \left\{y_i - \widehat{\mu} - \widehat{\tau}w_i\right\}_{i=1}^{N}$ from the original regression, obtaining $N$ resampled errors $\left\{\widehat{\varepsilon}_i^{(1)}\right\}_{i}^{N}$
+
+```{r}
+resampled <- sample(fit$residuals, replace = T, 
+                    size = length(fit$residuals))
+```
+
+With this resampled errors build an artificial outcome using the estimates from the original regression $$\left\{y_i^{(1)}\right\}_{i=1}^{N} = \left\{\widehat{\mu} + \widehat{\tau} w_i + \widehat{\varepsilon}_i^{(1)}\right\}_{i=1}^{N}$$
+
+```{r}
+artificial <- data.frame(treatment = fit$model$treatment,
+                         errors = resampled)
+artificial$outcome <- fit$coefficients["(Intercept)"] + fit$coefficients["treatment"] + artificial$treatment + artificial$errors
+```
+
+With this artificial sample estimates with standard OLS procedure the coefficient of interest 
+
+```{r}
+artificialModel <- lm(formula = outcome ~ treatment,
+                      data = artificial)
+summary(artificialModel)
+```
+
+Now repeat the previous steps $B$ times and get $B$ estimates of $\widehat{\tau}$
+
+```{r}
+taus <- numeric(1000)
+for (i in 1:1000) {
+  resampled <- sample(fit$residuals, replace = T, 
+                    size = length(fit$residuals))
+  artificial <- data.frame(treatment = fit$model$treatment,
+                         errors = resampled)
+  artificial$outcome <- fit$coefficients["(Intercept)"] + fit$coefficients["treatment"] * artificial$treatment + artificial$errors
+  artificialModel <- lm(formula = outcome ~ treatment,
+                      data = artificial)
+  taus[i] <- artificialModel$coefficients["treatment"]
+}
+```
+
+Now you have $B$ estimates of $\tau$, $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$, with which can get an empirical distribution as follows:
+
+```{r}
+ggplot() + geom_density(aes(x = taus)) +
+  labs(title = latex2exp::TeX(input = "$\\widehat{\\tau}$ Empirical Distribution"),
+       x = latex2exp::TeX(input = "$\\widehat{\\tau}$"),
+       y = "Density")
+```
+
+As there can be seen in the empirical distribution the distribution is almost centered at 0 with the greater density around 0 so is reasonable to not reject the null hypothesis of $\tau = 0$.
+
+With $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$ also can be computed an empirical variance or confidence interval based on empirical quantiles as follows
+
+```{r}
+var_tau <- var(taus)
+lower <- quantile(taus, 0.025)
+upper <- quantile(taus, 0.975)
+print(paste0("The empirical 95% confidence interval is: [",
+             round(lower, 3), ",", round(upper,3), "]."))
+```
+
+As seen in the empirical 95% confidence interval zero is included.

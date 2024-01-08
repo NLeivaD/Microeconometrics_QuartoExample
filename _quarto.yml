@@ -24,11 +24,13 @@ book:
         - 02_01_IntroductionStata.qmd
         - 02_02_Chapter2Stata.qmd
         - 02_03_Chapter3Stata.qmd
+        - 02_04_Chapter4Stata.qmd
     - part: 03_00_FollowingPython.qmd
       chapters:
         - 03_01_IntroductionPython.qmd
         - 03_02_Chapter2Python.qmd
         - 03_03_Chapter3Python.qmd
+        - 03_04_Chapter4Python.qmd
     - 06_references.qmd
     
 bibliography: references.bib

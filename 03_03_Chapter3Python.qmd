@@ -5,9 +5,7 @@ bibliography: refs.bib
 
 # Code Call Outs
 
-## Block 3.1 - Distances between observations
-
-## Block 3.2 - Propensity Score Matching and Job Training Programs
+## Code Call Out 3.1 - Propensity Score Matching and Job Training Programs
 
 @DeheijaWahba2002...
 
@@ -18,6 +16,7 @@ You have data from an observational study on a job training program. The dataset
 ```{python}
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import NearestNeighbors
 
@@ -66,15 +65,27 @@ plt.hist(treated['propensity_score'], bins=50, alpha=0.5, color = "lightcoral", 
 plt.hist(untreated['propensity_score'], bins=50, alpha=0.5, color = "lightblue", ec="blue", linewidth=1.2, label='Control (CPS or PSID)')
 
 plt.legend(loc='best')
-plt.title('FIGURE 1.—HISTOGRAM OF ESTIMATED PROPENSITY SCORE')
+plt.title('FIGURE 1. HISTOGRAM OF ESTIMATED PROPENSITY SCORE')
 plt.xlabel('Propensity Score')
 plt.ylabel('Frequency')
 plt.grid(axis='y', alpha=0.75)
 plt.show()
 
+import seaborn as sns
+
+# Boxplot for earnings in 1978 (re78) distribution comparison
+plt.figure(figsize=(8, 6))
+sns.boxplot(x='treat', y='re78', data=pd.concat([treated, matched]))
+plt.xlabel('Treatment')
+plt.ylabel('Earnings in 1978 (re78)')
+plt.title('Boxplot for Earnings in 1978 Distribution Comparison')
+plt.xticks([0, 1], ['Untreated', 'Treated'])
+plt.show()
 
 
 ```
+## Block 3.2 - ALGO COMO OVERLAP CHECK O COMPARAR CON REGRESIÓN [DC Defines]
+
 
 **Estimating the Causal Impact of Lottery Wins**
 
@@ -89,7 +100,7 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 
 # Load the dataset
-data = pd.read_stata('C:/Users/maria/Desktop/RA Microeconometría/PSM/Data/LotteryDataSet.dta')
+data = pd.read_stata('Datasets/LotteryDataSet.dta')
 
 # Define the treatment: any non-zero prize value indicates a winner
 data['treatment'] = (data['prize'] > 0).astype(int)
@@ -110,6 +121,7 @@ print(data['treatment'].value_counts())
 
 
 # Fit the logistic regression model with cross-validation and L2 regularization
+"""
 logit_cv_model = LogisticRegressionCV(cv=5, penalty='l2', scoring='neg_log_loss', solver='liblinear')
 logit_cv_model.fit(X, y)
 
@@ -126,5 +138,64 @@ control_outcomes = data.loc[data['treatment'] == 0, 'yearm1'].to_numpy()[matched
 # Calculate the Average Treatment Effect on the Treated (ATT)
 ATT = np.mean(treatment_outcomes - control_outcomes)
 print(f'The estimated ATT is: {ATT}')
+"""
+```
+# Assessing the Impact of Maternal Smoking on Birth Weight 
+Maternal smoking during pregnancy has been a subject of extensive study due to its potential impact on infant health outcomes, such as birth weight. However, simply comparing the birth weights of infants born to smokers versus non-smokers may not account for confounding factors that influence both the likelihood of smoking and birth outcomes.
+```{python}
+
+import pandas as pd
+import statsmodels.formula.api as smf
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import NearestNeighbors
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 ```
+```{python}
+# Leer el conjunto de datos
+birth_weight = pd.read_csv("Datasets/Birth_Weight.csv")
+
+# Recodificar variables
+birth_weight['mmarried'] = birth_weight['mmarried'].apply(lambda x: 1 if x == "Married" else 0)
+birth_weight['fbaby'] = birth_weight['fbaby'].apply(lambda x: 1 if x == "Yes" else 0)
+birth_weight['mbsmoke'] = birth_weight['mbsmoke'].apply(lambda x: 1 if x == "Smoker" else 0)
+
+# Regresión OLS
+ols_model = smf.ols('bweight ~ mbsmoke + mmarried + mage + medu + fbaby', data=birth_weight).fit()
+print(ols_model.summary())
+
+# Estimar puntuaciones de propensión usando regresión logística
+X = birth_weight[['mmarried', 'mage', 'medu', 'fbaby']]
+y = birth_weight['mbsmoke']
+logit = LogisticRegression()
+logit.fit(X, y)
+birth_weight['pscore'] = logit.predict_proba(X)[:, 1]
+
+# Diagnóstico de solapamiento en las puntuaciones de propensión
+sns.kdeplot(birth_weight[birth_weight['mbsmoke'] == 0]['pscore'], shade=True, label='No Smoker')
+sns.kdeplot(birth_weight[birth_weight['mbsmoke'] == 1]['pscore'], shade=True, label='Smoker')
+plt.xlabel('Propensity Score')
+plt.ylabel('Density')
+plt.show()
+
+# Realizar emparejamiento del vecino más cercano
+smokers = birth_weight[birth_weight['mbsmoke'] == 1]
+non_smokers = birth_weight[birth_weight['mbsmoke'] == 0]
+nn = NearestNeighbors(n_neighbors=1)
+nn.fit(non_smokers[['pscore']])
+matches = nn.kneighbors(smokers[['pscore']], return_distance=False)
+matched_smokers = smokers
+matched_non_smokers = non_smokers.iloc[matches[:, 0]]
+
+# Comparar grupos emparejados
+matched_data = pd.concat([matched_smokers, matched_non_smokers])
+matched_data.boxplot(column='bweight', by='mbsmoke')
+plt.xlabel('Mother Smoked')
+plt.ylabel('Birth Weight')
+plt.show()
+
+```
+
+
+## Block 3.3 - Inverse Propensity Score Weighting 

@@ -7,13 +7,12 @@ bibliography: refs.bib
 
 **TRAER INFORMACIÓN AQUÍ DEL ARCHIVO DE PYTHON**
 
-# Assessing the Impact of Maternal Smoking on Birth Weight 
+# Assessing the Impact of Maternal Smoking on Birth Weight (Code call-out 3.2)
 Maternal smoking during pregnancy has been a subject of extensive study due to its potential impact on infant health outcomes, such as birth weight. However, simply comparing the birth weights of infants born to smokers versus non-smokers may not account for confounding factors that influence both the likelihood of smoking and birth outcomes.
-```{r}
-
+```{r ,message=FALSE, warning=FALSE}
 # Load necessary libraries
-install.packages("tableone")
-install.packages("pastecs")
+#install.packages("tableone")
+#install.packages("pastecs")
 library(MatchIt)
 library(dplyr)
 library(ggplot2)
@@ -22,7 +21,12 @@ library(tableone)
 library(cobalt)
 
 # Read the dataset
-birth_weight <- read.csv("Birth_Weight.csv")
+birth_weight <- read.csv("Datasets/Birth_Weight.csv")
+
+"
+The original dataset included nearly 500,000 births. 
+This dataset is a subset of 4,642 births that includes information about infant/mother/father characteristics from singleton births in Pennsylvania between 1989 and 1991. 
+"
 
 # Recode variables
 birth_weight <- birth_weight %>% dplyr::mutate(
@@ -72,6 +76,141 @@ ggplot(matched_data, aes(x = as.factor(mbsmoke), y = bweight)) +
   geom_boxplot() +
   labs(x = "Mother Smoked", y = "Birth Weight") +
   theme_minimal()
+
+# OLS Estimation on the Full Dataset
+ols_full <- lm(bweight ~ mbsmoke + mmarried + mage + medu + fbaby, data = birth_weight)
+summary(ols_full)
+
+# OLS Estimation on the Dataset after PSM
+matched_data <- match.data(match_nearest)
+ols_matched <- lm(bweight ~ mbsmoke + mmarried + mage + medu + fbaby, data = matched_data)
+summary(ols_matched)
+
+# Comparison of Results
+# We can look at the coefficients and their significance in both models
+print("OLS Results on the Full Dataset:")
+print(summary(ols_full)$coefficients)
+
+print("OLS Results on the Matched Dataset:")
+print(summary(ols_matched)$coefficients)
+
+
+# Analysis of OLS Results - Full Dataset vs Matched Dataset
+
+# Consistency in the Effect of Maternal Smoking:
+# Both the full dataset OLS model and the matched dataset OLS model consistently show a significant reduction in birth weight associated with maternal smoking. 
+# The coefficients (-224.42 in the full dataset and -227.91 in the matched dataset) suggest a robust negative effect of maternal smoking on birth weight.
+# This finding across both models reinforces the evidence of a negative impact of smoking during pregnancy on infant birth weight.
+
+# Differences in Other Factors:
+# There are notable differences in the results for other factors (especially maternal age 'mage', maternal education 'medu', and previous baby 'fbaby') between the full dataset and the matched dataset models.
+# In the matched dataset, the effects of maternal age, education, and having a previous baby are not statistically significant, which contrasts with the findings from the full dataset.
+# This suggests that the propensity score matching process has achieved a better balance of these covariables between the treated and untreated groups, potentially reducing confounding bias.
+# Specifically, the reduction in significance of factors like maternal age and education in the matched dataset indicates that the matching might have controlled for these variables more effectively, highlighting the importance of considering matching techniques in observational studies to understand causal relationships.
+
+```
+# Dehejia and Wahba
+```{r ,message=FALSE, warning=FALSE}
+# Loading necessary libraries
+library(MatchIt)
+library(ggplot2)
+library(cobalt)
+library(haven)
+
+# Loading the data (adjust the file path as needed)
+data <- read_dta("Datasets/Dehejia_Wahba_1999.dta")
+
+# Fitting a logistic regression model for propensity scores
+logit_model <- glm(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
+                   family = binomial(), data = data)
+data$propensity_score <- predict(logit_model, type = "response")
+
+# Propensity score matching
+matchit_model <- matchit(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
+                         method = "nearest", data = data, ratio = 5)
+
+# Extracting matched data
+matched_data <- match.data(matchit_model)
+
+# Calculating Average Treatment Effect on the Treated (ATT)
+ATT <- with(matched_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
+print(paste("Average Treatment Effect on the Treated (ATT):", ATT))
+
+# Histograms of propensity scores
+ggplot(data, aes(x = propensity_score, fill = factor(treat))) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 50) +
+  scale_fill_manual(values = c("lightblue", "lightcoral")) +
+  labs(fill = "Group", x = "Propensity Score", y = "Frequency") +
+  theme_minimal()
+
+ggplot(matched_data, aes(x = factor(treat), y = re78)) +
+  geom_boxplot() +
+  labs(x = "Treatment", y = "Earnings in 1978 (re78)") +
+  theme_minimal()
+
+love.plot(matchit_model)
+
+```
+# Code call-out 3.3
+```{r ,message=FALSE, warning=FALSE}
+# Cargar las bibliotecas necesarias
+library(MatchIt)
+library(survey)
+library(haven)
+
+# Cargar los datos
+data <- read_dta('Datasets/Dehejia_Wahba_1999.dta')
+
+# Definir covariables y variable de tratamiento
+covariates <- c('age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75')
+treatment <- 'treat'
+outcome <- 're78'
+
+# Estimación de Propensity Scores para IPTW
+logit_model <- glm(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
+                   family = binomial(), data = data)
+ps <- predict(logit_model, type = "response")
+
+# Calcular pesos para IPTW
+weights <- ifelse(data$treat == 1, 1 / ps, 1 / (1 - ps))
+svy_design <- svydesign(ids = ~1, data = data, weights = ~weights)
+
+# ATE usando IPTW
+ate_iptw <- svyglm(re78 ~ treat, design = svy_design)
+
+# ATT usando IPTW
+att_iptw <- svyglm(re78 ~ treat, design = svydesign(ids = ~1, data = data, weights = ifelse(data$treat == 1, 1, ps / (1 - ps))))
+
+# Matching para ATT
+matchit_model <- matchit(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
+                         data = data, method = "nearest")
+matched_data <- match.data(matchit_model)
+
+# Calcular ATT usando Matching
+att_match <- with(matched_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
+
+# Full Matching para ATE
+matchit_full <- matchit(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
+                        data = data, method = "full")
+matched_full_data <- match.data(matchit_full)
+
+# Calcular ATE usando Full Matching
+ate_match <- with(matched_full_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
+
+# Regression para ATT y ATE
+reg_model_att <- lm(re78 ~ treat + age + education + black + hispanic + married + nodegree + re74 + re75, 
+                    data = matched_data)
+reg_model_ate <- lm(re78 ~ treat + age + education + black + hispanic + married + nodegree + re74 + re75, 
+                    data = data)
+
+# Mostrar los resultados
+print(paste("ATT por Matching:", att_match))
+print(paste("ATT por IPTW:", coef(att_iptw)["treat"]))
+print(paste("ATE por IPTW:", coef(ate_iptw)["treat"]))
+print(paste("ATE por Full Matching:", ate_match))
+print(paste("ATT por Regression:", coef(reg_model_att)["treat"]))
+print(paste("ATE por Regression:", coef(reg_model_ate)["treat"]))
+
 
 ```
 
