@@ -333,43 +333,37 @@ fit <- lm(ind_fin_el1 ~ treatment, data = subset(data, el1 == 1))
 summary(fit)  # Note down the coefficient for the treatment variable
 ```
 
-In this case the standard errors are computed as the standard OLS formula assuming homocedastic errors, also heterocedasticity-robust standard errors may be computed but in both cases depending on distribution assumptions or aproximations based on asymptotic theory. This assumptions to compute standard errors consequently affect the statistic and *p-value* to determine the estimator significance. An alternative that does not depend on these assumptions is to use resampling methods like bootstrap to compute a consistent estimator of the variance or statistic.  
+From the summary we can note that $\widehat{\tau}_{ATE} = -0.0096$ and its standard error equals to 0.0416, thus we have a non significative coefficient with a p-value of 0.818. In this case the standard errors are computed as the standard OLS formula assuming homocedastic errors, also heterocedasticity-robust standard errors may be computed but in both cases depending on distribution assumptions or aproximations based on asymptotic theory. This assumptions to compute standard errors consequently affect the statistic and *p-value* to determine the estimator significance. An alternative that does not depend on these assumptions is to use resampling methods like bootstrap to compute a consistent estimator of the variance or statistic.
 
-There is more than one way to make bootstrap, within this ways we can find parametric and non-parametric methods. In this example we show a non-parametric bootstrap. The first step is to sample with replacement the residuals $\left\{\widehat{\varepsilon}_i\right\}_{i=1}^{N} = \left\{y_i - \widehat{\mu} - \widehat{\tau}w_i\right\}_{i=1}^{N}$ from the original regression, obtaining $N$ resampled errors $\left\{\widehat{\varepsilon}_i^{(1)}\right\}_{i}^{N}$
+There is more than one way to make bootstrap, within this ways we can find parametric and non-parametric methods. In this example we show a non-parametric bootstrap. The first step is to sample with replacement the ordered pairs  $\left\{(y_i,w_i)\right\}_{i=1}^{N} = \left\{(y_1,w_1),\ldots,(y_N,w_N)\right\}$ from the original regression, obtaining $N$ resampled pairs $\left\{(y_i^*,w_i^*)\right\}_{i}^{N} = \left\{(y_1^*,w_1^*),\ldots,(y_N^*,w_N^*)\right\}$. In order to do this firs we sample with replacement numbers from 1 to the number of rows from the dataset used to estimate the model
 
 ```{r}
-resampled <- sample(fit$residuals, replace = T, 
-                    size = length(fit$residuals))
+rows <- sample(1:nrow(fit$model), replace = T)
 ```
 
-With this resampled errors build an artificial outcome using the estimates from the original regression $$\left\{y_i^{(1)}\right\}_{i=1}^{N} = \left\{\widehat{\mu} + \widehat{\tau} w_i + \widehat{\varepsilon}_i^{(1)}\right\}_{i=1}^{N}$$
+With this we have the rows that are sampled and we can build our artificial sample named bootstrap sample
 
 ```{r}
-artificial <- data.frame(treatment = fit$model$treatment,
-                         errors = resampled)
-artificial$outcome <- fit$coefficients["(Intercept)"] + fit$coefficients["treatment"] + artificial$treatment + artificial$errors
+resampled <- fit$model[rows,]
 ```
 
-With this artificial sample estimates with standard OLS procedure the coefficient of interest 
+With this bootstrap sample we estimate again the coefficient of interest with standard OLS procedure
 
 ```{r}
-artificialModel <- lm(formula = outcome ~ treatment,
-                      data = artificial)
+artificialModel <- lm(formula = ind_fin_el1 ~ treatment,
+                      data = resampled)
 summary(artificialModel)
 ```
 
-Now repeat the previous steps $B$ times and get $B$ estimates of $\widehat{\tau}$
+From this estimation we have obtained $\widehat{\tau}_{ATE}^* = -0.0602$ with a standard error of 0.0386 and a p-value of 0.12, much closer to be significative at conventional levels than $\widehat{\tau}_{ATE}$. The next step is to repeat the previous steps $B$ times and get $B$ estimates of $\widehat{\tau}_{ATE}$
 
 ```{r}
 taus <- numeric(1000)
 for (i in 1:1000) {
-  resampled <- sample(fit$residuals, replace = T, 
-                    size = length(fit$residuals))
-  artificial <- data.frame(treatment = fit$model$treatment,
-                         errors = resampled)
-  artificial$outcome <- fit$coefficients["(Intercept)"] + fit$coefficients["treatment"] * artificial$treatment + artificial$errors
-  artificialModel <- lm(formula = outcome ~ treatment,
-                      data = artificial)
+  rows <- sample(1:nrow(fit$model), replace = T)
+  resampled <- fit$model[rows,]
+  artificialModel <- lm(formula = ind_fin_el1 ~ treatment,
+                      data = resampled)
   taus[i] <- artificialModel$coefficients["treatment"]
 }
 ```
@@ -380,12 +374,12 @@ Now you have $B$ estimates of $\tau$, $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}
 ggplot() + geom_density(aes(x = taus)) +
   labs(title = latex2exp::TeX(input = "$\\widehat{\\tau}$ Empirical Distribution"),
        x = latex2exp::TeX(input = "$\\widehat{\\tau}$"),
-       y = "Density")
+       y = "Density") +
+  geom_vline(xintercept = c(quantile(taus, 0.025), quantile(taus, 0.975)),
+             color = 'red', linetype = 'dashed', linewidth = 1)
 ```
 
-As there can be seen in the empirical distribution the distribution is almost centered at 0 with the greater density around 0 so is reasonable to not reject the null hypothesis of $\tau = 0$.
-
-With $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$ also can be computed an empirical variance or confidence interval based on empirical quantiles as follows
+As there can be seen in the empirical distribution the distribution is almost centered at 0 with the greater density around 0 so is reasonable to not reject the null hypothesis of $\tau = 0$. With $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$ also can be computed an empirical variance or confidence interval based on empirical quantiles as follows
 
 ```{r}
 var_tau <- var(taus)
@@ -395,4 +389,4 @@ print(paste0("The empirical 95% confidence interval is: [",
              round(lower, 3), ",", round(upper,3), "]."))
 ```
 
-As seen in the empirical 95% confidence interval zero is included.
+This limits are shown with the red dashed lines in the empirical distribution and as seen in the empirical 95% confidence interval zero is included .
