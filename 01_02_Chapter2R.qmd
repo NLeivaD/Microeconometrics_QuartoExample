@@ -330,7 +330,7 @@ Some introduction to the topic, see manuscript and transcript a short summary of
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 fit <- lm(ind_fin_el1 ~ treatment, data = subset(data, el1 == 1))
-summary(fit)  # Note down the coefficient for the treatment variable
+summary(fit)
 ```
 
 From the summary we can note that $\widehat{\tau}_{ATE} = -0.0096$ and its standard error equals to 0.0416, thus we have a non significative coefficient with a p-value of 0.818. In this case the standard errors are computed as the standard OLS formula assuming homocedastic errors, also heterocedasticity-robust standard errors may be computed but in both cases depending on distribution assumptions or aproximations based on asymptotic theory. This assumptions to compute standard errors consequently affect the statistic and *p-value* to determine the estimator significance. An alternative that does not depend on these assumptions is to use resampling methods like bootstrap to compute a consistent estimator of the variance or statistic.
@@ -355,7 +355,7 @@ artificialModel <- lm(formula = ind_fin_el1 ~ treatment,
 summary(artificialModel)
 ```
 
-From this estimation we have obtained $\widehat{\tau}_{ATE}^* = -0.0602$ with a standard error of 0.0386 and a p-value of 0.12, much closer to be significative at conventional levels than $\widehat{\tau}_{ATE}$. The next step is to repeat the previous steps $B$ times and get $B$ estimates of $\widehat{\tau}_{ATE}$
+From this estimation we have obtained $\widehat{\tau}_{ATE}^* = -0.0602$ with a standard error of 0.0386 and a p-value of 0.12, much closer to be significative at conventional levels than $\widehat{\tau}_{ATE}$. The next step is to repeat the previous steps $B$ times and get $B$ estimates of $\widehat{\tau}_{ATE,(b)}^*$ with $b\in\{1,\ldots,B\}$
 
 ```{r}
 taus <- numeric(1000)
@@ -379,14 +379,17 @@ ggplot() + geom_density(aes(x = taus)) +
              color = 'red', linetype = 'dashed', linewidth = 1)
 ```
 
-As there can be seen in the empirical distribution the distribution is almost centered at 0 with the greater density around 0 so is reasonable to not reject the null hypothesis of $\tau = 0$. With $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$ also can be computed an empirical variance or confidence interval based on empirical quantiles as follows
+As there can be seen in the empirical distribution the distribution is almost centered at 0 with the greater density around 0 so is reasonable to not reject the null hypothesis of $\tau = 0$. With $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$ also can be computed an empirical variance (and standard error) or confidence interval based on empirical quantiles as follows
 
 ```{r}
 var_tau <- var(taus)
+print(paste0("The variance estimates is: ", round(var_tau, 4), 
+             " in consequence the standard error estimates is: ", 
+             round(sqrt(var_tau), 4)))
 lower <- quantile(taus, 0.025)
 upper <- quantile(taus, 0.975)
 print(paste0("The empirical 95% confidence interval is: [",
              round(lower, 3), ",", round(upper,3), "]."))
 ```
 
-This limits are shown with the red dashed lines in the empirical distribution and as seen in the empirical 95% confidence interval zero is included .
+This limits of the interval are shown with the red dashed lines in the empirical distribution and as seen in the empirical 95% confidence interval zero is included.
