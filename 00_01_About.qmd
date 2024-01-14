@@ -1,11 +1,13 @@
 ## About this book
 
-Current Pending Tasks
+This site is currently under construction and incomplete.
+
+
+Notes for us -- Current to do list:
 
 1.  Ordenarnos con el sitio \[All\]
-2.  Ordenamos code call out 3.1-3.3 (DC/MFC)
-3.  Check de Chaisemartin & D'Haultfoueille in code \[DC\]
-4.  Bootstrap \[DC review -\> NLD pasar a Python y Stata\]
-5.  Empezar a revisar marginal treatment effects (partir con Carneiro, Heckman, and Vytlacil (2010); Cornelissen et al. (2016)) \[NLD\]
-6.  Goodman-Bacon a Stata GRAPH ONLY NOT URGENT \[NLD\]
-7.  Applied examples of papers to use as questions for end of chapter \[??? DC/MFC/NLD\]
+2.  Check de Chaisemartin & D'Haultfoueille in code \[DC\]
+3.  Empezar a revisar marginal treatment effects (partir con Carneiro, Heckman, and Vytlacil (2010); Cornelissen et al. (2016)) \[NLD\]
+4.  Empezar a revisar modelos de ML con causalidad \[MFC\]
+5.  Goodman-Bacon a Stata GRAPH ONLY NOT URGENT \[NLD\]
+6.  Applied examples of papers to use as questions for end of chapter \[??? DC/MFC/NLD\]
