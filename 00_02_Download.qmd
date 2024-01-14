@@ -1,3 +1,38 @@
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+library(Statamarkdown)
+library(reticulate)
+```
+
 ## How to download the required data
 
-In order to download the required data for the excersices in this virtual resource you will find the datasets for free acces in (I guess this will not be the definitive repository, but for the moment I will write mine) [this GitHub repository](https://github.com/NLeivaD/Microeconometrics_QuartoExample/Datasets).
+All data required for code call outs and exercises can be found at the following link:
+[damianclarke.net/books/microeconometrics/data](damianclarke.net/books/microeconometrics/data)
+
+All data is available as csv format which can be easily read into R and Python, as well as Stata's native dta format.  Data can be downloaded and accessed locally, or read into programs directly from the link above.  Below we provide a brief illustration of how data can be read directly into R, Python and Stata from this site.  Here we simply install one of the datasets used in Chapter 2 code call outs, and print the first line in the file:
+
+## R
+```{R}
+df <- read.csv('http://www.damianclarke.net/books/microeconometrics/data/Banerjee_et_al_2021.csv')
+df[1,]
+```
+
+## Stata
+```{stata}
+webuse set www.damianclarke.net/books/microeconometrics/data
+webuse Banerjee_et_al_2021
+list in 1
+```
+
+## Python
+```{python}
+#| eval: false
+import pandas as pd
+df = pd.read_csv('http://www.damianclarke.net/books/microeconometrics/data/Banerjee_et_al_2021.csv')
+df[0:1]
+```
+```
+   treatment  el1  index_ctotal_el1  index_foodsecurity_el1  ind_fin_el1  ind_increv_updated_el1  asset_ind_tot_el1  vil_ham
+   0          0    1          0.044485                0.498666     1.293397               -0.744829          -1.347889     10.0
+
+```
