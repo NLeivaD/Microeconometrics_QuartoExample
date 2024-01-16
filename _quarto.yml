@@ -33,11 +33,15 @@ book:
         - 03_04_Chapter4Python.qmd
     - 06_references.qmd
     
-bibliography: references.bib
+bibliography: refs.bib
 
 format:
   html:
-    theme: pulse
+    theme: superhero
     number-sections: false
-
+  pdf:     
+    keep-tex: true
+    bibliography: refs.bib
+  epub:
+    bibliography: refs.bib
 editor: visual

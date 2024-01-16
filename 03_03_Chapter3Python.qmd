@@ -7,11 +7,9 @@ bibliography: refs.bib
 
 ## Code Call Out 3.1 - Propensity Score Matching and Job Training Programs
 
-@DeheijaWahba2002...
+In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM) which assumes *selection on observables*. PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates. By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.
 
-In observational studies, where treatment assignment is not random, estimating causal effects can be challenging due to potential confounding factors. One method to address this challenge is Propensity Score Matching (PSM). PSM aims to control for observed confounding by matching treated units with untreated units that have similar propensity scores. The propensity score for a unit is the probability of receiving the treatment given observed covariates. By matching on propensity scores, we aim to create a scenario where the distribution of observed covariates is similar between the treated and untreated groups, mimicking a randomized experiment. This method allows to estimate causal treatment effects in observational settings, making it a valuable tool in microeconometrics.
-
-You have data from an observational study on a job training program. The dataset contains information on individuals' participation in the program (treat), their earnings in 1978 (re78), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975. The main objective of this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.
+In this example, we will consider a setting studied by @Lalonde1986 and @DeheijaWahba2002, @DeheijaWahba1999.  There, the authors sought to compare an estimate based on observational methods with an experimental programme evaluation, to see how well observational methods compare to experimental estimates. The original experimental estimates suggested that the receipt of a job training program increased earnings by $1,794 using this estimation sample.   In this code call out, we work with data provided by @DeheijaWahba1999 which consists of an experimentally treated samples, as well as a similar sample of untreated units drawn from a large survey database (the CPS and PSID).  The dataset contains information on individuals' participation in the program (treat), their earnings in 1978 (re78) which follows program participation (in the case of treated observations), and several other covariates such as age, education, race, marital status, and earnings in 1974 and 1975 (pre-treatment outcomes). Our main objective in this exercise is to estimate the Average Treatment Effect on the Treated (ATT) of the job training program on earnings in 1978 using Propensity Score Matching.
 
 ```{python}
 import pandas as pd
@@ -19,6 +17,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import NearestNeighbors
+import seaborn as sns
+sns.set()
+sns.set_palette("viridis", n_colors=2)
 
 # Load the dataset
 data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
@@ -60,21 +61,15 @@ ATT = (treated['re78'] - matched['re78']).mean()
 print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
 
 # Plot the histograms with outlined bars and a chosen fill color
-plt.figure(figsize=(10, 6))
-plt.hist(treated['propensity_score'], bins=50, alpha=0.5, color = "lightcoral", ec="red", linewidth=1.2, label='Treated (NSW)')
-plt.hist(untreated['propensity_score'], bins=50, alpha=0.5, color = "lightblue", ec="blue", linewidth=1.2, label='Control (CPS or PSID)')
-
+plt.hist(treated['propensity_score'], bins=50, linewidth=1.2,label='Treated (NSW)', alpha=0.7)
+plt.hist(untreated['propensity_score'], bins=50, linewidth=1.2, label='Control (CPS or PSID)', alpha=0.7)
 plt.legend(loc='best')
-plt.title('FIGURE 1. HISTOGRAM OF ESTIMATED PROPENSITY SCORE')
 plt.xlabel('Propensity Score')
 plt.ylabel('Frequency')
 plt.grid(axis='y', alpha=0.75)
 plt.show()
 
-import seaborn as sns
-
 # Boxplot for earnings in 1978 (re78) distribution comparison
-plt.figure(figsize=(8, 6))
 sns.boxplot(x='treat', y='re78', data=pd.concat([treated, matched]))
 plt.xlabel('Treatment')
 plt.ylabel('Earnings in 1978 (re78)')
@@ -84,64 +79,9 @@ plt.show()
 
 
 ```
-## Block 3.2 - ALGO COMO OVERLAP CHECK O COMPARAR CON REGRESIÓN [DC Defines]
+## Code Call Out 3.2 - Considering Overlap and Variable Balance
+Maternal smoking during pregnancy has been a subject of extensive study due to its potential impact on infant health outcomes, such as birth weight. However, simply comparing the birth weights of infants born to smokers versus non-smokers may not account for confounding factors that influence both the likelihood of smoking and birth outcomes.  In this code call out, we will work with data from @Almondetal2005 which consists of a child's birthweight, an indicator of whether their mother smoked during pregnancy, and a number of covariates.
 
-
-**Estimating the Causal Impact of Lottery Wins**
-
-In observational studies, Propensity Score Matching (PSM) offers a way to estimate the effect of a treatment, policy, or other intervention when randomized controlled trials are not possible. PSM attempts to mimic randomization by creating a sample of units that received the treatment that is comparable on all observed covariates to a sample of units that did not receive the treatment. The study by Imbens, Rubin, and Sacerdote utilizes PSM to analyze the impact of winning substantial lottery prizes on economic behavior. The authors exploit the randomness in lottery wins to assess how additional income affects labor earnings.
-
-You will analyze a dataset that mirrors the one used in the study, focusing on 496 lottery participants, some of whom won large prizes while others did not.
-
-```{python}
-import pandas as pd
-from sklearn.linear_model import LogisticRegressionCV
-from sklearn.neighbors import NearestNeighbors
-import numpy as np
-
-# Load the dataset
-data = pd.read_stata('Datasets/LotteryDataSet.dta')
-
-# Define the treatment: any non-zero prize value indicates a winner
-data['treatment'] = (data['prize'] > 0).astype(int)
-
-# Define covariates
-covariates = ['tixbot', 'yearw', 'workthen', 'yearm1']
-X = data[covariates]
-y = data['treatment']
-
-# Assuming that winners have a 'prize' value over a certain threshold, 
-# which you mentioned is on average $50,000 per year for twenty years.
-# You'll need to define this threshold based on your data and the specifics of your study.
-big_prize_threshold = 50000 * 20
-data['treatment'] = (data['prize'] >= big_prize_threshold).astype(int)
-
-# Check again after redefining the treatment
-print(data['treatment'].value_counts())
-
-
-# Fit the logistic regression model with cross-validation and L2 regularization
-"""
-logit_cv_model = LogisticRegressionCV(cv=5, penalty='l2', scoring='neg_log_loss', solver='liblinear')
-logit_cv_model.fit(X, y)
-
-# Retrieve the propensity scores
-data['propensity_score'] = logit_cv_model.predict_proba(X)[:, 1]
-
-# Matching treatment and control using Nearest Neighbors
-nn_model = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(data.loc[data['treatment'] == 0, ['propensity_score']])
-distances, indices = nn_model.kneighbors(data.loc[data['treatment'] == 1, ['propensity_score']])
-matched_controls = indices.flatten()
-treatment_outcomes = data.loc[data['treatment'] == 1, 'yearm1'].to_numpy()
-control_outcomes = data.loc[data['treatment'] == 0, 'yearm1'].to_numpy()[matched_controls]
-
-# Calculate the Average Treatment Effect on the Treated (ATT)
-ATT = np.mean(treatment_outcomes - control_outcomes)
-print(f'The estimated ATT is: {ATT}')
-"""
-```
-# Assessing the Impact of Maternal Smoking on Birth Weight 
-Maternal smoking during pregnancy has been a subject of extensive study due to its potential impact on infant health outcomes, such as birth weight. However, simply comparing the birth weights of infants born to smokers versus non-smokers may not account for confounding factors that influence both the likelihood of smoking and birth outcomes.
 ```{python}
 
 import pandas as pd
@@ -153,33 +93,33 @@ import seaborn as sns
 
 ```
 ```{python}
-# Leer el conjunto de datos
+# Read in data
 birth_weight = pd.read_csv("Datasets/Birth_Weight.csv")
 
-# Recodificar variables
+# Recod variables in binary
 birth_weight['mmarried'] = birth_weight['mmarried'].apply(lambda x: 1 if x == "Married" else 0)
 birth_weight['fbaby'] = birth_weight['fbaby'].apply(lambda x: 1 if x == "Yes" else 0)
 birth_weight['mbsmoke'] = birth_weight['mbsmoke'].apply(lambda x: 1 if x == "Smoker" else 0)
 
-# Regresión OLS
+# Consider an OLS regression conditioning on covariates
 ols_model = smf.ols('bweight ~ mbsmoke + mmarried + mage + medu + fbaby', data=birth_weight).fit()
 print(ols_model.summary())
 
-# Estimar puntuaciones de propensión usando regresión logística
+# Estimate propensity score
 X = birth_weight[['mmarried', 'mage', 'medu', 'fbaby']]
 y = birth_weight['mbsmoke']
 logit = LogisticRegression()
 logit.fit(X, y)
 birth_weight['pscore'] = logit.predict_proba(X)[:, 1]
 
-# Diagnóstico de solapamiento en las puntuaciones de propensión
+# Examine overlap
 sns.kdeplot(birth_weight[birth_weight['mbsmoke'] == 0]['pscore'], shade=True, label='No Smoker')
 sns.kdeplot(birth_weight[birth_weight['mbsmoke'] == 1]['pscore'], shade=True, label='Smoker')
 plt.xlabel('Propensity Score')
 plt.ylabel('Density')
 plt.show()
 
-# Realizar emparejamiento del vecino más cercano
+# Conduct nearest-neighbour matching
 smokers = birth_weight[birth_weight['mbsmoke'] == 1]
 non_smokers = birth_weight[birth_weight['mbsmoke'] == 0]
 nn = NearestNeighbors(n_neighbors=1)
@@ -188,7 +128,7 @@ matches = nn.kneighbors(smokers[['pscore']], return_distance=False)
 matched_smokers = smokers
 matched_non_smokers = non_smokers.iloc[matches[:, 0]]
 
-# Comparar grupos emparejados
+# Comare matched groups
 matched_data = pd.concat([matched_smokers, matched_non_smokers])
 matched_data.boxplot(column='bweight', by='mbsmoke')
 plt.xlabel('Mother Smoked')
@@ -197,5 +137,4 @@ plt.show()
 
 ```
 
-
-## Block 3.3 - Inverse Propensity Score Weighting 
+## Code Call Out 3.3 - Inverse Propensity Score Weighting 

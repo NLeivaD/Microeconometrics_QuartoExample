@@ -142,6 +142,8 @@ print(f"Intercept: {beta0hat}")
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set()
+sns.set_palette("viridis")
 
 # Make predictions using the model
 data['yhat'] = model.predict(data[['x']])
@@ -327,7 +329,6 @@ print("The two-sided p-value is: " + str(p_2side))
 #| fig-cap: "Permutation inference"
 
 #Generate graph
-sns.set_palette("pastel")
 plt.hist(Taus,bins=10, edgecolor='black', density=True, label="Permutations")
 plt.ylabel("Density")
 plt.xlabel("Test statistic")
