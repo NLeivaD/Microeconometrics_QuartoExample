@@ -4,22 +4,66 @@ bibliography: refs.bib
 ---
 
 # Code Call Outs
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(Statamarkdown)
+```
+```{stata}
+clear all
+set more off
 
-### Low Birth
+* Load the data
+use "Datasets/Dehejia_Wahba_1999.dta", clear
+* Variables are 
+	*  TREAT 1 if treated (NSW treated) and 0 if not (PSID-1 control)
+	*  AGE   in years
+	*  EDUC  in years   
+	*  BLACK 1 if black
+	*  HISP  1 if Hispanic
+	*  MARR  1 if married
+	*  RE74  Real annual earnings in 1974  (pre-treatment)
+	*  RE75  Real annual earnings in 1974  (pre-treatment)
+	*  RE78  Real annual earnings in 1974  (post-treatment)
+	*  U74   1 if unemployed in 1974
+	*  U75   1 if unemployed in 1974
+
+encode data_id, gen(id)
+generate nsw=1 if id==2
+replace nsw=. if id!=2
+generate cps=1 if id==1
+replace cps=1 if treat==1
+label variable cps "CPS sample"
+
+* Covariates for DW(02) model
+generate agesq= age*age
+generate agecubed= age*age*age
+generate edusq= education*education
+generate u74=(re74==0)
+generate u75=(re75==0)
+generate edure74 = education*re74
+
+* ATET (Average treatment effect on the treated) can be estimated
+teffects psmatch (re78) (treat age agesq agecubed edusq edure74 education married nodegree re74 re75 u74 u75 black hispanic, logit) if cps==1, atet gen(pstub)
+predict pscore, ps
+
+* Histograms of propensity scores for the treatment and control group
+histogram pscore if treat == 1, name(HistTreat, replace) title("Treated")
+histogram pscore if treat == 0, name(HistControl, replace) title("Control")
+graph combine HistTreat HistControl
+
+* Boxplot of the distribution of earnings in 1978 (re78) for the matched data
+
+graph box re78, over(treat)
+
+```
+
+### Low Birth (Code call-out 3.2)
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(Statamarkdown)
 ```
 
 ```{stata}
 clear all
-cd "C:/Users/maria/Desktop/RA Microeconometría/PSM/Data"
-
-webuse cattaneo2, clear
-drop if prenatal == 0 | mage == 0 | medu == 0 | order == 0
-order *, sequential // put variables in alphabetical order (personal preference)
-egen float medu2 = cut(medu), at(0 9 12 13 17 18) // create coarse education groups
-* Save dataset
-save Birth_Weight.dta, replace
+use "Datasets/Birth_Weight.dta", clear
 
 
 
@@ -66,4 +110,39 @@ twoway ///
 
 regress bweight mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenatal if _weight == 1
 ```
+### IPW (Code call-out 3.3)
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(Statamarkdown)
+```
 
+```{stata}
+clear all 
+set more off
+
+use "C:/Users/maria/Desktop/Proyecto/Dehejia_Wahba_1999.dta", clear
+
+* ATT by Regression
+teffects ra (re78 age education black hispanic married nodegree re74 re75) (treat), atet
+ 
+* ATE by Regression
+teffects ra (re78 age education black hispanic married nodegree re74 re75) (treat)
+
+
+* ATE by Matching
+teffects psmatch (re78) (treat age education black hispanic married nodegree re74 re75)
+
+
+* ATT by Matching
+teffects psmatch (re78) (treat age education black hispanic married nodegree re74 re75), atet vce(iid)
+
+
+* ATT by Weighting
+teffects ipw (re78) (treat age education black hispanic married nodegree re74 re75, probit), atet
+
+
+* ATE by Weighting
+teffects ipw (re78) (treat age education black hispanic married nodegree re74 re75, probit)
+
+
+
+```
