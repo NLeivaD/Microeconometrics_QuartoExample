@@ -63,7 +63,9 @@ library(Statamarkdown)
 
 ```{stata}
 clear all
-use "Datasets/Birth_Weight.dta", clear
+cd "C:/Users/maria/Desktop/RA Microeconometría/PSM/Data"
+
+use Birth_Weight.dta, replace
 
 
 
@@ -83,16 +85,9 @@ logistic mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenata
 * LOG ODDS OF SMOKING
 predict logodds, xb
 
-* GET A SENSE OF .25 SD OF LINEAR PROPENSITY SCORE
-summarize logodds
 
 * CONSTRUCT MATCHES
 psmatch2 mbsmoke, outcome(bweight) pscore(logodds) neighbor(1) noreplace caliper(.25)
-
-* MATCHES variable _weight indicates which observations were selected
-list _* // show constructed variables
-
-* ASSESS MATCHES
 
 * PLOT PROPENSITY SCORE BEFORE
 twoway ///
