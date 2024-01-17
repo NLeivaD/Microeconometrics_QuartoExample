@@ -138,3 +138,82 @@ plt.show()
 ```
 
 ## Code Call Out 3.3 - Inverse Propensity Score Weighting 
+```{python}
+# Import Libraries and Load Data
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression, LogisticRegression
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from dowhy import CausalModel as DoWhyCausalModel
+from sklearn.neighbors import NearestNeighbors
+
+# Load the data
+data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
+
+# Define covariates and treatment variable
+covariates = ['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']
+treatment = 'treat'
+outcome = 're78'
+
+
+
+# DoWhy CausalModel for Propensity Score Methods
+dowhy_model = DoWhyCausalModel(
+    data=data,
+    treatment=treatment,
+    outcome=outcome,
+    common_causes=covariates
+)
+identified_estimand = dowhy_model.identify_effect(proceed_when_unidentifiable=True)
+ps_methods = ["matching", "weighting"]
+ate_dowhy = {}
+att_dowhy = {}
+for method in ps_methods:
+    estimate_ate = dowhy_model.estimate_effect(
+        identified_estimand,
+        method_name=f"backdoor.propensity_score_{method}",
+        target_units="ate"
+    )
+    estimate_att = dowhy_model.estimate_effect(
+        identified_estimand,
+        method_name=f"backdoor.propensity_score_{method}",
+        target_units="att"
+    )
+    ate_dowhy[method] = estimate_ate.value
+    att_dowhy[method] = estimate_att.value
+
+# Estimating Propensity Scores
+logit_model = LogisticRegression()
+X = data[covariates]
+y = data[treatment]
+logit_model.fit(X, y)
+data['pscore'] = logit_model.predict_proba(X)[:, 1]
+
+# Propensity Score Matching for ATT
+treated = data[data[treatment] == 1]
+control = data[data[treatment] == 0]
+nn = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(control[covariates])
+distances, indices = nn.kneighbors(treated[covariates])
+matched_control = control.iloc[indices.flatten()]
+matched_data = pd.concat([treated, matched_control])
+
+# Regression for ATT on Matched Data
+X_matched = sm.add_constant(matched_data[covariates + [treatment]])
+y_matched = matched_data[outcome]
+model_matched = sm.OLS(y_matched, X_matched).fit()
+att_matched = model_matched.params[treatment]
+# Linear Regression for ATE
+lm_ate = LinearRegression().fit(data[[treatment]], data[outcome])
+ate_regression = lm_ate.coef_[0]
+
+# Display Results
+print(f"ATE by Regression: {ate_regression}")
+print(f"ATT by Matching and Regression: {att_matched}")
+for method, estimate in ate_dowhy.items():
+    print(f"ATE by {method.capitalize()}: {estimate}")
+for method, estimate in att_dowhy.items():
+    print(f"ATT by {method.capitalize()}: {estimate}")
+
+
+```
