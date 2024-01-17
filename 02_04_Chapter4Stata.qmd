@@ -582,7 +582,7 @@ set more off
 *ssc install synth, replace
 
 * Load the dataset 'smoking.dta'
-insheet using "Datasets/Abadie_data.csv", comma	
+use "Datasets\smoking.dta"
 
 * Set the data as panel data with 'state' as the panel unit and 'year' as the time variable
 tsset state year
@@ -617,5 +617,6 @@ twoway (tsline _Y_treated _Y_synthetic, graphregion(color(white)) lcolor(blue re
 * 3. The "Predictor Balance" table shows how California and the synthetic control compare in terms of the predictor variables. The figures show that there is a good balance between the treated unit and the synthetic control on these variables.
 
 * The graph displays per capita cigarette sales in California and the synthetic control over time. The divergence between the two lines post-1989 represents the estimated effect of the policy.
+
 
 ```
