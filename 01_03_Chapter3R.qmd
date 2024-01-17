@@ -216,5 +216,5 @@ print(paste("ATE by Regression:", coef(reg_model_ate)["treat"]))
 
 
 
-```
+
 
