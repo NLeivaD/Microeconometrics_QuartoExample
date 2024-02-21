@@ -5,9 +5,32 @@ This site is currently under construction and incomplete.
 
 Notes for us -- Current to do list:
 
+DC
+
+1. ~~Revisar bootstrap~~
+2. Check de Chaisemartin & D'Haultfoueille in code
+3. Revisar sitio
+
+NLD
+
+1. MTE: Incoprorar en sitio como code call out (revisar diferencia entre paramtrico y no parametrico)
+2. Code call outs para cap 4?
+3. Preguntas para cap 4?
+
+MFC
+
+1. Incorporar detalles para preguntas, cap 2
+2. Pensar en ejemplo de paired randomization? (AEJ paper?)
+3. Empezar a incorporar detalles de causal forest a Python (algun experimento)?
+4. Empezar a incorporar detalles de DDML como code call out cap 9.
+
+
+
+Cosas anteriores/Todo/as:
+
 1.  Ordenarnos con el sitio \[All\]
 2.  Check de Chaisemartin & D'Haultfoueille in code \[DC\]
-3.  Empezar a revisar marginal treatment effects (partir con Carneiro, Heckman, and Vytlacil (2010); Cornelissen et al. (2016)) \[NLD\]
+3.  ~~Empezar a revisar marginal treatment effects (partir con Carneiro, Heckman, and Vytlacil (2010); Cornelissen et al. (2016)) \[NLD\]~~
 4.  Empezar a revisar modelos de ML con causalidad \[MFC\]
 5.  Goodman-Bacon a Stata GRAPH ONLY NOT URGENT \[NLD\]
 6.  Applied examples of papers to use as questions for end of chapter \[??? DC/MFC/NLD\]
