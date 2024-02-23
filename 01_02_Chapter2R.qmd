@@ -327,7 +327,8 @@ list(observed_effect = obs_effect, p_value = p_value)
 ```
 
 ## Code Call Out 2.3: Bootstrap
-For an introduction to the bootstrap, refer to Section 2.4.4 of the book.  Here we will examine a computational implementation of a bootstrap standard error and confidence intervals, using data from @Banerjeeetal2021 which we have worked with above. First we will consider the main regression in Code Call-Out 2.1 $$Y_i = \mu + \tau_{ATE}W_i + \varepsilon_i.$$  Here we will work with the data we have loaded previously as data, and the condition `el1==1` which is XXXXX, and examine the asset index (`asset_ind_tot_el1`) as our outcome measure $Y_i$.  We can load the data and examine the estimated treatment effect via regression below.
+
+For an introduction to the bootstrap, refer to Section 2.4.4 of the book. Here we will examine a computational implementation of a bootstrap standard error and confidence intervals, using data from @Banerjeeetal2021 which we have worked with above. First we will consider the main regression in Code Call-Out 2.1 $$Y_i = \mu + \tau_{ATE}W_i + \varepsilon_i.$$ Here we will work with the data we have loaded previously as data, and the condition `el1==1` which are those observations from the first endline survey, and examine the asset index (`asset_ind_tot_el1`) as our outcome measure $Y_i$. We can load the data and examine the estimated treatment effect via regression below.
 
 ```{r}
 data <- read.csv("Datasets/Banerjee_et_al_2021.csv")
@@ -336,7 +337,7 @@ fit <- lm(asset_ind_tot_el1 ~ treatment, data = data)
 summary(fit)
 ```
 
-From the summary we can note that $\widehat{\tau}_{ATE} = 0.408$ and its standard error equals 0.117.  This suggests a p-value of 0.0005, and 95% confidence intervals of [0.177;0.638].  In this case the standard errors are computed via the standard OLS variance estimator, assuming homoscedastic errors, although heteroscedasticity-robust standard errors can be requested quite simply using the coeftest function from the `lmtest` library.  This is loaded below, resulting in slight variations to the reported standard error (and correspondingly, p-value and resulting confidence intervals).
+From the summary we can note that $\widehat{\tau}_{ATE} = 0.408$ and its standard error equals 0.117. This suggests a p-value of 0.0005, and 95% confidence intervals of \[0.177;0.638\]. In this case the standard errors are computed via the standard OLS variance estimator, assuming homoscedastic errors, although heteroscedasticity-robust standard errors can be requested quite simply using the coeftest function from the `lmtest` library. This is loaded below, resulting in slight variations to the reported standard error (and correspondingly, p-value and resulting confidence intervals).
 
 ```{r}
 library(lmtest)
@@ -344,7 +345,7 @@ library(sandwich)
 coeftest(fit, vcov = vcovHC(fit, type = 'HC0'))
 ```
 
-An alternative to these closed-form methods for variance estimation is to use bootstrap resampling methods. There are multiple ways a bootstrap can be implemented, but the simplest here will be to simply conduct a paired bootstrap, which is also robust to heteroscedasticity.  The pairs bootstrap consists of, first, sampling with replacement the ordered pairs $\left\{(y_i,w_i)\right\}_{i=1}^{N} = \left\{(y_1,w_1),\ldots,(y_N,w_N)\right\}$ from original data, obtaining a "new" dataset of $N$ resampled pairs $\left\{(y_i^*,w_i^*)\right\}_{i=1}^{N} = \left\{(y_1^*,w_1^*),\ldots,(y_N^*,w_N^*)\right\}$.  The new dataset thus simply consists of (potentially repeated) randomly selected rows of the original data.  Let's see what this looks like with a single bootstrap replicate.  First, we will generate a vector of size $N$, drawn with replacement. We do this below, having a look at the first 10 rows of the vector.
+An alternative to these closed-form methods for variance estimation is to use bootstrap resampling methods. There are multiple ways a bootstrap can be implemented, but the simplest here will be to simply conduct a paired bootstrap, which is also robust to heteroscedasticity. The pairs bootstrap consists of, first, sampling with replacement the ordered pairs $\left\{(y_i,w_i)\right\}_{i=1}^{N} = \left\{(y_1,w_1),\ldots,(y_N,w_N)\right\}$ from original data, obtaining a "new" dataset of $N$ resampled pairs $\left\{(y_i^*,w_i^*)\right\}_{i=1}^{N} = \left\{(y_1^*,w_1^*),\ldots,(y_N^*,w_N^*)\right\}$. The new dataset thus simply consists of (potentially repeated) randomly selected rows of the original data. Let's see what this looks like with a single bootstrap replicate. First, we will generate a vector of size $N$, drawn with replacement. We do this below, having a look at the first 10 rows of the vector.
 
 ```{r}
 set.seed(121316)
@@ -352,7 +353,7 @@ rows <- sample(1:nrow(fit$model), replace = T)
 rows[1:10]
 ```
 
-We see then, that the first row of our resampled data will consist of observation 96, the second row of observation 127, and so forth.  Based on this vector, we can then build our new bootstrap resample, which will consist of the same number of observations as those in the original sample.  Below we generate the resample, and have a look at the first few lines, confirming that they do effectively come from the observations indicated in our resampling vector.
+We see then, that the first row of our resampled data will consist of observation 96, the second row of observation 127, and so forth. Based on this vector, we can then build our new bootstrap resample, which will consist of the same number of observations as those in the original sample. Below we generate the resample, and have a look at the first few lines, confirming that they do effectively come from the observations indicated in our resampling vector.
 
 ```{r}
 resampled <- data[rows,]
@@ -368,7 +369,7 @@ artificialModel <- lm(formula = asset_ind_tot_el1 ~ treatment,
 summary(artificialModel)
 ```
 
-With this sample, we have obtained an estimate of $\widehat{\tau}_{ATE}^* = 0.569$; a different value to the original value, in line with variation in the sample used for estimation.  If we want some idea of how much estimates vary as the sample changes (ie the sampling variation of our estimate), the next step simply consists of repeating this bootstrap process $B$ times, resulting in $B$ estimates of $\widehat{\tau}_{ATE,(b)}^*$ with $b\in\{1,\ldots,B\}$.  Let's set $B=1,000$, and do this:
+With this sample, we have obtained an estimate of $\widehat{\tau}_{ATE}^* = 0.569$; a different value to the original value, in line with variation in the sample used for estimation. If we want some idea of how much estimates vary as the sample changes (ie the sampling variation of our estimate), the next step simply consists of repeating this bootstrap process $B$ times, resulting in $B$ estimates of $\widehat{\tau}_{ATE,(b)}^*$ with $b\in\{1,\ldots,B\}$. Let's set $B=1,000$, and do this:
 
 ```{r}
 B <- 1000
@@ -382,7 +383,7 @@ for (i in 1:B) {
 }
 ```
 
-You may wish to step through each of the lines in this loop to ensure that you can see what is going on, but the end product of this code is a vector called `taus` which has been filled in with $B$ estimates of $\tau$, $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$.  We can have a look at the entire empirical distribution of these estimates as follows:
+You may wish to step through each of the lines in this loop to ensure that you can see what is going on, but the end product of this code is a vector called `taus` which has been filled in with $B$ estimates of $\tau$, $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$. We can have a look at the entire empirical distribution of these estimates as follows:
 
 ```{r}
 ggplot() + geom_density(aes(x = taus)) +
@@ -394,10 +395,7 @@ ggplot() + geom_density(aes(x = taus)) +
   geom_vline(xintercept = 0.407753, color = 'grey', linewidth=2)
 ```
 
-As we can see, this empirical distribution is close to centred on the original estimate (in the limit, they will be exactly the same, which is something you may wish to confirm by using a larger value for $B$), while also giving us some idea of the variation of the estimate over alternative resamples.  We additionally plot the empirical 2.5^th^ and 97.5^th^ quantiles of the distribution, which provides a 95% confidence interval for $\widehat\tau$.  Clearly, and in line with the regression results observed above, we can reject the null that $\tau=0$ with some certainty.
-Using these values $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$, finally we display the estimate's standard error as the standard deviation of the bootstrap estimates, and the confidence intervals can be generated from empirical quantiles.
-<!-- Similarly, if we wish to calculate a p-value, we can do so, asking how many values of the empirical distribution are more extreme than the estimate of interest.    -->
-We illustrate this below:
+As we can see, this empirical distribution is close to centred on the original estimate (in the limit, they will be exactly the same, which is something you may wish to confirm by using a larger value for $B$), while also giving us some idea of the variation of the estimate over alternative resamples. We additionally plot the empirical 2.5^th^ and 97.5^th^ quantiles of the distribution, which provides a 95% confidence interval for $\widehat\tau$. Clearly, and in line with the regression results observed above, we can reject the null that $\tau=0$ with some certainty. Using these values $\left\{\widehat{\tau}^{(b)}\right\}_{b=1}^{B}$, finally we display the estimate's standard error as the standard deviation of the bootstrap estimates, and the confidence intervals can be generated from empirical quantiles. <!-- Similarly, if we wish to calculate a p-value, we can do so, asking how many values of the empirical distribution are more extreme than the estimate of interest.    --> We illustrate this below:
 
 ```{r, echo=2:9}
 B<-1000
