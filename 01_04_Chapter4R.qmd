@@ -9,9 +9,13 @@ knitr::opts_chunk$set(message = F, warning = F)
 rm(list = ls())
 ```
 
-## Tools required for Chapter 4
+# Tools required for Chapter 4
 
-## Code Call Out 4.1
+# Code Call-outs
+
+## Code Call-out 4.1: Wild cluster bootstrap implementation
+
+## Code call-out 4.2: Exploring the Two-way Fixed Effect Model and Parameter Decompositions
 
 **Two-Way Fixed Effects Estimators and Heterogeneous Treatment Effects** To understand the potential issues related to heterogeneous treatment effects over time and two-way fixed effect estimators, we will examine a pair of numerical examples. In particular, we will focus on the composition of the two way FE estimator $\tau$ estimated from: $$
 y_{st} = \gamma_s + \lambda_t + \tau w_{st} + \varepsilon_{st}
@@ -560,7 +564,10 @@ print(paste0("de Chaisemartin and Xavier D'Haultfoeuille's decomposition ",
 
 Depending on the nature of treatment assignment, ie the number of treated periods, as well as the period in which treatment is adopted in different units, these weights will vary, and can even be negative.  You may wish to explore alternative set-ups and confirm to yourself that this is the case, and see that regardless of the nature of the setting, both @GoodmanBacon2018 and @deChaisemartinDhaultfoeuille2019's decompositions recover the two-way fixed effect estimate.
 
-## Synthetic Control Exercise
+## Code call-out 4.3: Event study and Interaction-weighted Estimators
+
+
+## Code call-out 4.4: Synthetic control, difference-in-differences, and synthetic difference-in-differences
 
 The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
 
