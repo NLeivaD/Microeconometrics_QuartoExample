@@ -88,6 +88,7 @@ t2 <- ggplot() + geom_text(aes(x = 0, y = 0, label = "(b) Decomposition with tre
 ggarrange(plotlist = list(p1, p2, t1, t2), ncol = 2, nrow = 2, heights = c(0.9, 0.1))
 ```
 
+
 ```{r echo=F}
 rm(p1, p2, t1, t2)
 ```
@@ -484,43 +485,81 @@ Now, we will show that the procedures described in @deChaisemartinDhaultfoeuille
 
 The authors define $\widehat{\beta}_{fe}$ as the coefficient estimated in the following (standard) two-way fixed effects regression: $$y_{i,s,t} = \beta_0 + \beta_{fe} D_{s,t} + \mu_s + \lambda_t + \varepsilon_{s,t}$$ Where $D_{s,t}$ is the mean over $i$ of a binary indicator variable that takes value of 1 if the unit $i$ in state $s$ is treated at period $t$ and 0 otherwise, in our case as we have one observartion per state $D_{s,t} = post_{s,t}$, meanwhile $\mu_s$ and $\lambda_t$ are state and time fixed effects. This is, of course, precisely the same model as we have estimated in @eq-twfe, implying that $\beta_{fe}=2.4545$ in cases without post-treatment trends (`y1`), or $\beta_{fe}=3.8045$ in cases with post-treatment dynamics (`y2`).
 
-**EDITING STILL FROM HERE BELOW**
-
-@deChaisemartinDhaultfoeuille2019 define the ATE for any ($s,t$) cell as: $$\Delta_{s,t} = \frac{1}{N_{s,t}} \sum_{i = 1}^{N_{s,t}}[Y_{i,s,t}(1) - Y_{i,s,t}(0)]$$ Next an example for the simple decomposition case. First is created the counterfactual
-
+@deChaisemartinDhaultfoeuille2019 define the ATE for any ($s,t$) cell as: $$\Delta_{s,t} = \frac{1}{N_{s,t}} \sum_{i = 1}^{N_{s,t}}[Y_{i,s,t}(1) - Y_{i,s,t}(0)].$$  You will note that here we require an unobserved counterfactual $Y_{i,s,t}(0)$.  If we impose a parallel trend assumption, such a counterfactual can be inferred from unit-specific fixed effects, time-specific fixed effects, and the constant term.  Because in this case we *know* our data generating process, we can simply generate this counterfactual as the data generating process, absent any effect of treatment.  Below we generate such a counterfactual, where you will note that we impose that this is an 'untreated' counterfactual by setting the treatment effects to 0 in the generation of `y1_c` below:
 ```{r}
 Data$y1_c <- 2 + (Data$year - 2000) * 0.2 + 1 * Data$unit + 0 * Data$post * Data$unit + 
   0 * Data$post * Data$unit * (Data$time)
 ```
 
-Next $\Delta_{s,t}$
+It is likely useful to confirm to ourselves that graphically we are indeed generating the untreated counterfactual in this way.
+
+```{r fig.width=10}
+p1 <- ggplot(data = subset(Data, unit==2), aes(x = year)) +
+      geom_line(aes(y = y1), color = "blue", size = 1.5) +
+      geom_line(aes(y = y1_c), color = "red", linetype = "dashed", size = 1.5) +
+      labs(x = "Year", y = "Y")
+t1 <- ggplot() + geom_text(aes(x = 0, y = 0, label = "(a) Unit 2 Outcome and Counterfactual")) +
+  theme_void()
+p2 <- ggplot(data = subset(Data, unit==3), aes(x = year)) +
+      geom_line(aes(y = y1), color = "blue", size = 1.5) +
+      geom_line(aes(y = y1_c), color = "red", linetype = "dashed", size = 1.5) +
+      labs(x = "Year", y = "Y")
+t2 <- ggplot() + geom_text(aes(x = 0, y = 0, label = "(b) Unit 3 Outcome and Counterfactual")) +
+  theme_void()
+ggarrange(plotlist = list(p1, p2, t1, t2), ncol = 2, nrow = 2, heights = c(0.9, 0.1))
+```
+
+**NL** Podemos hacer lo siguiente aquí por favor?
+
+- Agregar leyenda diciendo Y(1) para linea color azul, Y(0) para color rojo
+- Arreglar bien las etiquetas de años como arriba (2000, 2002, ..., 2008)
+
+This allows us to calculate a state- and time-period specific treatment effect ($\Delta_{s,t}$) for each treated unit.  We do so, calculating this quantity for all units in which treatment exists:
 
 ```{r}
 Data$Delta_st[Data$post == 1] = Data$y1[Data$post == 1] - Data$y1_c[Data$post == 1]
+print(Data[Data$post==1, c("y1", "y1_c", "unit", "year", "Delta_st")])
 ```
 
-One of the key results of @deChaisemartinDhaultfoeuille2019 is to show that under a series of standard assumptions $$\beta_{fe} = E \left[ \sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}w_{s,t}\Delta_{s,t} \right]$$ Where $N_1$ refers to the sum of all treated observations and $$w_{s,t} = \frac{\varepsilon_{s,t}}{\sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}\varepsilon_{s,t}}$$ Where $\varepsilon_{s,t}$ is the residual from a regression of $D_{s,t}$ on state and time fixed-effects.
+Unsurprisingly, given the data generating process we have defined, we see that each treatment effect is 2 for unit 2, and 3 for unit 3. If we were to calculate a mean treatment effect by hand, we may wish to simply take an average over all periods and units.  However, one of the key results of @deChaisemartinDhaultfoeuille2019 is to show that under a series of standard assumptions $$\beta_{fe} = E \left[ \sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}w_{s,t}\Delta_{s,t} \right]$$ Where $N_1$ refers to the sum of all treated observations and $$w_{s,t} = \frac{\varepsilon_{s,t}}{\sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}\varepsilon_{s,t}}$$ Where $\varepsilon_{s,t}$ is the residual from a regression of $D_{s,t}$ on state and time fixed-effects.  To confirm this in our data, we will estimate these regression residuals and add them into the dataframe:
 
 ```{r}
 auxreg <- lm(post ~ factor(unit) + factor(year), data = Data)
 Data$eps_st = auxreg$residuals
 Data$eps_st[Data$post != 1] = NA
 Data$w_st = Data$eps_st / sum(Data$eps_st, na.rm = T)
-print(paste0("Clément de Chaisemartin and Xavier D'Haultfoeuille's procudure ",
-             "gives an estimates of: ", 
+print(round(Data[Data$post==1, c("y1", "y1_c", "unit", "year", "Delta_st","w_st")],digits=15))
+```
+Note here that after generating $w_{s,t}$ we print this out using the round function to avoid very small digits appearing which are only different to zero given machine precision.  The key thing that we can see is that the effective weighting of treatment effects which occurs in regression is quite different to what we would expect.  Indeed, four periods are given 0 weights!  Finally, we can confirm that this decomposition gives us the two-way fixed effect estimate by multiplying $\Delta_{s,t}$ and $w_{s,t}$ and summing:
+
+
+```{r}
+print(paste0("de Chaisemartin and Xavier D'Haultfoeuille's decomposition ",
+             "returns an estimates of: ", 
              sum(Data$Delta_st*Data$w_st, na.rm = T)))
 ```
+We can see that correctly, this decomposition also returns the two-way fixed effect estimate of 2.4545.
 
-Next you can find the code for the decomposition with trends
+
+We can follow precisely the same series of steps to see the case of the decomposition where treatment exposition also results in a trend-break.  To see this, we conduct each of the above steps below, however here we have not produced similar graphs (though you may wish to do so to confirm that counterfactuals make sense):
 
 ```{r}
 Data$y2_c <- 2 + (Data$year - 2000) * 0.2 + 1 * Data$unit + 0 * Data$post * Data$unit + 
   0 * Data$post * Data$unit * (Data$time)
 Data$Delta_st2[Data$post == 1] = Data$y2[Data$post == 1] - Data$y2_c[Data$post == 1]
-print(paste0("Clément de Chaisemartin and Xavier D'Haultfoeuille's procudure ",
-             "gives an estimates of: ", 
+print(round(Data[Data$post==1, c("y2", "y2_c", "unit", "year", "Delta_st2","w_st")],digits=15))
+```
+
+Because there is no difference in the structure of the treatment indicator or the unit and time fixed effects, the residuals $w_{s,t}$ are identical, though of course the treatment effects themselves, $\Delta_{s,t}$ are not.  Thus, once again we see that later treatment effects for unit 3 (precisely those units for which treatment effects are largest), are given zero weights.  Finally, again we can calculate the two-way fixed effect estimate following this decomposition by summing across units, capturing the estimate we have previously observed in regression models of 3.804545.  
+
+```{r}
+print(paste0("de Chaisemartin and Xavier D'Haultfoeuille's decomposition ",
+             "returns an estimates of: ", 
              sum(Data$Delta_st2*Data$w_st, na.rm = T)))
 ```
+
+Depending on the nature of treatment assignment, ie the number of treated periods, as well as the period in which treatment is adopted in different units, these weights will vary, and can even be negative.  You may wish to explore alternative set-ups and confirm to yourself that this is the case, and see that regardless of the nature of the setting, both @GoodmanBacon2018 and @deChaisemartinDhaultfoeuille2019's decompositions recover the two-way fixed effect estimate.
+
 ## Synthetic Control Exercise
 
 The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
