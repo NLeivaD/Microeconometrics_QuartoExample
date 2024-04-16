@@ -1,0 +1,75 @@
+---
+title: "Chapter 9"
+bibliography: references.bib
+---
+
+## Code Call Out 9.1
+```{python}
+"""
+The data consist of 9,915 observations at the household level drawn from the 1991 Survey of Income and Program Participation (SIPP). 
+All the variables are referred to 1990. We use net financial assets (net_tfa) as the outcome variable. 
+The net financial assets are computed as the sum of IRA balances, 401(k) balances, 
+checking accounts, saving bonds, other interest-earning accounts, other interest-earning assets, stocks,
+and mutual funds less non mortgage debts.
+
+Among the 9,915 individuals, 3,682 are eligible to participate in the program. 
+The variable e401 indicates eligibility and p401 indicates participation, respectively.
+"""
+from doubleml import DoubleMLData
+from doubleml.datasets import fetch_401K
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
+colors = sns.color_palette()
+
+data = fetch_401K(return_type='DataFrame')
+
+dml_data = DoubleMLData(data, y_col='net_tfa', d_cols='e401',
+                        x_cols=['age', 'inc', 'educ', 'fsize', 'marr',
+                                'twoearn', 'db', 'pira', 'hown'])
+
+
+data['e401'].value_counts().plot(kind='bar', color=colors)
+plt.title('Eligibility, 401(k)')
+plt.xlabel('e401')
+_ = plt.ylabel('count')
+
+data['p401'].value_counts().plot(kind='bar', color=colors)
+plt.title('Participation, 401(k)')
+plt.xlabel('p401')
+_ = plt.ylabel('count')
+
+_ = sns.displot(data, x="net_tfa", hue="e401", col="e401",
+                kind="kde", fill=True)
+
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+ 
+ml_l_rf = RandomForestRegressor(n_estimators=500, max_depth=7,max_features=3,min_samples_leaf=3)
+ml_m_rf = RandomForestClassifier(n_estimators=500, max_depth=5,max_features=4,min_samples_leaf=7)
+
+import numpy as np
+from doubleml import DoubleMLPLR
+
+np.random.seed(42)
+# Paramatrized by user
+dml_plr_rf = DoubleMLPLR(dml_data,
+                         ml_l = ml_l_rf,
+                         ml_m = ml_m_rf,
+                         n_folds = 3,
+                         n_rep = 1,
+                         score = 'partialling out')
+
+# Estimation
+dml_plr_rf.fit()
+
+# Coefficient estimate
+dml_plr_rf.coef
+
+# Standard error
+dml_plr_rf.se
+
+# Summary 
+dml_plr_rf.summary
+
+print(dml_plr_rf)
+```
