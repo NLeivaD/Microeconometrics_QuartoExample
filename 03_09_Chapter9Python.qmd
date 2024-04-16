@@ -73,3 +73,104 @@ dml_plr_rf.summary
 
 print(dml_plr_rf)
 ```
+##Causal Forest
+```{python}
+import pandas as pd
+import numpy as np
+from econml.dml import CausalForestDML
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import matplotlib.pyplot as plt
+from statsmodels.iolib.table import SimpleTable
+from statsmodels.stats.diagnostic import het_breuschpagan
+from statsmodels.regression.linear_model import OLS
+import statsmodels.api as sm
+from statsmodels.stats.api import anova_lm
+
+# Cargar los datos
+path = "C:/Users/maria/Desktop/RA Microeconometría/Machine Learning/Causal Forest/Data 2/Data/"
+filename = "Oreopoulos2011skilled/Oreopoulos2011skilled.dta"  
+df = pd.read_stata(path + filename)
+
+
+# Ensure specified columns exist and have data
+assert 'callback' in df.columns, "'callback' is not found in the DataFrame"
+assert 'canadian_name' in df.columns, "'canadian_name' is not found in the DataFrame"
+for column in ['female', 'ba_quality', 'extracurricular_skills', 'language_skills', 'ma', 'same_exp', 'exp_highquality', 'reference', 'accreditation', 'legal']:
+    assert column in df.columns, f"'{column}' is not found in the DataFrame"
+
+Y = df['callback']
+D = df['canadian_name']
+X = df[['female', 'ba_quality', 'extracurricular_skills', 'language_skills', 'ma', 'same_exp', 'exp_highquality', 'reference', 'accreditation', 'legal']]
+
+# Updating cf to use GradientBoostingClassifier for the treatment model
+cf = CausalForestDML(
+    model_y=GradientBoostingRegressor(),
+    model_t=GradientBoostingClassifier(),  # Now using a classifier for the treatment
+    discrete_treatment=True,
+    random_state=123
+)
+
+# Fitting the model
+cf.fit(Y, D, X=X)
+tau_hat = cf.effect(X.values)
+tau_hat_se = cf.effect_interval(X.values)
+
+# Average Treatment Effect (ATE)
+ate = np.mean(tau_hat)
+print("ATE:", ate)
+
+# Histogram of treatment effects
+plt.hist(tau_hat, bins=30, color='lightblue', edgecolor='grey')
+plt.axvline(x=ate, color='red', linestyle='--', label='ATE')
+plt.xlabel('Treatment Effects')
+plt.ylabel('Count')
+plt.legend()
+plt.show()
+
+# Linear Regression to evaluate treatment effect heterogeneity
+model_ols = OLS(Y, sm.add_constant(X)).fit()
+print(model_ols.summary())
+
+# To add interaction terms and perform Breusch-Pagan test or similar, we are going to do it manually.
+# In this example, we are adding an interaction between 'canadian_name' and 'female'
+X_interaction = X.copy()
+X_interaction['canadian_name_female'] = X_interaction['female'] * df['canadian_name']
+model_ols_interaction = OLS(Y, sm.add_constant(X_interaction)).fit()
+print(model_ols_interaction.summary())
+
+# Breusch-Pagan test for heteroscedasticity
+bp_test = het_breuschpagan(model_ols.resid, model_ols.model.exog)
+print('Breusch-Pagan test:', bp_test)
+
+# First, let's investigate heterogeneity through subgroups.
+# Suppose we want to explore heterogeneity in the treatment effect, based on the level of education ('ba_quality' in this case).
+
+# We divide the dataset into subgroups based on 'ba_quality'.
+
+high_ba_quality = X['ba_quality'] == 1
+low_ba_quality = X['ba_quality'] == 0
+
+# Calculate treatment effects for each group
+effect_high_ba_quality = cf.effect(X[high_ba_quality].values)
+effect_low_ba_quality = cf.effect(X[low_ba_quality].values)
+
+# Compare average treatment effects
+ate_high_ba_quality = np.mean(effect_high_ba_quality)
+ate_low_ba_quality = np.mean(effect_low_ba_quality)
+
+print(f"ATE for high BA quality: {ate_high_ba_quality}")
+print(f"ATE for low BA quality: {ate_low_ba_quality}")
+
+# To visualize the distribution of treatment effects in both groups
+plt.hist(effect_high_ba_quality, bins=30, alpha=0.5, label='High BA Quality')
+plt.hist(effect_low_ba_quality, bins=30, alpha=0.5, label='Low BA Quality')
+plt.legend()
+plt.xlabel('Treatment Effect')
+plt.ylabel('Density')
+plt.title('Distribution of Treatment Effects by BA Quality')
+plt.show()
+
+```
