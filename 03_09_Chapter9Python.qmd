@@ -90,8 +90,8 @@ import statsmodels.api as sm
 from statsmodels.stats.api import anova_lm
 
 # Cargar los datos
-path = "C:/Users/maria/Desktop/RA Microeconometría/Machine Learning/Causal Forest/Data 2/Data/"
-filename = "Oreopoulos2011skilled/Oreopoulos2011skilled.dta"  
+path = "./Datasets/"
+filename = "Oreopoulos2011skilled.dta"  
 df = pd.read_stata(path + filename)
 
 
@@ -128,6 +128,23 @@ plt.axvline(x=ate, color='red', linestyle='--', label='ATE')
 plt.xlabel('Treatment Effects')
 plt.ylabel('Count')
 plt.legend()
+plt.show()
+
+#Ordered effects along with 95% CI
+effects = cf.effect(X.values).flatten()
+CIs     = cf.effect_interval(X.values)[1]-effects
+indices = np.argsort(effects)
+effects_sorted = effects[indices]
+ci_sorted = CIs[indices]
+
+color_palette = ['#3380FF', '#FFC300']
+plt.figure(figsize=(8, 5))
+plt.errorbar(np.arange(len(effects)), effects_sorted, yerr=ci_sorted,
+             fmt='o', markersize=5, capsize=3,elinewidth=0.01, capthick=0.01)
+plt.xlabel('Data Point Index (Ordered by Effect Size)', fontsize=12)
+plt.ylabel(r'$\Delta$ Callback Rate', fontsize=12)
+plt.xticks(fontsize=10)
+plt.yticks(fontsize=10)
 plt.show()
 
 # Linear Regression to evaluate treatment effect heterogeneity
