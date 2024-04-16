@@ -391,7 +391,7 @@ For an introduction to the bootstrap, refer to Section 2.4.4 of the book. Here w
 import pandas as pd
 import statsmodels.api as sm
 ### Import data
-data = pd.read_csv("Datasets\\Banerjee_et_al_2021.csv")
+data = pd.read_csv("Datasets/Banerjee_et_al_2021.csv")
 ### Filter data
 data = data[data["el1"] == 1]
 data = data.dropna(subset=["treatment", "asset_ind_tot_el1"])
