@@ -8,7 +8,7 @@ Notes for us -- Current to do list:
 DC
 
 1. ~~Revisar bootstrap~~
-2. Check de Chaisemartin & D'Haultfoueille in code
+2. ~~Check de Chaisemartin & D'Haultfoueille in code~~
 3. Revisar sitio
 
 NLD
@@ -29,7 +29,7 @@ MFC
 Cosas anteriores/Todo/as:
 
 1.  Ordenarnos con el sitio \[All\]
-2.  Check de Chaisemartin & D'Haultfoueille in code \[DC\]
+2.  ~~Check de Chaisemartin & D'Haultfoueille in code \[DC\]~~
 3.  ~~Empezar a revisar marginal treatment effects (partir con Carneiro, Heckman, and Vytlacil (2010); Cornelissen et al. (2016)) \[NLD\]~~
 4.  Empezar a revisar modelos de ML con causalidad \[MFC\]
 5.  Goodman-Bacon a Stata GRAPH ONLY NOT URGENT \[NLD\]
