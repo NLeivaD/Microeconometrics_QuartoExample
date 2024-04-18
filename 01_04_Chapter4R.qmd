@@ -501,22 +501,23 @@ It is likely useful to confirm to ourselves that graphically we are indeed gener
 p1 <- ggplot(data = subset(Data, unit==2), aes(x = year)) +
       geom_line(aes(y = y1), color = "blue", size = 1.5) +
       geom_line(aes(y = y1_c), color = "red", linetype = "dashed", size = 1.5) +
-      labs(x = "Year", y = "Y")
+      labs(x = "Year", y = "Y") + 
+  scale_x_continuous(breaks = seq(from = 2000, to = 2009, by = 2)) +
+  annotate(geom = "text", x = 2008, y = 5, label = "Y(0)") +
+  annotate(geom = "text", x = 2008, y = 7, label = "Y(1)")
 t1 <- ggplot() + geom_text(aes(x = 0, y = 0, label = "(a) Unit 2 Outcome and Counterfactual")) +
   theme_void()
 p2 <- ggplot(data = subset(Data, unit==3), aes(x = year)) +
       geom_line(aes(y = y1), color = "blue", size = 1.5) +
       geom_line(aes(y = y1_c), color = "red", linetype = "dashed", size = 1.5) +
-      labs(x = "Year", y = "Y")
+      labs(x = "Year", y = "Y") +
+  scale_x_continuous(breaks = seq(from = 2000, to = 2009, by = 2)) +
+  annotate(geom = "text", x = 2008, y = 9, label = "Y(1)") +
+  annotate(geom = "text", x = 2008, y = 6, label = "Y(0)")
 t2 <- ggplot() + geom_text(aes(x = 0, y = 0, label = "(b) Unit 3 Outcome and Counterfactual")) +
   theme_void()
 ggarrange(plotlist = list(p1, p2, t1, t2), ncol = 2, nrow = 2, heights = c(0.9, 0.1))
 ```
-
-**NL** Podemos hacer lo siguiente aquí por favor?
-
-- Agregar leyenda diciendo Y(1) para linea color azul, Y(0) para color rojo
-- Arreglar bien las etiquetas de años como arriba (2000, 2002, ..., 2008)
 
 This allows us to calculate a state- and time-period specific treatment effect ($\Delta_{s,t}$) for each treated unit.  We do so, calculating this quantity for all units in which treatment exists:
 
