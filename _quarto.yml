@@ -31,6 +31,7 @@ book:
         - 03_02_Chapter2Python.qmd
         - 03_03_Chapter3Python.qmd
         - 03_04_Chapter4Python.qmd
+        - 03_09_Chapter9Python.qmd
     - 06_references.qmd
     
 bibliography: refs.bib
