@@ -7,9 +7,10 @@ Notes for us -- Current to do list:
 
 DC
 
-1. ~~Revisar bootstrap~~
-2. ~~Check de Chaisemartin & D'Haultfoueille in code~~
-3. Revisar sitio
+1. Revisar DDML (MFC punto 4)
+2. Revisar sitio
+3. Ver si sale algun ejemplo de error estandar clusterizado (experimental).   Tal vez buscar project STAR
+4. Revisar consistencia de los archivos de capítulo 3
 
 NLD
 
@@ -19,11 +20,11 @@ NLD
 
 MFC
 
-1. Incorporar detalles para preguntas, cap 2
-2. Pensar en ejemplo de paired randomization? (AEJ paper?)
-3. Empezar a incorporar detalles de causal forest a Python (algun experimento)?
-4. Empezar a incorporar detalles de DDML como code call out cap 9.
-
+1. ~~Incorporar detalles para preguntas, cap 2~~
+2. ~~Pensar en ejemplo de paired randomization? (AEJ paper?)~~
+3. ~~Empezar a incorporar detalles de causal forest a Python (algun experimento)?~~
+4. ~~Empezar a incorporar detalles de DDML como code call out cap 9.~~
+5. IV/LATE con Finkelstein
 
 
 Cosas anteriores/Todo/as:

@@ -582,7 +582,7 @@ set more off
 *ssc install synth, replace
 
 * Load the dataset 'smoking.dta'
-use "Datasets\smoking.dta"
+use "Datasets/smoking.dta"
 
 * Set the data as panel data with 'state' as the panel unit and 'year' as the time variable
 tsset state year
@@ -594,8 +594,8 @@ tsset state year
 * - Treated unit: California (state==3)
 * - Treatment period: 1989
 * - Periods used to construct the synthetic control: 1980-1988
-qui synth cigsale beer lnincome retprice age15to24 cigsale(1988) cigsale(1980) cigsale(1975), ///
-      trunit(3) trperiod(1989) xperiod(1980(1)1988) nested fig keep(results) replace
+synth cigsale beer lnincome retprice age15to24 cigsale(1988) cigsale(1980) cigsale(1975), ///
+      trunit(3) trperiod(1989) xperiod(1980(1)1988) fig keep(results) replace
 	  
 use results.dta, clear
 tsset _time
