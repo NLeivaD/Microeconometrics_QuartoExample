@@ -63,9 +63,8 @@ library(Statamarkdown)
 
 ```{stata}
 clear all
-cd "C:/Users/maria/Desktop/RA Microeconometría/PSM/Data"
 
-use Birth_Weight.dta, replace
+use "Datasets/Birth_Weight.dta", replace
 
 
 
@@ -114,7 +113,7 @@ library(Statamarkdown)
 clear all 
 set more off
 
-use "C:/Users/maria/Desktop/Proyecto/Dehejia_Wahba_1999.dta", clear
+use ""Datasets/Dehejia_Wahba_1999.dta", clear
 
 * ATT by Regression
 teffects ra (re78 age education black hispanic married nodegree re74 re75) (treat), atet
