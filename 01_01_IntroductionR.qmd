@@ -181,73 +181,6 @@ A second, potentially more surprising behaviour is the "recycling" of values if 
 matrix(c(1,2,3,4,5), nrow = 2)
 matrix(c(1,2,3,4,5,NA), nrow = 2)
 ```
-### Loops
-Looping constructs in programming languages provide a mechanism to execute a set of instructions multiple times, contingent upon certain conditions. R, a language and environment for statistical computing and graphics, offers several looping constructs. Among these, the **`for`** and **`while`** loops are paramount.
-
-### **1. The `for` Loop**
-
-In R, the **`for`** loop is commonly used to iterate over vectors, lists, or other iterable objects.
-
-**1.1. Iteration Over Data Structures**
-
-Consider a dataset of student grades:
-```{r}
-grades <- list(Alice = 85, Bob = 90, Charlie = 78, Diana = 92)
-for (student in names(grades)) {
-    cat(student, "received a grade of", grades[[student]], ".\n")
-}
-```
-**1.2. The `seq()` Function**
-
-For tasks requiring iteration over a series of numbers, R's **`seq()`** function is invaluable:
-```{r}
-for (i in seq(3, 8)) {
-    cat("Processing data point", i, ".\n")
-}
-
-```
-### **2. The `while` Loop**
-
-The **`while`** loop in R executes statements as long as a particular condition remains true.
-
-Consider a scenario where we're approximating the square root of a number using the Babylonian method:
-```{r}
-number <- 49
-guess <- number / 2  # Initial guess
-difference <- 1
-tolerance <- 0.01
-
-while (difference > tolerance) {
-    new_guess <- 0.5 * (guess + number / guess)
-    difference <- abs(new_guess - guess)
-    guess <- new_guess
-}
-
-cat("Approximated square root:", round(guess, 2), "\n")
-```
-### **3. Loop Control Mechanisms**
-
-R introduces several control statements to influence loop execution:
-
-- **break**: Exits the loop prematurely, proceeding to the next statement.
-- **next**: Skips the current iteration, moving to the next one.
-
-**3.1. Utilizing `break` in Prime Number Detection**
-```{r}
-number <- 29
-is_prime <- TRUE
-
-for (i in 2:sqrt(number)) {
-    if (number %% i == 0) {
-        is_prime <- FALSE
-        break
-    }
-}
-
-cat("Is", number, "a prime number?", is_prime, "\n")
-
-```
-For closure, loops are indispensable in R, facilitating repetitive tasks and complex computations. Mastery of these constructs is essential for academic research, statistical analysis, and data visualization.
 
 ### Data frames
 Likely the type of object which we will be working with the most in our analysis in `R` are data frames.  Data frames allow us to mix mutliple other types of data, viewing the collection of variables and observations as a database with multiple rows and columns.  Within data frames, we can easily subset to certain rows (observations), columns (variables), and conduct univariate and multivariate analysis.  It will likely be the starting point for much of your work when you import a standard dataset into `R`. As an example we create a data frame named `df` that will use later in other examples:
@@ -381,6 +314,7 @@ TRUE & FALSE
 ```
 This boolean values are interpreted by `R` as the numbers 0 for `F` and 1 for `T`, characteristic that allows you work with them numerically and is useful when you want to check a series of conditions.
 
+
 ## Functions
 Beyond these logical and mathematical operators, `R` comes with a large suite of built in functions which perform specific tasks, as well as a large number of user-contributed functions (discussed below) which can extend the basic functionality.  A basic installation of `R` comes with a range of packages.  The functions included in `R`'s base package can be consulted by typing the following at your `R` console:
 ```{r}
@@ -448,6 +382,99 @@ In this case, we see it produces a vector which takes, for each observation, the
 stats::lag(df$A)
 ```
 Here, the same function produces a different result: namely for each observation it takes the mathematical value one below it.  In many cases such clashes in function names will not occur, but we note the importance of this so that you can be cautious to always load the packages you need, and if in some strange case you do *actually* need two functions with the same name in different packages, that you have the knowledge that you can "unmask" functions by pre-empting the function name with the package name.
+
+
+## Loops and control-flow statements
+Loops and control-flow statements allow us to control our code in a more precise way, and iterate through repetitive tasks. Looping constructs which are present in the majority of programming languages provide a mechanism to execute a set of instructions multiple times, contingent upon certain conditions. In `R`, there are a number of ways which loops can be set up.
+
+### The `for` Loop
+
+In `R`, the `for` loop is commonly used to iterate over vectors, lists, or other objects which contain multiple elements which we can iterate over.  the generic set-up of for loops is something akin to:
+```{bash eval=F}
+for(i in elements) {
+  do something to i
+}
+```
+Here `elements` is a list of items, and we use `i` (without loss of generality) to refer to a particular element.  Within the brackets `{ }` we indicate the potentially multiple lines of code we wish to run which interact with each `i`.  Some real examples are provided below.
+
+#### Iteration Over Data Structures
+If we have data structures such as a list, we may wish to iterate over one element, and access another.  For example, consider a ficticious dataset of student grades:
+```{r}
+grades <- list(Alice = 85, Bob = 90, Charlie = 78, Diana = 92)
+for (student in names(grades)) {
+    cat(student, "received a grade of", grades[[student]], ".\n")
+}
+```
+Here, we have simply iterated over each name in grades, and accessed the record within the loop. We could have also done this in a position-based way, and for this, sequences of numbers may be useful, as below.  
+
+#### The `seq()` Function
+
+For tasks requiring iteration over a series of numbers, R's **`seq()`** function is invaluable:
+```{r}
+for (i in seq(3, 8)) {
+    cat("Processing data point:", i, "\n")
+}
+```
+In the above we have simply generated a sequence from 3 to 8, though depending on our particular needs, we could generate any other type of sequence, and subsequently interact with elements of the sequence within our loop.
+
+### The `while` Loop
+An alternative type of loop is the `while` loop, which keeps executing statements so long as a particular condition remains true.  Consider a scenario where we're approximating the square root of a number using the [Babylonian method](https://en.wikipedia.org/wiki/Methods_of_computing_square_roots).  In this case, we can iterate onto a square root for some number $p$ by taking an initial guess $x$, and taking steps so that $x_{new} = \frac{1}{2}(x+\frac{p}{x})$.  When $x$ and $x_{new}$ converge, we have found our solution.  We can do this with a `while` loop, asking our code to keep iterating so long as the difference between $x_{new}$ and $x$ is not very small:
+```{r}
+number <- 81
+guess <- number / 2  # Initial guess
+difference <- 1
+tolerance <- 0.01
+
+while (difference > tolerance) {
+    new_guess <- 0.5 * (guess + number / guess)
+    difference <- abs(new_guess - guess)
+    guess <- new_guess
+}
+
+cat("Approximated square root:", round(guess, 2), "\n")
+```
+### Control Flow Mechanisms
+
+There are a number of additional ways which we will encounter to control the flow of our code.  A simple example is the `if`, else if`, and `else` statements.  These can be used independently, for example simply conducting a process if some condition is met:
+
+```{r}
+condition <- TRUE
+if (condition) {
+   print("the condition is true")
+}
+```
+where here, the fact that `condition` is true means that the statement in the `if` function will be evaluated.  You can confirm to yourself that if `condition` is set to FALSE, the statment will not be evaluated.  This can be extended in a number of ways.  A first is by using other types of conditions apart from `TRUE` and `FALSE`.  A second is that we multiple conditions can be strung together to be evaluated in turn using `if`, `else if` and `else`.  In case such as thus, a single `if` and `else` must be used, but as many `else if`s as desired can be incorporated.  When evaluating an `if`, `else` string, the conditions will only be evaluated up to the point that a condition is met, and then the respective code will be run.  To see a simple example of such a case, refer to the below which has three conditions:
+```{r}
+x <- 10
+if (x > 15) {
+   print("x is greater than 15")
+} else if (x > 5) {
+   print("x is greater than 5 but less than or equal to 15")
+} else {
+   print("x is less than or equal to 5")
+}
+```
+
+Finally, note that there are also control statements which can be used *within* loop execution.  This includes elements such as `break` which causes a loop to be existed prematurely, skipping to the next element of a code, and `next` which skips the current iteration of a loop, moving to the next one.
+
+To see an example of `break` in action, let's consider the following simple code, which determines whether a number is a prime.  First, we will define a particular number (in this case 29), and then iterate through all candidates with which the number may be divisible.  If we find the number is perfectly divisible by any of these candidates, we can thus confirm that the number is not a prime, and we do not need to keep iterating, in which case we use `break` to break out of our loop.  Otherwise, the loop will keep iterating until the end, and we will conclude that the number considered is indeed a prime.
+```{r}
+number <- 29
+is_prime <- TRUE
+
+for (i in 2:sqrt(number)) {
+    if (number %% i == 0) {
+        is_prime <- FALSE
+        break
+    }
+}
+
+cat("Is", number, "a prime number?", is_prime, "\n")
+
+```
+We will encounter loops and control flow throughout the codes we examine in the rest of this book, given that they can help us facilitate repetitive tasks, and break down complex computations.
+
+
 
 # Working with Data
 ## Loading and viewing data
