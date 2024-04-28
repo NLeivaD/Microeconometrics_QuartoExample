@@ -5,108 +5,19 @@ bibliography: refs.bib
 
 # Tools Required for Chapter 2
 
-We will begin by examining a number of details which will be required during the exercises encountered in this chapter. This includes regression, simulation with pseudo random numbers, and some basic graphing procedures.
-
-## **Introduction to Functions in Python**
-
-Functions in Python are key to efficient and organized programming. They allow you to encapsulate specific tasks into reusable blocks of code, enhancing modularity and readability. Functions are fundamental in Python, whether for simple operations or complex data analysis tasks.
-
-## **Basics of Function Writing**
-
-### **Creating a Simple Function**
-
-In Python, functions are defined using the **`def`** keyword. A basic function typically includes a name, arguments, and a return statement. Here's an example of a simple function that adds two numbers:
-
-```{python}
-
-def add_numbers(a, b):
-    return a + b
-
-result = add_numbers(5, 3)
-print(result)  # Outputs 8
-
-```
-
-This function, **`add_numbers`**, takes two arguments, **`a`** and **`b`**, adds them together, and returns the sum.
-
-### **Understanding Function Arguments**
-
-Function arguments are the values passed to the function when it is called. They can be mandatory or optional. Optional arguments have default values, allowing the function to be called with fewer arguments:
-
-```{python}
-
-def multiply_numbers(a, b=2):
-    return a * b
-
-multiply_numbers(10)
-```
-
-In this function, **`multiply_numbers`**, **`b`** is an optional argument with a default value of 2.
-
-## **Advanced Functions with Arguments**
-
-Using functions with arguments is extremely useful in Python, particularly for tasks like data manipulation and analysis.
-
-### **Example: Linear Regression Analysis Function**
-
-For a more complex example, we can create a function to perform linear regression analysis using Python's **`statsmodels`** library:
-
-```{python}
-
-import statsmodels.api as sm
-
-def perform_linear_regression(X, y):
-    X = sm.add_constant(X)  # Adding a constant
-    model = sm.OLS(y, X).fit()
-    return model.summary()
-
-```
-
-This function, **`perform_linear_regression`**, takes two arguments: **`X`** (independent variables) and **`y`** (dependent variable), performs the regression analysis, and returns the summary of the model.
-
-### **Simulating Data for Demonstration**
-
-To demonstrate the linear regression function, we first create some simulated data:
-
-```{python}
-
-import numpy as np
-import pandas as pd
-
-np.random.seed(123)
-data = pd.DataFrame({
-    'marketing_spend': np.random.uniform(1, 1000, 100),
-    'sales': np.random.normal(500, 50, 100)
-})
-
-```
-
-### **Using the Linear Regression Function**
-
-We then apply the linear regression function to our simulated data:
-
-```{python}
-
-X = data['marketing_spend']
-y = data['sales']
-
-# Perform Linear Regression
-regression_results = perform_linear_regression(X, y)
-
-# Print Regression Results
-print(regression_results)
-
-```
+We will begin by examining a number of details which will be required during the exercises encountered in this chapter or in the code call outs (as well as the rest of this book). First, we provide a very brief introduction to simulation with pseudo random numbers and regression, and then we discuss the use of functions which we write ourselves with Python.
 
 ## Simulation and Regression
+To start with, let's have a look at some simple simulations, like those referred to in the end of chapter questions.  Let's begin by considering the data generating process (DGP) which we wish to simulate:
 
-To start, we will simulate some data based on the following data generating process:
+$y_i = \beta_0 + \beta_1 x_i + \varepsilon_i.$
 
-$y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$
+Having a DGP defined, all we need to do is define how any variables area distributed, as well as any necessary scalar values.  In this case, let's set $\beta_0=1$ and $\beta_1=2$.  And let's define both $x_i$ and $\varepsilon_i$ as being distributed $\mathcal{N}(0,1)$.  We will simulate these separately implying that they are independent, though we could simulate them as coming from a bivariate normal if we wanted to generate correlations between the variables.  Our interest in the below demonstration will be to conduct a simulation, and then implement a regression model to estimate $\widehat\beta_1$ by OLS. In the book, you will be asked to consider examples which are more appropriate for the treatment effects framework which we are considering.
 
-where $\beta_0=1$, $\beta_1=2$, and both $x_i$ and $\varepsilon_i$ are distributed $\mathcal{N}(0,1)$. Having conducted this simulation, we will estimate a regression model to estimate $\widehat\beta_1$. In the book, you will be asked to consider examples which are more appropriate for the treatment effects framework which we are considering.
+Let's begin by loading the packages we need.  We will use `sklearn.linear_model` to estimate regression (though we could use other packages such as `statsmodels` and the `OLS` function). Once we have loaded the packages we need, we can then simulate our data.  Note that we have set the seed with `np.random.seed()` which ensures that we can replicate the exact same simulation when running this code in the future (or if you run the code with the same seed on your machine).
 
 ```{python}
+#| warning: false
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -135,6 +46,8 @@ beta0hat = model.intercept_[0]
 print(f"beta 1 (Coefficient): {beta1hat}")
 print(f"Intercept: {beta0hat}")
 ```
+In the above after simulating $N=1,000$ observations from the DGP of interest, we have estimated a regression, and we see that both $\widehat\beta_0$ and $\widehat\beta_1$ are close to the values implied by the DGP.  They only differ due to sampling variation in our simulated data.  Below we can present the output of this linear model graphically, which gives us slightly more practice working with Python's plotting tools.  Note that we are using `matplotlib` as a base to set up a graph frame, and then using `seaborn` to super-impose plots and provide some slightly fancier output options.  Though we could of course do this all within `matplotlib` if we prefer.
+
 
 ```{python}
 #| label: fig-regscatter
@@ -159,7 +72,7 @@ plt.grid(True)
 plt.show()
 ```
 
-Finally, we will do this 500 times, to see what the distribution of estimated paramters $\widehat\beta_1$ looks like:
+Once we have simulated a single realisation of this DGP, we can now consider many realisations, examining the distribution of the estimator across realisations.  Below we do this 500 times in a `for` loop.  Because we do not need to refer to anything specific within each loop -- we simply wish to repeat the process 500 times, we iterate using `_`, which is never referred to within the loop.  Below we store our estimated $\widehat\beta_1$ in each of the iterations in our loop, before finally plotting these in a histogram, where we see the variation that we would expect given our DBP:
 
 ```{python}
 #| label: fig-reghist
@@ -199,6 +112,107 @@ plt.grid(True)
 plt.show()
 ```
 
+
+## Introduction to Functions in Python
+Before moving on to the code call outs introduced in Chapter 2, we will introduce the idea of functions which we can write ourself to conduct specific stand-alone tasks in an organised wey. Functions in Python are key to efficient and organized programming. They allow you to encapsulate specific tasks into reusable blocks of code, enhancing modularity and readability. Functions are fundamental in Python, whether for simple operations or complex data analysis tasks.
+
+### Creating a Simple Function
+In Python, functions are defined using the `def` keyword. A basic function typically includes a name, arguments, and a return statement.  Names must begin with a letter or underscore, and should be followed by letters, underscore or number, and are case-sensitive.  Here's an example of a simple function that adds two numbers:
+
+```{python}
+
+def add_values(a, b):
+    return a + b 
+
+result = add_values(12, 3)
+print(result) 
+```
+
+This function, `add_values`, takes two arguments, `a` and `b`, adds them together, and returns the sum.  Functions need not have arguments.  If no arguments are required, a function can be simply defined as `function_name()`.  Similarly, functions need not return a result.  If a function is issued with a `return` statement, the function will simply execute the lines with any arguments provided, and return nothing.
+
+### Understanding Function Arguments
+Function arguments are the values passed to the function when it is called. They can be mandatory or optional. Optional arguments have default values, allowing the function to be called with fewer arguments.  For example, below we define a function with an optional second argument.  We will call it once with only one argument, in which case the second argument will revert to default.  We will then call it a second time with two arguments, and in these cases, the default behaviour will be over-ridden:
+
+```{python}
+def multiply_values(a, b=2):
+    return a * b
+
+print(multiply_values(10))
+print(multiply_values(10,3))
+```
+
+### Documenting our Functions
+Finally note that we can document our function using what are known as *docstrings*.  Docstrings are strings enclosed in triple quotes that appear as the first statement in a function body. They provide documentation about the purpose and usage of the function.  We can then consult these docstrings using Python's `help` function.  For example, see below the edit we have made to the above `multiply_values` function, which now makes it much easier to quickly remember what the function does when we use `help` below:
+
+```{python}
+def multiply_values(a, b=2):
+    """
+    This function multiplies two values which are provided as arguments.
+    The function returns the product of the two arguments provided.
+    Two or optionally one argument can be provided.  If only one argument is
+    provided, the second argument defaults to two.
+    """
+    return a * b
+
+help(multiply_values)
+```
+
+<!--#
+### Advanced Functions with Arguments
+
+Using functions with arguments is extremely useful in Python, particularly for tasks like data manipulation and analysis.  Below we consider a slightly more elaborate function 
+
+### Example: Linear Regression Analysis Function
+
+For a more complex example, we can create a function to perform linear regression analysis using Python's **`statsmodels`** library:
+
+```{python}
+
+import statsmodels.api as sm
+
+def perform_linear_regression(X, y):
+    X = sm.add_constant(X)  # Adding a constant
+    model = sm.OLS(y, X).fit()
+    return model.summary()
+
+```
+
+This function, **`perform_linear_regression`**, takes two arguments: **`X`** (independent variables) and **`y`** (dependent variable), performs the regression analysis, and returns the summary of the model.
+
+#### Simulating Data for Demonstration
+
+To demonstrate the linear regression function, we first create some simulated data:
+
+```{python}
+
+import numpy as np
+import pandas as pd
+
+np.random.seed(123)
+data = pd.DataFrame({
+    'marketing_spend': np.random.uniform(1, 1000, 100),
+    'sales': np.random.normal(500, 50, 100)
+})
+
+```
+
+#### Using the Linear Regression Function
+
+We then apply the linear regression function to our simulated data:
+
+```{python}
+
+X = data['marketing_spend']
+y = data['sales']
+
+# Perform Linear Regression
+regression_results = perform_linear_regression(X, y)
+
+# Print Regression Results
+print(regression_results)
+
+```
+-->
 # Code Call Outs
 
 ## Call Out 2.1: Regression versus comparison of means
