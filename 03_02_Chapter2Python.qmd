@@ -216,10 +216,37 @@ print(regression_results)
 # Code Call Outs
 
 ## Call Out 2.1: Regression versus comparison of means
-
-To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by Banerjee et al. (2021).
+To understand the equivalence between regression analysis and the comparison of means in a binary regression set-up, we refer to Section 2.1 of the online coding resource. In this section, we work with data from a randomized control trial that examines asset transfers to poor households in India, as discussed in the paper by @Banerjeeetal2021.  We will begin by calculating the two elements of the linear regression by hand.  This is the constant term: $E[Y_i|Treat_i=0]$, and the treatment effect: $E[Y_i|Treat_i=1]-E[Y_i|Treat_i=0]$.
 
 ```{python}
+import pandas as pd
+
+# Load the household data
+data = pd.read_csv("Datasets/Banerjee_et_al_2021.csv")
+
+# Assign the loaded data to subset_data
+subset_data = data
+
+# Check for missing values
+print("Missing values in 'asset_ind_tot_el1':", subset_data['asset_ind_tot_el1'].isna().sum())
+print("Missing values in 'treatment':", subset_data['treatment'].isna().sum())
+
+# Remove rows with missing values
+subset_data = subset_data.dropna(subset=['asset_ind_tot_el1', 'treatment'])
+
+mean_treatment = subset_data.loc[(subset_data['treatment'] == 1), 'asset_ind_tot_el1'].mean()
+mean_control   = subset_data.loc[(subset_data['treatment'] == 0), 'asset_ind_tot_el1'].mean()
+diff_means = mean_treatment - mean_control
+
+# Display means and regression parameters
+print("Control Mean:", mean_control, " Treatment Mean:", mean_treatment)
+print(f"Difference in means (Treatment - Control): {diff_means}")
+```
+
+Now, let's confirm that mechanically the bivariate regression returns to us the same parameters.  Below we conduct this regression using the `statsmodels` library's `OLS` function.  As expected, we confirm that the constant term equals -0.1961 as calculated above, and the treatment effect is equivalent to the difference of means value of 0.4078.
+
+
+```{python, echo=13:18}
 import pandas as pd
 import statsmodels.api as sm
 
@@ -230,42 +257,22 @@ data = pd.read_csv("Datasets/Banerjee_et_al_2021.csv")
 subset_data = data
 
 # Remove rows with missing values
-subset_data = subset_data.dropna(subset=['ind_fin_el1', 'treatment'])
+subset_data = subset_data.dropna(subset=['asset_ind_tot_el1', 'treatment'])
 
-# Check for missing values
-print("Missing values in 'ind_fin_el1':", subset_data['ind_fin_el1'].isna().sum())
-print("Missing values in 'treatment':", subset_data['treatment'].isna().sum())
-
-# Re-run the regression
+# Run the regression
 X = subset_data['treatment']
-y = subset_data['ind_fin_el1']
+y = subset_data['asset_ind_tot_el1']
 X = sm.add_constant(X)
 model = sm.OLS(y, X).fit()
-print(model.summary())  # Note down the coefficient for the treatment variable
-
-# Store the coefficient for the treatment variable
-coef_treatment = model.params['treatment']
-
-# Display the regression coefficient
-print(f"Coefficient for treatment in regression: {coef_treatment}")
-
-# Calculate the means and difference in means
-mean_treatment = subset_data.loc[(subset_data['treatment'] == 1), 'ind_fin_el1'].mean()
-mean_control = subset_data.loc[(subset_data['treatment'] == 0), 'ind_fin_el1'].mean()
-diff_means = mean_treatment - mean_control
-print(f"Difference in means (Treatment - Control): {diff_means}")
-
-# Display the comparison
-print("The coefficient from the regression should be equal to the difference in means to demonstrate equivalence.")
-
+print(model.summary())
 ```
+
 
 ## Call Out 2.2: Randomization Inference
 
-\*FIX INTRO\*\* Randomization inference, although a theoretical concept, is best illustrated with practical examples. A particularly illustrative approach is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will work with data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma. Here we will work with data from @Banerjeeetal2021
+Randomization inference is perhaps best-illustrated with practical examples. A particularly illuminating approach to understand how randomisation inference works is visualization through tabular permutation. The following online coding resource provides a detailed introduction to this method. In this context, we will first consider a made-up example based on 3 treated units and 3 control units, before working with a larger number of control and treated units in data from the study "Long-Term effects of the Targeting the Ultra Poor Program" conducted by Abhijit Banerjee, Esther Duflo, and Garima Sharma.
 
 ### An Exact p-value
-
 It is perhaps useful to see a simple example. Consider the case of 6 units, with 3 observations randomly assigned treatment. Imagine that the observed outcomes were then, in the treatment group: $(34,27,29)$, and in the control group: $(14,18,24)$. A simple comparison of means estimator suggests that the treatment effect is 11.33. To calculate a p-value, we can permute all the possible combinations, and ask what proportion of these are greater than or equal to this treatment effect. If we consider random orderings of 6 units, this suggests that there are $6!$ possible combinations, but in reality, as we are randomly choosing 3 units from these 6 to assign a permuted treatment status, the actual value of different combinations is $6\choose 3$ $=\frac{6!}{3!*(6-3)!}=20$. We document each of these possible permutations, as well as their permuted treatment effect in the Table below. In this case, we can see that only 1 of the 20 different permutations is greater than or equal to 11.33 he original treatment status). Suggesting an exact p-value of $1/20=0.05$.
 
 | Permutation  | T1  | T2  | T3  | C1  | C2  | C3  | Estimate |
