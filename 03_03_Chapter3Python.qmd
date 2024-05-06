@@ -22,14 +22,33 @@ sns.set()
 sns.set_palette("viridis", n_colors=2)
 
 # Load the dataset
+###TENEMOS QUE LIMPIAR ESTO -- ES SOLO PARA DEFINIR LOS MISMOS CONTROLES QUE ELLOS
 data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
+##AQUÍ CONFIRMAMOS EL VALOR EXPERIMENTAL (FILA 1 DE TABLA 2)
+Y1 = data.loc[data['treat'] == 1, 're78'].mean()
+Y0 = data.loc[data['treat'] == 0, 're78'].mean()
+print(Y1-Y0)
+
+data2 = pd.read_stata('Datasets/cps_controls.dta')
+d1treat = data[data['treat']==1]
+data    = pd.concat([d1treat,data2])
+data['age2']=data['age']*data['age']
+data['age3']=data['age2']*data['age']
+data['school2']=data['education']*data['education']
+data['u74']=data['re74']==0
+data['u75']=data['re75']==0
+data['schoolXre74']=data['education']*data['re74']
 
 # Define the covariates and the treatment variable
-X = data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']]
+X = data[['age','age2','age3','education','school2','married','nodegree',
+          'black', 'hispanic', 're74','re75','u74','u75','schoolXre74']]
 y = data['treat']
 
+print(sum(data['treat']))
+
+### ACTUALMENTE LOGIT NO CONVERGE...  SOSPECHO QUE ESTO HACE QUE LAS RESPUESTAS SEAN DISTINTAS...
 # Estimate propensity scores using logistic regression
-logit = LogisticRegression(max_iter=1000)
+logit = LogisticRegression(max_iter=1000000)
 logit.fit(X, y)
 data['propensity_score'] = logit.predict_proba(X)[:, 1]
 
@@ -40,6 +59,8 @@ neigh = NearestNeighbors(n_neighbors=1)
 neigh.fit(untreated[['propensity_score']])
 indices = neigh.kneighbors(treated[['propensity_score']], return_distance=False)
 matched = untreated.iloc[indices.flatten()]
+#### DEBEN SER 119 DISTINTOS SEGÚN FILA 6 DE TABLA 2...
+print(matched['propensity_score'].nunique())
 
 # Reset indexes for treated and matched DataFrames
 treated = treated.reset_index(drop=True)
@@ -59,7 +80,9 @@ print("Unique propensity scores:", data['propensity_score'].nunique())
 # Calculate ATT
 ATT = (treated['re78'] - matched['re78']).mean()
 print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
+```
 
+```{python}
 # Plot the histograms with outlined bars and a chosen fill color
 plt.hist(treated['propensity_score'], bins=50, linewidth=1.2,label='Treated (NSW)', alpha=0.7)
 plt.hist(untreated['propensity_score'], bins=50, linewidth=1.2, label='Control (CPS or PSID)', alpha=0.7)
