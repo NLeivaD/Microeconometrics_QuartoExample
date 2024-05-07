@@ -557,7 +557,197 @@ Now, we will show that the procedures described in @deChaisemartinDhaultfoeuille
 
 The authors define $\widehat{\beta}_{fe}$ as the coefficient estimated in the following (standard) two-way fixed effects regression: $$y_{i,s,t} = \beta_0 + \beta_{fe} D_{s,t} + \mu_s + \lambda_t + \varepsilon_{s,t}$$ Where $D_{s,t}$ is the mean over $i$ of a binary indicator variable that takes value of 1 if the unit $i$ in state $s$ is treated at period $t$ and 0 otherwise, in our case as we have one observartion per state $D_{s,t} = post_{s,t}$, meanwhile $\mu_s$ and $\lambda_t$ are state and time fixed effects. This is, of course, precisely the same model as we have estimated in @eq-twfe, implying that $\beta_{fe}=2.4545$ in cases without post-treatment trends (`y1`), or $\beta_{fe}=3.8045$ in cases with post-treatment dynamics (`y2`).
 
-## Synthetic Control Exercise
+@deChaisemartinDhaultfoeuille2019 define the ATE for any ($s,t$) cell as: $$\Delta_{s,t} = \frac{1}{N_{s,t}} \sum_{i = 1}^{N_{s,t}}[Y_{i,s,t}(1) - Y_{i,s,t}(0)].$$ You will note that here we require an unobserved counterfactual $Y_{i,s,t}(0)$. If we impose a parallel trend assumption, such a counterfactual can be inferred from unit-specific fixed effects, time-specific fixed effects, and the constant term. Because in this case we *know* our data generating process, we can simply generate this counterfactual as the data generating process, absent any effect of treatment. Below we generate such a counterfactual, where you will note that we impose that this is an 'untreated' counterfactual by setting the treatment effects to 0 in the generation of `y1_c` below:
+
+```{stata echo = 15}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+}
+gen y1_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
+```
+
+![deChaisemartinDhaultfoeuille](deChaisemartinDhaultfoeuille.png)
+
+It is likely useful to confirm to ourselves that graphically we are indeed generating the untreated counterfactual in this way.
+
+```{stata echo = 16:18}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y1_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
+}
+line y1 y1_c year if unit == 2, scheme(plottig) ytitle("Y") xtitle("Year") lwidth(thick thick) lpattern(solid dash) lcolor(blue red) legend(off) text(7 2007 "Y(1)" 5 2007 "Y(0)") title("(a) Unit 2 Outcome and Counterfactual", position(6)) name(unit2, replace)
+line y1 y1_c year if unit == 3, scheme(plottig) ytitle("Y") xtitle("Year") lwidth(thick thick) lpattern(solid dash) lcolor(blue red) legend(off) text(9 2007 "Y(1)" 6 2007 "Y(0)") title("(b) Unit 3 Outcome and Counterfactual", position(6)) name(unit3, replace)
+graph combine unit2 unit3, rows(1) scheme(plottig)
+qui graph export "deChaisemartinDhaultfoeuille.png", replace
+```
+
+This allows us to calculate a state- and time-period specific treatment effect ($\Delta_{s,t}$) for each treated unit. We do so, calculating this quantity for all units in which treatment exists:
+
+```{stata echo = 16:17}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y1_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
+}
+gen Delta_st = y1 - y1_c if post == 1
+list y1 y1_c unit year Delta_st if post == 1, sepby
+```
+
+Unsurprisingly, given the data generating process we have defined, we see that each treatment effect is 2 for unit 2, and 3 for unit 3. If we were to calculate a mean treatment effect by hand, we may wish to simply take an average over all periods and units. However, one of the key results of @deChaisemartinDhaultfoeuille2019 is to show that under a series of standard assumptions $$\beta_{fe} = E \left[ \sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}w_{s,t}\Delta_{s,t} \right]$$ Where $N_1$ refers to the sum of all treated observations and $$w_{s,t} = \frac{\varepsilon_{s,t}}{\sum_{s,t:D_{s,t}=1}\frac{N_{s,t}}{N_1}\varepsilon_{s,t}}$$ Where $\varepsilon_{s,t}$ is the residual from a regression of $D_{s,t}$ on state and time fixed-effects. To confirm this in our data, we will estimate these regression residuals and add them into the dataframe:
+
+```{stata echo = 17:25}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y1_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
+gen Delta_st = y1 - y1_c if post == 1
+}
+quietly{
+reg post i.unit i.year
+predict eps_st, residuals
+replace eps_st = . if post != 1
+sum eps_st
+gen w_st = eps_st / r(sum)
+format w_st %8.7f
+}
+list y1 y1_c unit year Delta_st w_st if post == 1, sepby(unit)
+```
+
+Note here that after generating $w_{s,t}$ we print this out using the round function to avoid very small digits appearing which are only different to zero given machine precision. The key thing that we can see is that the effective weighting of treatment effects which occurs in regression is quite different to what we would expect. Indeed, four periods are given 0 weights! Finally, we can confirm that this decomposition gives us the two-way fixed effect estimate by multiplying $\Delta_{s,t}$ and $w_{s,t}$ and summing:
+
+```{stata echo = 22:24}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y1_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
+gen Delta_st = y1 - y1_c if post == 1
+reg post i.unit i.year
+predict eps_st, residuals
+replace eps_st = . if post != 1
+sum eps_st
+gen w_st = eps_st / r(sum)
+}
+gen Delta_times_w = Delta_st * w_st
+sum Delta_times_w
+di "de Chaisemartin and Xavier D'Haultfoeuille's decomposition returns an estimates of: " r(sum)
+```
+
+We can see that correctly, this decomposition also returns the two-way fixed effect estimate of 2.4545.
+
+We can follow precisely the same series of steps to see the case of the decomposition where treatment exposition also results in a trend-break. To see this, we conduct each of the above steps below, however here we have not produced similar graphs (though you may wish to do so to confirm that counterfactuals make sense):
+
+```{stata echo = 21:23}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+reg post i.unit i.year
+predict eps_st, residuals
+replace eps_st = . if post != 1
+sum eps_st
+gen w_st = eps_st / r(sum)
+format %8.7f w_st
+}
+gen y2_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
+gen Delta_st2 = y2 - y2_c if post == 1
+list y2 y2_c unit year Delta_st2 w_st if post == 1, sepby(unit)
+```
+
+Because there is no difference in the structure of the treatment indicator or the unit and time fixed effects, the residuals $w_{s,t}$ are identical, though of course the treatment effects themselves, $\Delta_{s,t}$ are not. Thus, once again we see that later treatment effects for unit 3 (precisely those units for which treatment effects are largest), are given zero weights. Finally, again we can calculate the two-way fixed effect estimate following this decomposition by summing across units, capturing the estimate we have previously observed in regression models of 3.804545.
+
+```{stata echo = 22:24}
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+reg post i.unit i.year
+predict eps_st, residuals
+replace eps_st = . if post != 1
+sum eps_st
+gen w_st = eps_st / r(sum)
+gen y2_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
+gen Delta_st2 = y2 - y2_c if post == 1
+}
+gen Delta_times_w = Delta_st2 * w_st
+sum Delta_times_w
+di "de Chaisemartin and Xavier D'Haultfoeuille's decomposition returns an estimates of: " r(sum)
+```
+
+Depending on the nature of treatment assignment, ie the number of treated periods, as well as the period in which treatment is adopted in different units, these weights will vary, and can even be negative. You may wish to explore alternative set-ups and confirm to yourself that this is the case, and see that regardless of the nature of the setting, both @GoodmanBacon2018 and @deChaisemartinDhaultfoeuille2019's decompositions recover the two-way fixed effect estimate.
+
+## Code call-out 4.3: Event study and Interaction-weighted Estimators
+
+## Code call-out 4.4: Synthetic control, difference-in-differences, and synthetic difference-in-differences
 
 The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
 
