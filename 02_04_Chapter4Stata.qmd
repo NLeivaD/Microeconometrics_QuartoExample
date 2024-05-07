@@ -88,7 +88,31 @@ list in 1/5
 
 These two cases are plotted next where the line with empty circles refers to group $U$, the line with black filled circles refers to group $k$ and the line with squares refers to group $l$
 
-![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-6-1.png)
+```{stata echo = 16:18}
+#| code-fold: true
+#| code-summary: "Show the plot code"
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+}
+twoway connected y1 year if unit == 1, msymbol(Oh) mcolor(black) lcolor(black) || connected y1 year if unit == 2, msymbol(O) mcolor(black) lcolor(black) || connected y1 year if unit == 3, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("(a) Simple Decomposition", position(6)) legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) name(PanelA, replace)
+twoway connected y2 year if unit == 1, msymbol(Oh) mcolor(black) lcolor(black) || connected y2 year if unit == 2, msymbol(O) mcolor(black) lcolor(black) || connected y2 year if unit == 3, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("(b) Decomposition with trends", position(6)) legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) name(PanelB, replace)
+graph combine PanelA PanelB, rows(1) scheme(plottig)
+qui graph export "GB_First.png", replace
+```
+
+![First Goodman-Bacon Graph](GB_First.png)
 
 ### The Two-way Fixed Effect Estimator
 
@@ -137,7 +161,33 @@ These will then be weighted as laid out in @GoodmanBacon2018 to provide the regr
 
 In this case the @GoodmanBacon2018 methodology estimate $\widehat{\tau}$ weighting the next four DD comparisons
 
-![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-9-1.png)
+```{stata echo = 16:20}
+#| code-fold: true
+#| code-summary: "Show the plot code"
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+}
+twoway connected y1 year if unit == 1, msymbol(Oh) mcolor(black) lcolor(black) || connected y1 year if unit == 2, msymbol(O) mcolor(black%20) lcolor(black%20) || connected y1 year if unit == 3, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("A. Early Group v/s Untreated Group") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) name(PanelA, replace)
+twoway connected y1 year if unit == 1, msymbol(Oh) mcolor(black) lcolor(black) || connected y1 year if unit == 2, msymbol(O) mcolor(black) lcolor(black) || connected y1 year if unit == 3, msymbol(Sh) mcolor(black%20) lcolor(black%20) ||, ytitle("Outcome Variable") xtitle("Time") title("B. Later Group v/s Untreated Group") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) name(PanelB, replace)
+twoway connected y1 year if unit == 1 & year <= 2005, msymbol(Oh) mcolor(black%20) lcolor(black%20) || connected y1 year if unit == 2 & year <= 2005, msymbol(O) mcolor(black) lcolor(black) || connected y1 year if unit == 3 & year <= 2005, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("C. Early Group v/s Later Group Before 2006") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) xlabel(2000(2)2010) name(PanelC, replace)
+twoway connected y1 year if unit == 1 & year >= 2003, msymbol(Oh) mcolor(black%20) lcolor(black%20) || connected y1 year if unit == 2 & year >= 2003, msymbol(O) mcolor(black) lcolor(black) || connected y1 year if unit == 3 & year >= 2003, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("D. Early Group v/s Later Group After 2003") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) xlabel(2000(2)2010) name(PanelD, replace)
+graph combine PanelA PanelB PanelC PanelD, scheme(plottig)
+qui graph export "GB_Second.png", replace
+```
+
+![Second Goodman-Bacon Graph](GB_Second.png)
 
 As seen in the plots, in the simple decomposition these effects are constants of 3 and 2 for early and later treated units given that the "treatment effect" is simply $1 \times unit$ in each case.
 
@@ -488,7 +538,33 @@ as observed in the two-way fixed effect estimate above.
 
 In this case the @GoodmanBacon2018 decomposition follows as above generating the treatment effect as follows:
 
-![](docs/01_04_Chapter4R_files/figure-html/unnamed-chunk-22-1.png)
+```{stata echo = 17:20}
+#| code-fold: true
+#| code-summary: "Show the plot code"
+quietly{
+set obs 30
+gen obs  = _n
+gen unit = ceil(obs/10)
+bys unit: gen year = _n+1999
+gen treat = 2006 if unit==2
+replace treat = 2003 if unit==3
+gen time = year - treat
+gen post = time>=0 & time!=.
+replace treat = 0 if treat==.
+replace time  = 0 if time==.
+replace post  = 0 if post==.
+gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit * time
+gen y2 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0.45 * post * unit * time
+}
+twoway connected y2 year if unit == 1, msymbol(Oh) mcolor(black) lcolor(black) || connected y2 year if unit == 2, msymbol(O) mcolor(black%20) lcolor(black%20) || connected y2 year if unit == 3, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("A. Early Group v/s Untreated Group") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) name(PanelA, replace)
+twoway connected y2 year if unit == 1, msymbol(Oh) mcolor(black) lcolor(black) || connected y2 year if unit == 2, msymbol(O) mcolor(black) lcolor(black) || connected y2 year if unit == 3, msymbol(Sh) mcolor(black%20) lcolor(black%20) ||, ytitle("Outcome Variable") xtitle("Time") title("B. Later Group v/s Untreated Group") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) name(PanelB, replace)
+twoway connected y2 year if unit == 1 & year <= 2005, msymbol(Oh) mcolor(black%20) lcolor(black%20) || connected y2 year if unit == 2 & year <= 2005, msymbol(O) mcolor(black) lcolor(black) || connected y2 year if unit == 3 & year <= 2005, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("C. Early Group v/s Later Group Before 2006") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) xlabel(2000(2)2010) name(PanelC, replace)
+twoway connected y2 year if unit == 1 & year >= 2003, msymbol(Oh) mcolor(black%20) lcolor(black%20) || connected y2 year if unit == 2 & year >= 2003, msymbol(O) mcolor(black) lcolor(black) || connected y2 year if unit == 3 & year >= 2003, msymbol(Sh) mcolor(black) lcolor(black) ||, ytitle("Outcome Variable") xtitle("Time") title("D. Early Group v/s Later Group After 2003") legend(off) scheme(plottig) xline(2002, lpattern(dash) lcolor(red)) xline(2005, lpattern(dash) lcolor(red)) xlabel(2000(2)2010) name(PanelD, replace)
+graph combine PanelA PanelB PanelC PanelD, scheme(plottig)
+qui graph export "GB_Third.png", replace
+```
+
+![Third Goodman-Bacon Graph](GB_Third.png)
 
 As seen in the plots, in the decomposition with trends these effects are no longer constants of 3 and 2 for early and later treated units given that the "treatment effect" is no longer simply $1 \times unit$ in each case.
 
@@ -577,11 +653,11 @@ gen y1 = 2 + (year - 2000) * 0.2 + 1 * unit + 1 * post * unit + 0 * post * unit 
 gen y1_c = 2 + (year - 2000) * 0.2 + 1 * unit + 0 * post * unit + 0 * post * unit * (time)
 ```
 
-![deChaisemartinDhaultfoeuille](deChaisemartinDhaultfoeuille.png)
-
 It is likely useful to confirm to ourselves that graphically we are indeed generating the untreated counterfactual in this way.
 
 ```{stata echo = 16:18}
+#| code-fold: true
+#| code-summary: "Show the plot code"
 quietly{
 set obs 30
 gen obs  = _n
@@ -602,6 +678,8 @@ line y1 y1_c year if unit == 3, scheme(plottig) ytitle("Y") xtitle("Year") lwidt
 graph combine unit2 unit3, rows(1) scheme(plottig)
 qui graph export "deChaisemartinDhaultfoeuille.png", replace
 ```
+
+![deChaisemartinDhaultfoeuille](deChaisemartinDhaultfoeuille.png)
 
 This allows us to calculate a state- and time-period specific treatment effect ($\Delta_{s,t}$) for each treated unit. We do so, calculating this quantity for all units in which treatment exists:
 
