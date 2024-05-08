@@ -3,7 +3,10 @@ title: "Chapter 4"
 bibliography: references.bib
 ---
 
-## Code Call Out 4.1
+# Code Call Outs
+## Code Call Out 4.1: Wild cluster bootstrap implementation
+
+## Code Call Out 4.2: Exploring the Two-way Fixed Effect Model and Parameter Decomposition
 
 **Two-Way Fixed Effects Estimators and Heterogeneous Treatment Effects** To understand the potential issues related to heterogeneous treatment effects over time and two-way fixed effect estimators, we will examine a pair of numerical examples. In particular, we will focus on the composition of the two way FE estimator $\tau$ estimated from: $$
 y_{st} = \gamma_s + \lambda_t + \tau w_{st} + \varepsilon_{st}
