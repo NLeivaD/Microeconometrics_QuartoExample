@@ -567,6 +567,403 @@ Depending on the nature of treatment assignment, ie the number of treated period
 
 ## Code call-out 4.3: Event study and Interaction-weighted Estimators
 
+To understand the equivalence between the panel event study model described in Section 4.4.2.1 of the book and the "Interaction-weighted (IW) estimator" proposed by @AbrahamSun2018 we follow @ClarkeTapia2020 that works with data from @StevensonWolfers2006 of the no-default divorce reforms (`X_nfd`) and female suicide (`asmrs`) in United States for 49 states (`stfips`) from 1964 to 1996
+
+```{r}
+data <- read.csv(file = "../Ejemplo_QuartoBook/Datasets/StevensonWolfers2006.csv")
+head(data)
+```
+
+In order to prepare our dataset we note that the variable `X_nfd` ($Event_s$) define the year $t$ when no-fault divorce reform took place for each state $s$, with this variable we define `timeToTreat` as the difference between the year $t$ and $Event_s$
+
+```{r}
+data$timeToTreat <- data$year - data$X_nfd
+head(data[, c('year', 'X_nfd', 'timeToTreat')], 10)
+```
+
+This new values are leads (previous to treatment) and lags (posterior to treatment).
+
+### Panel Event Study Model
+
+First we estimate a panel event study model following the next equation $$asmrs_{st} = \alpha + \sum_{j=2}^{J} \beta_j (Lead \ j)_{st} + \sum_{k = 0}^{K} \gamma_{k} (Lag \ k)_{st} + \mu_s + \lambda_t + X_{st}^\prime \Gamma + \varepsilon_{st}$$ Where $asmrs_{st}$ is the female suicide rate for all women of state $s$ at period $t$, $(Lead \ j)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $j$ periods pre-treatment, $(Lag \ k)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $k$ periods post-treatment, $\mu_s$ and $\lambda_t$ are state and time fixed effects respectively and $X^\prime_{st}$ a vector of covariates for state $s$ at period $t$ such as per-capita income $pcinc_{st}$, homicide mortality $asmrh_{st}$ and the aid to families with dependent children (AFDC) rate for a family of four $cases_{st}$. 
+
+As seen in the equation a binary variable must be included for each lead and lag in our dataset, if we inspect the values
+
+```{r}
+unique(data$timeToTreat)
+```
+
+We can see how there is $J = 21$ binary leads variables and $K = 27$ lags variable to include. A natural option seems to convert the numeric variable `timeToTreat` into a factor variable and use `C()` in the `lm` function when estimate OLS procedure in order to `R` automatically create the binary variables, but a problem arises when following this steps procedure because of the missing values in `timeToTreat` from those states that never receive treatment. This missing values will be treated as so and when `R` automatically creates the binary variables will consider also missing value in those variables for those states without treatment.  
+
+A solution is to manually create all the binary variables and consider a value of 0 for those states that never receive treatment:
+
+```{r}
+for (i in sort(unique(data$timeToTreat))) {
+  if(is.na(i)){
+    next
+  } else if(i < 0){
+    data[, paste0('Lead', abs(i))] <- ifelse((!is.na(data$timeToTreat)) & 
+                                          (data$timeToTreat == i), 1, 0)
+  } else{
+    data[, paste0('Lag', i)] <- ifelse((!is.na(data$timeToTreat)) & 
+                                          (data$timeToTreat == i), 1, 0)
+  }
+}
+```
+
+Next we estimate by standard OLS procedure using `felm` function from the `lfe` package, note that we omit `Lead1` as a reference base level. The usage of this function include a four-part formula where the first one is a conventional formula as in `lm`, the second part is our variables that determine the fixed effects, the third part is for an IV formula and the last one is a variable to use as cluster in order to compute clustered standard errors. Note the 0 in the IV part of the formula as we don't use instrumental variables in this example and the usage of `cmethod = "reghdfe"` in order to match Stata's `reghdfe` package's cluster-robust standard errors.
+
+```{r}
+library(lfe)
+EventStudy <- felm(data = data,
+                   formula = asmrs ~ Lead21 + Lead20 + Lead19 + Lead18 + Lead17 + 
+                   Lead16 + Lead15 + Lead14 + Lead13 + Lead12 + Lead11 + Lead10 + 
+                   Lead9 + Lead8 + Lead7 + Lead6 + Lead5 + Lead4 + Lead3 + Lead2 +
+                   Lag0 + Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Lag6 + Lag7 +
+                   Lag8 + Lag9 + Lag10 + Lag11 + Lag12 + Lag13 + Lag14 + Lag15 +
+                   Lag16 + Lag17 + Lag18 + Lag19 + Lag20 + Lag21 + Lag22 + Lag23 +
+                   Lag24 + Lag25 + Lag26 + Lag27 + pcinc + asmrh + cases | 
+                     year + stfips | 0 |stfips, cmethod = "reghdfe")
+summary(EventStudy)
+```
+
+In the results can be seen how the estimate is the same as in @ClarkeTapia2020. Now we plot the traditional event study plot in order to visualize easier our results
+
+```{r}
+params <- summary(EventStudy)$coefficients
+# Create df
+plot_df <- data.frame(Time = -21:27, Estimate = NA, SE = NA)
+# Assign values
+plot_df[plot_df$Time < -1, c('Estimate', 'SE')] <- params[1:20, c('Estimate',
+                                                                  'Cluster s.e.')]
+plot_df[plot_df$Time > -1, c('Estimate', 'SE')] <- params[21:48, c('Estimate',
+                                                                  'Cluster s.e.')]
+plot_df[plot_df$Time == -1, c('Estimate', 'SE')] <- 0 
+# Graph
+library(ggplot2)
+ggplot(data = plot_df) + geom_point(aes(x = Time, y = Estimate)) +
+  geom_errorbar(aes(ymin = Estimate - 1.96 * SE, ymax = Estimate + 1.96 * SE, 
+                    x = Time)) + 
+  geom_hline(yintercept = 0, color = 'red') + geom_vline(xintercept = -1) +
+  scale_x_continuous(limits = c(-21, 27), breaks = seq(-20, 25, 5)) +
+  scale_y_continuous(limits = c(-40, 40), breaks = seq(-40, 40, 20)) +
+  labs(x = 'Time To Treatment', y = 'Suicide per 1m Woman')
+```
+
+In the figure can be seen ``a reduction in rates of female suicide following the passage of no fault divorce laws, with significant declines observed 8 years following reform passage'' (@ClarkeTapia2020, p16.).  
+
+### *Interaction-weighted* Estimator
+
+In this section we explore the *interaction-weighted* estimator $\widehat{v}_g$ proposed by @AbrahamSun2018  
+\begin{equation}
+  \label{eq:IWEstimator}
+  \widehat{v}_g = \frac{1}{|g|} \sum_{\ell \in g} \sum_{e} \widehat{\delta}_{e,\ell} \widehat{Pr} \left\{ E_i = e | E_i \in [-\ell , T - \ell] \right\}
+\end{equation}
+Where $E_i$ is the first treatment period for unit $i$, $\ell$ is the relative period to treatment at period $t$, this mean $\ell = t - E_i$, $\widehat{Pr} \left\{ E_i = e | E_i \in [-\ell , T - \ell] \right\}$ is the sample share of the cohort that receives the initial treatment at a time $e$, $g$ is a set of relative periods $\ell \in [-T , T]$, and $\widehat{\delta}_{e, \ell}$ is an estimate of the Cohort-specific Average Treatment effect on the Treated ($CATT$) for the cohort $e$ at $\ell$ periods from initial treatment $$\delta_{e,\ell} = CATT_{e, \ell} = E[Y_{i,e+\ell} - Y_{i,e+\ell}^{\infty} | E_i = e]$$ Where $Y_{i,t}$ is the outcome for unit $i$ at time $t$ and $Y_{i,t}^{\infty}$ is the potential outcome for unit $i$ at time $t$ if never were treated. @AbrahamSun2018 describe the estimation procedure of $\widehat{v}_g$ as follows:  
+
+1. Estimate $CATT_{e,\ell}$ from a TWFE interacting relative periods indicators with cohort indicators, excluding indicators for cohorts from some set $C$^[In @AbrahamSun2018 you found a detailed explanation on how determinte the set $C$, for this example $C$ is the never treated units.]: $$Y_{i,t} = \alpha_i + \lambda_t + \sum_{e\neq C} \sum_{\ell \neq -1} \delta_{e, \ell} (\mathbf{1}\{ E_i = e\} \cdot D_{i,t}^{\ell}) + \varepsilon_{i,t}$$ Where $\alpha_i$ and $\lambda_t$ are the unit and time fixed effects, $\mathbf{1}\{E_i=e\}$ the cohort indicators and $D_{i,t}^{\ell}$ the relative period indicators, i.e, $D_{i,t}^{\ell} = 1$ if unit $i$ at time $t$ is $\ell$ periods from the treatment.  
+2. Estimates the weights for each $\widehat{\delta}_{e,\ell}$: $\widehat{Pr} \left\{ E_i = e | E_i \in [-\ell , T - \ell] \right\}$ as the sample share of the cohort that receives the initial treatment at a time $e$ that has experienced the $\ell$ relative period to treatment.  
+3. Estimate the IW estimator following equation \eqref{eq:IWEstimator}.  
+
+In our example $g = \{-21 , -20 , \cdots , 27\}$ so we consider $\ell \in g$, $e \in \{1969 , 1970 , 1971 , 1972 , 1973 , 1974 , 1975 , 1976 , 1977 , 1980 , 1984 , 1985\}$^[You can proof this easily with the use of `sort(unique(data$X_nfd))`.]. Now we build the indicator variables for $E_i$
+
+```{r}
+for (i in sort(unique(data$X_nfd))) {
+  data[, paste0('E_', i)] <- ifelse((!is.na(data$X_nfd)) & (data$X_nfd == i), 
+                                    1, 0)
+}
+```
+
+With this setup it is possible to notice that from $e$ we have 12 indicator variables and from $g$ we have 48 indicator variables^[Excluding $\ell = -1$.], so from $\displaystyle\sum_{e\neq C}\sum_{\ell\neq-1}\delta_{e, \ell} (\mathbf{1}\{ E_i = e\} \cdot D_{i,t}^{\ell})$ we have 576 indicator variables. To ilustrate this we build three matrix: (i) Dummies for $g = \{-21 , -20 , \cdots , 27\}$, (ii) dummies for $e \in \{1969 , 1970 , 1971 , 1972 , 1973 , 1974 , 1975 , 1976 , 1977 , 1980 , 1984 , 1985\}$ and (iii) dummies for $CATT_{e,\ell}$, also we rename the column names of the last matrix in order to make it clearer
+
+```{r}
+library(dplyr)
+dummies_timeToTreat <- as.matrix(select(data, contains(c("Lead", "Lag")),
+                                        -Lead1))
+dummies_Cohort <- as.matrix(select(data, contains("E_")))
+for(i in 1:ncol(dummies_Cohort)){
+  if(i == 1){
+    dummies_CATT <- dummies_timeToTreat * dummies_Cohort[, i]
+  } else {
+    dummies_CATT <- cbind(dummies_CATT, dummies_timeToTreat * dummies_Cohort[, i])
+  }
+}
+aux = 0
+for (g in sort(unique(data$X_nfd))) {
+  aux = aux + 1
+  cnames <- colnames(dummies_CATT)[(48*(aux-1)+1):(48*aux)]
+  colnames(dummies_CATT)[(48*(aux-1)+1):(48*aux)] <- paste0("E", g, "_", cnames)
+}
+```
+
+Note that some of this indicator variables doesn't have sense as there isn't observations that takes value of 1 and will be a constant of value 0, this means that there are cohorts that never experience the $\ell$ relative period to treatment. As an example there is no observations with non-negative relative periods (lags: $\ell \geq 0$) before or during the first treatment period (1969) and there is no observations with negative relative periods (leads: $\ell < 0$) during or after the last treatment period (1985). In order to delete this non-sense indicator variables we correct the building of the matrix `dummies_CATT` erasing those columns with 0 mean
+
+```{r}
+dummies_CATT <- dummies_CATT[,colMeans(dummies_CATT) != 0]
+ncol(dummies_CATT)
+```
+
+As seen we have reduce the dimensionality of the indicator variables $\displaystyle\sum_{e\neq C}\sum_{\ell\neq-1}\delta_{e, \ell} (\mathbf{1}\{ E_i = e\} \cdot D_{i,t}^{\ell})$ from 576 to 384. Now we can estimate $\delta_{e,\ell}$
+
+```{r}
+CATT_el = felm(data = data, formula = asmrs ~ dummies_CATT + pcinc + asmrh + 
+                 cases | year + stfips | 0 |
+                 stfips, cmethod = "reghdfe")
+```
+
+As there is too many estimates we don't show the full summary, instead we show the first 10 estimates for $CATT_{e,\ell}$
+
+```{r}
+CATT_el$coefficients[1:10,]
+```
+
+In order to present this coefficient we do as Table 3 of @AbrahamSun2018, we set $\ell$ values in rows and $e$ values in columns so each cell in the $(e,\ell)$ coordinate will be the $\widehat{\delta}$ estimate for cohort $e$ at relative time to treatment $\ell$
+
+```{r}
+# Matrix to store delta_{e,l}
+deltas <- matrix(data = NA, nrow = ncol(dummies_timeToTreat) + 1,
+                 ncol = ncol(dummies_Cohort))
+# Row and column names
+rownames(deltas) <- c(paste0("Lead", 21:1), paste0("Lag", 0:27))
+colnames(deltas) <- paste0("E", sort(unique(data$X_nfd)))
+# Assign each delta_{e,l}
+## Auxiliary column indicator
+column <- 0
+## For each cohort
+for (e in sort(unique(data$X_nfd))) {
+  ## Add one to column indicator
+  column = column + 1
+  ## Auxiliary row indicator
+  row = 0
+  ## For each relative time to treatment
+  for (l in -21:27) {
+    ## Add one to row indicator
+    row = row + 1
+    ## Chechk if is base scenario l = -1
+    if(l == -1){
+      ## Assign 0
+      deltas[row, column] = 0
+      ## If not, check if is Lead period
+    } else if(l < -1){
+      ## Define the delta_{e,l} to search
+      Catt_searched <- paste0("dummies_CATTE", e, "_Lead", abs(l))
+      ## Check if exists with try, if the class of try is "try-error" it doesn't exist
+      if(class(try(CATT_el$coefficients[Catt_searched,1], silent = T)) == "try-error"){
+        ## Then assign a missing value (NA)
+        deltas[row, column] <- NA
+        ## If the class isn't "try-error" it exist
+      } else{
+        ## Then assign the value
+        deltas[row, column] <- CATT_el$coefficients[Catt_searched,1]
+      }
+      ## If isn't a Lead period it is a Lag period
+    } else {
+      ## Define the delta_{e,l} to search
+      Catt_searched <- paste0("dummies_CATTE", e, "_Lag", l)
+      ## Check if exists with try, if the class of try is "try-error" it doesn't exist
+      if(class(try(CATT_el$coefficients[Catt_searched,1], silent = T)) == "try-error"){
+        ## Then assign a missing value (NA)
+        deltas[row, column] <- NA
+        ## If the class isn't "try-error" it exist
+      } else{
+        ## Then assign the value
+        deltas[row, column] <- CATT_el$coefficients[Catt_searched,1]
+      }
+    }
+  }
+}
+library(kableExtra)
+kbl(deltas, booktabs = T, digits = 2, linesep = "") %>% 
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
+```
+
+Now we get the the weights of each cohort at the respective relative period. In order to do this we got two ways:  
+1. Regress each cohort indicator variable $\mathbf{1} \{ E_i = e \}$ on all the relative period indicator variables $D^\ell_{i,t}$. This method is preferred as we need the variance-covariance matrix of the weights that result from this regressions later in order to build the $\widehat{v}_\ell$ variance. 
+2. Get sample share of units in each cohort that is present in the relative period $\ell$.  
+
+First we estimate the mentioned regressions:
+
+```{r}
+# Matrix to store results
+w1 <- matrix(data = NA, ncol = ncol(dummies_Cohort), 
+             nrow = ncol(dummies_timeToTreat)+1)
+# Row and column names
+rownames(w1) <- c(paste0("Lead", 21:1), paste0("Lag", 0:27))
+colnames(w1) <- paste0("E", sort(unique(data$X_nfd)))
+# Auxiliary column indicator
+column <- 0
+# For each cohort
+for (e in sort(unique(data$X_nfd))) {
+  # Add 1 to column indicator
+  column = column + 1
+  # Regress the cohort in indicated column on relative period dummies
+  aux_model <- lm(dummies_Cohort[,column] ~ dummies_timeToTreat - 1)
+  # Assign the estimated coefficients that are the weights
+  w1[,column] <- c(aux_model$coefficients[1:20], 0, aux_model$coefficients[21:48])
+  # Note those with 0 value really are relative periods that the cohort doesn't
+  # experiment so can be assignad as missing (NA) in order to follow Sun and
+  # Abraham (2021) Table 3
+  w1[w1[,column] == 0,column] <- NA
+}
+# Now row 21 is the base period l = -1, replace it for 0s
+w1[21,] <- 0
+```
+
+Now we proceed with the second way that is to manually count the units in each cohort and identify cohorts present in each relative period. We start by get the amount of observations for each cohort at each relative time period to treatment in order to identify which cohorts were present in each relative time period to treatment. Then we continue by obtaining the number of units at each cohort of our sample
+
+```{r}
+# Identify cohorts present in each relative time period, if count > 0 the cohort
+# is present
+N_el = data %>% select(timeToTreat, X_nfd) %>% group_by(timeToTreat, X_nfd) %>%
+  summarise(N_el = n()) %>% ungroup()
+# Get the sample count of observations for each cohort
+Ne = data %>% group_by(X_nfd) %>% summarise(Ne = n_distinct(stfips)) %>% 
+  ungroup()
+# Join this two datasets
+Ns = N_el %>% left_join(Ne, by = "X_nfd") %>%
+  rename(l = timeToTreat, e = X_nfd) %>% select(l, e, Ne)
+head(Ns, 5)
+```
+
+Now we build matrix for the amount of units at each cohort for each relative period to treatment in order to after compute the weights. This matrix is build in a similar way that `deltas` object
+
+```{r}
+# Matrix to store weights
+units <- matrix(data = NA, nrow = ncol(dummies_timeToTreat) + 1, 
+             ncol = ncol(dummies_Cohort))
+# Row and column names
+rownames(units) <- c(paste0("Lead", 21:1), paste0("Lag", 0:27))
+colnames(units) <- paste0("E", sort(unique(data$X_nfd)))
+# Assign each weight
+## Auxiliary column indicator
+column <- 0
+## For each cohort
+for (e in sort(unique(data$X_nfd))) {
+  ## Add one to column indicator
+  column = column + 1
+  ## Auxiliary row indicator
+  row = 0
+  ## For each relative time to treatment
+  for (l in -21:27) {
+    ## Add one to row indicator
+    row = row + 1
+    ## Chechk if is base scenario l = -1
+    if(l == -1){
+      ## Assign 0
+      units[row, column] = 0
+      ## If not, check if is Lead period
+    } else if(l < -1){
+      ## Define the delta_{e,l} to search
+      W_searched <- Ns$l == l & Ns$e == e & !is.na(Ns$l) & !is.na(Ns$e)
+      ## Check if exists, if has length 0 it doesn't exist
+      if(length(Ns$Ne[W_searched]) == 0){
+        ## Then assign a missing value (NA)
+        units[row, column] <- NA
+        ## If the length isn't 0 it exist
+      } else{
+        ## Then assign the value
+        units[row, column] <- Ns$Ne[W_searched]
+      }
+      ## If isn't a Lead period it is a Lag period
+    } else {
+      ## Define the weigth to search
+      W_searched <- Ns$l == l & Ns$e == e & !is.na(Ns$l) & !is.na(Ns$e)
+      ## Check if exists, if has length 0 it doesn't exist
+      if(length(Ns$Ne[W_searched]) == 0){
+        ## Then assign a missing value (NA)
+        units[row, column] <- NA
+        ## If the length isn't 0 it exist
+      } else{
+        ## Then assign the value
+        units[row, column] <- Ns$Ne[W_searched]
+      }
+    }
+  }
+}
+```
+
+Now we build the weights for each $\widehat{\delta}_{e,\ell}$ as the share of cohort $e$ present in relative period $\ell$ and show that are (approximately) equal^[There may be some very small difference due to the method of estimation.] to the weights obtained in the regressions above
+
+```{r}
+w2 <- units / rowSums(units, na.rm = T)
+w2[21, ] <- 0
+w1[1:10, 1:10]
+w2[1:10, 1:10]
+```
+
+Finally we show this weights
+
+```{r}
+ws <- w2
+kbl(ws, booktabs = T, digits = 2, linesep = "") %>% 
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
+```
+
+Next we generate $\widehat{v}_{\ell}$ for $\ell = -21, \ldots, 27$ and compare with the results of the Panel Event Study Model
+
+```{r}
+delta_l = rowSums(deltas * ws, na.rm = T)
+coefs <- cbind(delta_l, c(EventStudy$coefficients[1:20], 0,
+                          EventStudy$coefficients[21:48]))
+colnames(coefs) <- c("IW", "Event Study")
+kbl(list(coefs[1:21,], coefs[22:49,]), booktabs = T, digits = 2, linesep = "") %>% 
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
+```
+
+As seen almost every coefficient keep their sign, except for a few cases that weren't statiscally significant in the Panel Event Study Model.  
+
+Now we get the standard error for the IW estimators in order to build the confidence interval and compare graphically with the previous estimates. Following @AbrahamSun2018 we got that the variance of $\widehat{v}_\ell$ come from^[This use the next property: Let $X,Y$ be random variables and $a,b\in\mathbb{R}$, then $V(aX \pm bY) = a^2V(X) + b^2V(Y) \pm 2abCov(X,Y)$.]
+\begin{align*}
+  V \left( \widehat{v}_{\ell} \right) & = V \left( \sum_{e \in h^\ell} \widehat{Pr} \{ E_i = e | E_i \in h^\ell \} \cdot \widehat{\delta}_{e,\ell} \right) \\
+  & = \sum_{e \in h^\ell} \left( \widehat{Pr}\{ E_i = e | e \in h^\ell \} \right)^2 V \left( \widehat{\delta}_{e,\ell} \right) + \sum_{e_j \in h^\ell} \sum_{e_k \in h^\ell , e_k \neq e_j} 2 \widehat{Pr}\{ E_i = e_j | e_j \in h^\ell \} \widehat{Pr}\{ E_i = e_k | e_k \in h^\ell \} Cov \left( \widehat{\delta}_{e_j,\ell} , \widehat{\delta}_{e_k,\ell} \right) \\
+  & + \sum_{e \in h^\ell} \left( \widehat{\delta}_{e,\ell} \right)^2 V \left( \widehat{Pr}\{ E_i = e | e \in h^\ell \} \right) + \sum_{e_j \in h^\ell} \sum_{e_k \in h^\ell , e_k \neq e_j} 2 \widehat{\delta}_{e_j,\ell}  \widehat{\delta}_{e_k,\ell} Cov \left( \widehat{Pr}\{ E_i = e_j | e_j \in h^\ell \} , \widehat{Pr}\{ E_i = e_k | e_k \in h^\ell \} \right)
+\end{align*}
+Where $h^\ell$ is the set of cohorts that experience the relative period $\ell$, variance and covariance of the $CATT_{e,\ell}$ come from estimates of step 1 and, variance and covariance of the weights $\widehat{Pr} \{ E_i = e | e \in h^\ell \}$ come from the regressions of $\mathbf{1} \{ E_i = e \}$ on $D^\ell_{i,t}$. 
+
+We could estimate this manually, and indeed, with the use of seemingly unrelated regression techniques it is possible to estimate the variance of $\widehat{Pr}(\cdot)$ and $\widehat\delta_{e\ell}$ in a single step.  However, in practice we will likely prefer to use a canned routine which allows for the estimation of the interaction weighted estimator, as well as the corresponding variance-covariance matrix. To see that our process of "manually" buidling up Sun and Abraham's estimator from its composite parts, and to additionally conduct inference in a direct way, we can use estimation routines such as `feols` and `sunab` functions from the `fixest` package in `R`. Below we do this, showing the point estimates recovered are identical to what we have done.  
+
+Note the usage of the `sunab` function that takes first the variable that points the cohort and next one of the variable that points the year or the variable that points the relative time to treatment, if the second variable points the year this function automatically and internally creates the relative time to period. Also you can note that we have slightly modify the data for those units never treated take a really high value in the `X_nfd` variable, this is because the `sunab` function would drop this observations if the `X_nfd` has missing values (*NA*) in this variable and instead consider a never treated unit if the relative time to treatment is always negative (for this reason the really high value at `X_nfd` so the relative time will always be negative). Finally note the second part of the formula, after `|`, that points the fixed effects variables and automatically cluster by the first variable
+
+```{r}
+data2 <- data |> mutate(X_nfd = ifelse(is.na(X_nfd), 5000, X_nfd)) 
+library(fixest)
+IW <- feols(data = data2,
+            fml = asmrs ~ sunab(X_nfd, year) + pcinc + asmrh + 
+              cases | stfips + year)
+coefs <- cbind(c(summary(IW)$coeftable[1:20, "Estimate"], 0, 
+                 summary(IW)$coeftable[21:48, "Estimate"]), coefs)
+colnames(coefs)[1] <- "feols IW"
+kbl(list(coefs[1:21,], coefs[22:49,]), booktabs = T, digits = 2, linesep = "") %>% 
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
+```
+
+Finally, we plot the output along with its 95% confidence intervals to compare this with our original event study.
+
+```{r}
+# Create Cols for IW Estimates Information
+plot_df <- plot_df |> mutate(IWEstimate = NA,
+                             IWSE = NA)
+# Assign IW Estimates Information
+plot_df[1:20, c("IWEstimate", "IWSE")] <- IW$coeftable[1:20, c("Estimate",
+                                                               "Std. Error")]
+plot_df[21, c("IWEstimate", "IWSE")] <- 0
+plot_df[22:49, c("IWEstimate", "IWSE")] <- IW$coeftable[21:48, c("Estimate",
+                                                               "Std. Error")]
+# Graph
+ggplot(data = plot_df) + geom_point(aes(x = Time, y = Estimate)) +
+  geom_errorbar(aes(ymin = Estimate - 1.96 * SE, ymax = Estimate + 1.96 * SE, 
+                    x = Time)) + 
+  geom_point(aes(x = Time, y = IWEstimate), color = "blue",
+             position = position_nudge(x = 0.4)) +
+  geom_errorbar(aes(ymin = IWEstimate - 1.96 * IWSE, 
+                    ymax = IWEstimate + 1.96 * IWSE, 
+                    x = Time), color = "blue", 
+                position = position_nudge(x = 0.4)) + 
+  geom_hline(yintercept = 0, color = 'red') + geom_vline(xintercept = -1) +
+  scale_x_continuous(limits = c(-21, 28), breaks = seq(-20, 25, 5)) +
+  scale_y_continuous(limits = c(-40, 40), breaks = seq(-40, 40, 20)) +
+  labs(x = 'Time To Treatment', y = 'Suicide per 1m Woman')
+```
 
 ## Code call-out 4.4: Synthetic control, difference-in-differences, and synthetic difference-in-differences
 
