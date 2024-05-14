@@ -567,33 +567,35 @@ Depending on the nature of treatment assignment, ie the number of treated period
 
 ## Code call-out 4.3: Event study and Interaction-weighted Estimators
 
-To understand the equivalence between the panel event study model described in Section 4.4.2.1 of the book and the "Interaction-weighted (IW) estimator" proposed by @AbrahamSun2018 we follow @ClarkeTapia2020 that works with data from @StevensonWolfers2006 of the no-default divorce reforms (`X_nfd`) and female suicide (`asmrs`) in United States for 49 states (`stfips`) from 1964 to 1996
+To understand the equivalence between the panel event study model described in Section 4.4.2.1 of the book and the "Interaction-weighted (IW) estimator" proposed by @AbrahamSun2018 we work with data from @StevensonWolfers2006 which examines the effect of the staggered adoption of no-default divorce reforms (`X_nfd`) and female suicide (`asmrs`) in United States for 49 states (`stfips`) from 1964 to 1996.  We begin by loading the data below, and confirming that it effectively consists of a balanced sample of 49 states (we will denote using $s$ below) over 33 years (denoted as $t$):
 
 ```{r}
-data <- read.csv(file = "../Ejemplo_QuartoBook/Datasets/StevensonWolfers2006.csv")
+data <- read.csv(file = "Datasets/StevensonWolfers2006.csv")
+nrow(data)
 head(data)
 ```
 
-In order to prepare our dataset we note that the variable `X_nfd` ($Event_s$) define the year $t$ when no-fault divorce reform took place for each state $s$, with this variable we define `timeToTreat` as the difference between the year $t$ and $Event_s$
+In order to prepare our dataset we note that the variable `X_nfd` contains the year a state adopts a law ($Event_s$), and define a variable `timeToTreat` as the difference between year $t$  and $Event_s$:
 
 ```{r}
 data$timeToTreat <- data$year - data$X_nfd
 head(data[, c('year', 'X_nfd', 'timeToTreat')], 10)
 ```
 
-This new values are leads (previous to treatment) and lags (posterior to treatment).
+Because `X_nfd' is missing for states which did not pass a no fault divorce law in the period under study, this variable thus captures leads (periods prior to treatment) and lags (periods post treatment) for states which have adopted a no fault divorce law.
 
 ### Panel Event Study Model
+We will begin by estimating a standard event study, defined as follows, or as equation XXXX in the book:
+$$asmrs_{st} = \alpha + \sum_{j=2}^{J} \beta_j (Lead \ j)_{st} + \sum_{k = 0}^{K} \gamma_{k} (Lag \ k)_{st} + \mu_s + \lambda_t + X_{st}^\prime \Gamma + \varepsilon_{st}$$
+Here $asmrs_{st}$ refers to the female suicide rate for all women of state $s$ at period $t$, $(Lead \ j)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $j$ periods pre-treatment, $(Lag \ k)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $k$ periods post-treatment, $\mu_s$ and $\lambda_t$ are state and time fixed effects respectively and $X^\prime_{st}$ a vector of covariates for state $s$ at period $t$ such as per-capita income $pcinc_{st}$, homicide mortality $asmrh_{st}$ and the aid to families with dependent children (AFDC) rate for a family of four $cases_{st}$. 
 
-First we estimate a panel event study model following the next equation $$asmrs_{st} = \alpha + \sum_{j=2}^{J} \beta_j (Lead \ j)_{st} + \sum_{k = 0}^{K} \gamma_{k} (Lag \ k)_{st} + \mu_s + \lambda_t + X_{st}^\prime \Gamma + \varepsilon_{st}$$ Where $asmrs_{st}$ is the female suicide rate for all women of state $s$ at period $t$, $(Lead \ j)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $j$ periods pre-treatment, $(Lag \ k)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $k$ periods post-treatment, $\mu_s$ and $\lambda_t$ are state and time fixed effects respectively and $X^\prime_{st}$ a vector of covariates for state $s$ at period $t$ such as per-capita income $pcinc_{st}$, homicide mortality $asmrh_{st}$ and the aid to families with dependent children (AFDC) rate for a family of four $cases_{st}$. 
-
-As seen in the equation a binary variable must be included for each lead and lag in our dataset, if we inspect the values
+Thus, we wish to include a single binary variable for each lead and lag observed in our data (arbritarily omitting lead 1). If we inspect the values of `timeToTreat` below, we can see how there are $J = 21$ binary $Lead$ variables and $K = 27$ $Lag$ variable to include:
 
 ```{r}
 unique(data$timeToTreat)
 ```
 
-We can see how there is $J = 21$ binary leads variables and $K = 27$ lags variable to include. A natural option seems to convert the numeric variable `timeToTreat` into a factor variable and use `C()` in the `lm` function when estimate OLS procedure in order to `R` automatically create the binary variables, but a problem arises when following this steps procedure because of the missing values in `timeToTreat` from those states that never receive treatment. This missing values will be treated as so and when `R` automatically creates the binary variables will consider also missing value in those variables for those states without treatment.  
+A natural option seems to convert the numeric variable `timeToTreat` into a factor variable and use `C()` in the `lm` function when estimate OLS procedure in order to `R` automatically create the binary variables, but a problem arises when following this steps procedure because of the missing values in `timeToTreat` from those states that never receive treatment. This missing values will be treated as so and when `R` automatically creates the binary variables will consider also missing value in those variables for those states without treatment.  
 
 A solution is to manually create all the binary variables and consider a value of 0 for those states that never receive treatment:
 
