@@ -595,9 +595,7 @@ Thus, we wish to include a single binary variable for each lead and lag observed
 unique(data$timeToTreat)
 ```
 
-A natural option seems to convert the numeric variable `timeToTreat` into a factor variable and use `C()` in the `lm` function when estimate OLS procedure in order to `R` automatically create the binary variables, but a problem arises when following this steps procedure because of the missing values in `timeToTreat` from those states that never receive treatment. This missing values will be treated as so and when `R` automatically creates the binary variables will consider also missing value in those variables for those states without treatment.  
-
-A solution is to manually create all the binary variables and consider a value of 0 for those states that never receive treatment:
+A natural option to generate lags and leads may seem to be to convert the numeric variable `timeToTreat` into a factor variable and use `C()` in the `lm` function when estimating OLS to automatically create all required binary variables.  However, an issue will arise in this case given the missing (`NA`) values in `timeToTreat` from those states that never receive treatment, as this missingness would be inherited by the regression model.  One possible solution is to manually create all the binary variables as below, looping through each level of `timeToTreat`.  The resulting set of lags and leads will take a value of 1 if `timeToTreat` is equal to the period of interest, and 0 otherwise.  While we could likely do this in fewer lines, it is useful to see explicitly how lags and leads are coded.
 
 ```{r}
 for (i in sort(unique(data$timeToTreat))) {
@@ -613,7 +611,7 @@ for (i in sort(unique(data$timeToTreat))) {
 }
 ```
 
-Next we estimate by standard OLS procedure using `felm` function from the `lfe` package, note that we omit `Lead1` as a reference base level. The usage of this function include a four-part formula where the first one is a conventional formula as in `lm`, the second part is our variables that determine the fixed effects, the third part is for an IV formula and the last one is a variable to use as cluster in order to compute clustered standard errors. Note the 0 in the IV part of the formula as we don't use instrumental variables in this example and the usage of `cmethod = "reghdfe"` in order to match Stata's `reghdfe` package's cluster-robust standard errors.
+Next we can estimate the event study by standard OLS using the `felm` function from the `lfe` package.  Note that we omit `Lead1` as a reference base level.  The usage of this function includes a four-part formula where the first part is a conventional formula as in `lm`, the second part is our variables that determine the fixed effects (in this case year and state fixed effects), the third part is for an IV formula and the last part is a variable to use if clustered standard errors are desired. As we are not estimating with IV we indicate 0 in the IV portion of the formula. Here we cluster standard errors by state, and in this example we indicate `cmethod = "reghdfe"`, which ensures that identical degree of freedom corrections are used as in Stata's `reghdfe` package's cluster-robust standard errors.  In this particular case, standard errors will be identical if such an option is not indicated, as no fixed effects are multicolinear.
 
 ```{r}
 library(lfe)
@@ -629,7 +627,7 @@ EventStudy <- felm(data = data,
 summary(EventStudy)
 ```
 
-In the results can be seen how the estimate is the same as in @ClarkeTapia2020. Now we plot the traditional event study plot in order to visualize easier our results
+Once we have estimated this regression, we can visualise point estimates and standard errors in the traditional event study style, as laid out below.  To do this, we will "pre-populate" a data frame with all `NA` values, and then incorporate the parameters we need from our regression, which we saved as `EventStudy` above.  Finally, we will plot an event study using `ggplot2`, combinging `geom_point` for point estimates, and `geom_errorbar` for confidence intervals:
 
 ```{r}
 params <- summary(EventStudy)$coefficients
@@ -652,10 +650,10 @@ ggplot(data = plot_df) + geom_point(aes(x = Time, y = Estimate)) +
   labs(x = 'Time To Treatment', y = 'Suicide per 1m Woman')
 ```
 
-In the figure can be seen ``a reduction in rates of female suicide following the passage of no fault divorce laws, with significant declines observed 8 years following reform passage'' (@ClarkeTapia2020, p16.).  
+In the figure we see, in general, relatively flat trends in the lead up to the event of interest, and thereafter a reduction in rates of female suicide following the passage of no fault divorce laws.  
 
-### *Interaction-weighted* Estimator
-
+### Interaction-weighted Estimator
+To see how the interaction-weighted estimator proposed by @AbrahamSun2018 accounts for time-varying treatment adoption, we will generate it "by hand" here.   
 In this section we explore the *interaction-weighted* estimator $\widehat{v}_g$ proposed by @AbrahamSun2018  
 \begin{equation}
   \label{eq:IWEstimator}
