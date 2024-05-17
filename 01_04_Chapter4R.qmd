@@ -567,35 +567,35 @@ Depending on the nature of treatment assignment, ie the number of treated period
 
 ## Code call-out 4.3: Event study and Interaction-weighted Estimators
 
-To understand the equivalence between the panel event study model described in Section 4.4.2.1 of the book and the "Interaction-weighted (IW) estimator" proposed by @AbrahamSun2018 we follow @ClarkeTapia2020 that works with data from @StevensonWolfers2006 of the no-default divorce reforms (`X_nfd`) and female suicide (`asmrs`) in United States for 49 states (`stfips`) from 1964 to 1996
+To understand the equivalence between the panel event study model described in Section 4.4.2.1 of the book and the "Interaction-weighted (IW) estimator" proposed by @AbrahamSun2018 we work with data from @StevensonWolfers2006 which examines the effect of the staggered adoption of no-default divorce reforms (`X_nfd`) and female suicide (`asmrs`) in United States for 49 states (`stfips`) from 1964 to 1996.  We begin by loading the data below, and confirming that it effectively consists of a balanced sample of 49 states (we will denote using $s$ below) over 33 years (denoted as $t$):
 
 ```{r}
-data <- read.csv(file = "../Ejemplo_QuartoBook/Datasets/StevensonWolfers2006.csv")
+data <- read.csv(file = "Datasets/StevensonWolfers2006.csv")
+nrow(data)
 head(data)
 ```
 
-In order to prepare our dataset we note that the variable `X_nfd` ($Event_s$) define the year $t$ when no-fault divorce reform took place for each state $s$, with this variable we define `timeToTreat` as the difference between the year $t$ and $Event_s$
+In order to prepare our dataset we note that the variable `X_nfd` contains the year a state adopts a law ($Event_s$), and define a variable `timeToTreat` as the difference between year $t$  and $Event_s$:
 
 ```{r}
 data$timeToTreat <- data$year - data$X_nfd
 head(data[, c('year', 'X_nfd', 'timeToTreat')], 10)
 ```
 
-This new values are leads (previous to treatment) and lags (posterior to treatment).
+Because `X_nfd' is missing for states which did not pass a no fault divorce law in the period under study, this variable thus captures leads (periods prior to treatment) and lags (periods post treatment) for states which have adopted a no fault divorce law.
 
 ### Panel Event Study Model
+We will begin by estimating a standard event study, defined as follows, or as equation XXXX in the book:
+$$asmrs_{st} = \alpha + \sum_{j=2}^{J} \beta_j (Lead \ j)_{st} + \sum_{k = 0}^{K} \gamma_{k} (Lag \ k)_{st} + \mu_s + \lambda_t + X_{st}^\prime \Gamma + \varepsilon_{st}$$
+Here $asmrs_{st}$ refers to the female suicide rate for all women of state $s$ at period $t$, $(Lead \ j)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $j$ periods pre-treatment, $(Lag \ k)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $k$ periods post-treatment, $\mu_s$ and $\lambda_t$ are state and time fixed effects respectively and $X^\prime_{st}$ a vector of covariates for state $s$ at period $t$ such as per-capita income $pcinc_{st}$, homicide mortality $asmrh_{st}$ and the aid to families with dependent children (AFDC) rate for a family of four $cases_{st}$. 
 
-First we estimate a panel event study model following the next equation $$asmrs_{st} = \alpha + \sum_{j=2}^{J} \beta_j (Lead \ j)_{st} + \sum_{k = 0}^{K} \gamma_{k} (Lag \ k)_{st} + \mu_s + \lambda_t + X_{st}^\prime \Gamma + \varepsilon_{st}$$ Where $asmrs_{st}$ is the female suicide rate for all women of state $s$ at period $t$, $(Lead \ j)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $j$ periods pre-treatment, $(Lag \ k)_{st}$ a dummy variable that takes 1 if the state $s$ at period $t$ is $k$ periods post-treatment, $\mu_s$ and $\lambda_t$ are state and time fixed effects respectively and $X^\prime_{st}$ a vector of covariates for state $s$ at period $t$ such as per-capita income $pcinc_{st}$, homicide mortality $asmrh_{st}$ and the aid to families with dependent children (AFDC) rate for a family of four $cases_{st}$. 
-
-As seen in the equation a binary variable must be included for each lead and lag in our dataset, if we inspect the values
+Thus, we wish to include a single binary variable for each lead and lag observed in our data (arbritarily omitting lead 1). If we inspect the values of `timeToTreat` below, we can see how there are $J = 21$ binary $Lead$ variables and $K = 27$ $Lag$ variable to include:
 
 ```{r}
 unique(data$timeToTreat)
 ```
 
-We can see how there is $J = 21$ binary leads variables and $K = 27$ lags variable to include. A natural option seems to convert the numeric variable `timeToTreat` into a factor variable and use `C()` in the `lm` function when estimate OLS procedure in order to `R` automatically create the binary variables, but a problem arises when following this steps procedure because of the missing values in `timeToTreat` from those states that never receive treatment. This missing values will be treated as so and when `R` automatically creates the binary variables will consider also missing value in those variables for those states without treatment.  
-
-A solution is to manually create all the binary variables and consider a value of 0 for those states that never receive treatment:
+A natural option to generate lags and leads may seem to be to convert the numeric variable `timeToTreat` into a factor variable and use `C()` in the `lm` function when estimating OLS to automatically create all required binary variables.  However, an issue will arise in this case given the missing (`NA`) values in `timeToTreat` from those states that never receive treatment, as this missingness would be inherited by the regression model.  One possible solution is to manually create all the binary variables as below, looping through each level of `timeToTreat`.  The resulting set of lags and leads will take a value of 1 if `timeToTreat` is equal to the period of interest, and 0 otherwise.  While we could likely do this in fewer lines, it is useful to see explicitly how lags and leads are coded.
 
 ```{r}
 for (i in sort(unique(data$timeToTreat))) {
@@ -611,7 +611,7 @@ for (i in sort(unique(data$timeToTreat))) {
 }
 ```
 
-Next we estimate by standard OLS procedure using `felm` function from the `lfe` package, note that we omit `Lead1` as a reference base level. The usage of this function include a four-part formula where the first one is a conventional formula as in `lm`, the second part is our variables that determine the fixed effects, the third part is for an IV formula and the last one is a variable to use as cluster in order to compute clustered standard errors. Note the 0 in the IV part of the formula as we don't use instrumental variables in this example and the usage of `cmethod = "reghdfe"` in order to match Stata's `reghdfe` package's cluster-robust standard errors.
+Next we can estimate the event study by standard OLS using the `felm` function from the `lfe` package.  Note that we omit `Lead1` as a reference base level.  The usage of this function includes a four-part formula where the first part is a conventional formula as in `lm`, the second part is our variables that determine the fixed effects (in this case year and state fixed effects), the third part is for an IV formula and the last part is a variable to use if clustered standard errors are desired. As we are not estimating with IV we indicate 0 in the IV portion of the formula. Here we cluster standard errors by state, and in this example we indicate `cmethod = "reghdfe"`, which ensures that identical degree of freedom corrections are used as in Stata's `reghdfe` package's cluster-robust standard errors.  In this particular case, standard errors will be identical if such an option is not indicated, as no fixed effects are multicolinear.
 
 ```{r}
 library(lfe)
@@ -627,7 +627,7 @@ EventStudy <- felm(data = data,
 summary(EventStudy)
 ```
 
-In the results can be seen how the estimate is the same as in @ClarkeTapia2020. Now we plot the traditional event study plot in order to visualize easier our results
+Once we have estimated this regression, we can visualise point estimates and standard errors in the traditional event study style, as laid out below.  To do this, we will "pre-populate" a data frame with all `NA` values, and then incorporate the parameters we need from our regression, which we saved as `EventStudy` above.  Finally, we will plot an event study using `ggplot2`, combinging `geom_point` for point estimates, and `geom_errorbar` for confidence intervals:
 
 ```{r}
 params <- summary(EventStudy)$coefficients
@@ -650,10 +650,10 @@ ggplot(data = plot_df) + geom_point(aes(x = Time, y = Estimate)) +
   labs(x = 'Time To Treatment', y = 'Suicide per 1m Woman')
 ```
 
-In the figure can be seen ``a reduction in rates of female suicide following the passage of no fault divorce laws, with significant declines observed 8 years following reform passage'' (@ClarkeTapia2020, p16.).  
+In the figure we see, in general, relatively flat trends in the lead up to the event of interest, and thereafter a reduction in rates of female suicide following the passage of no fault divorce laws.  
 
-### *Interaction-weighted* Estimator
-
+### Interaction-weighted Estimator
+To see how the interaction-weighted estimator proposed by @AbrahamSun2018 accounts for time-varying treatment adoption, we will generate it "by hand" here.   
 In this section we explore the *interaction-weighted* estimator $\widehat{v}_g$ proposed by @AbrahamSun2018  
 \begin{equation}
   \label{eq:IWEstimator}
