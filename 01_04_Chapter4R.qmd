@@ -10,6 +10,7 @@ rm(list = ls())
 ```
 
 # Tools required for Chapter 4
+Check if we need to introduce sapply here?
 
 # Code Call-outs
 
@@ -719,7 +720,7 @@ This looks quite simple, and it is precisely because we have gone to all the wor
 CATT_el$coefficients[1:10,]
 ```
 
-To have a full idea of what we've just estimated here, we will re-organise these estimates to present the coefficient in the style of Table 3 of @AbrahamSun2018.  In particular, let's let set $\ell$ values (lags and leads) in rows and $e$ values in columns so we can observe our cohort-specific event studies in a column-wise fashion.  We do this below, first building a matrix `deltas` to store these estimates in, and then filling them in, before finally displaying the tabular output.  To do this, we are generating a function we call `fetch_coefficient`, as the coefficient we need may sometimes be named as `_Lag`, sometimes be named as `_Lead`, and sometimes not exist.  It is worth working through this function carefully to confirm that you can see that in this way we grab each coefficient $\widehat\delta_{e,l}$.
+To have a full idea of what we've just estimated here, we will re-organise these estimates to present the coefficient in the style of Table 3 of @AbrahamSun2018.  In particular, let's display $\ell$ values (lags and leads) in rows and $e$ values in columns so we can observe our cohort-specific event studies in a column-wise fashion.  We do this below, we first build a matrix `deltas` in which to store these estimates, then fill them in, before finally displaying the tabular output.  Most of this code is actually relatively auxiliary, used to ensure that we can extract each lag and lead from regression results.  To do this, we are generating a function we call `fetch_coefficient`, as the coefficient we need may sometimes be named with `_Lag` in the variable, sometimes be named as `_Lead`, and sometimes not exist (and this may imply either that it is the base period -1, or that the lag or lead doesn't exist).  It is worth working through this function carefully to confirm that you can see that in this way we grab each coefficient $\widehat\delta_{e,\ell}$. 
 
 ```{r}
 # Matrix to store delta_{e,l}
@@ -861,7 +862,7 @@ kbl(ws, booktabs = T, digits = 2, linesep = "") %>%
   kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
 ```
 
-Next we generate $\widehat{v}_{\ell}$ for $\ell = -21, \ldots, 27$ and compare with the results of the Panel Event Study Model
+No, finally, we can generate $\widehat{v}_{\ell}$ for $\ell = -21, \ldots, 27$ and compare this with the results of the standard Panel Event Study Model we documented above.
 
 ```{r}
 delta_l = rowSums(deltas * ws, na.rm = T)
@@ -872,19 +873,21 @@ kbl(list(coefs[1:21,], coefs[22:49,]), booktabs = T, digits = 2, linesep = "") %
   kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
 ```
 
-As seen almost every coefficient keep their sign, except for a few cases that weren't statiscally significant in the Panel Event Study Model.  
+Scanning across coefficients, we can see that in this case, reassuringly, almost every coefficient at least keeps its sign, except for a few cases that weren't statiscally significant in the Panel Event Study Model.  
 
-Now we get the standard error for the IW estimators in order to build the confidence interval and compare graphically with the previous estimates. Following @AbrahamSun2018 we got that the variance of $\widehat{v}_\ell$ come from^[This use the next property: Let $X,Y$ be random variables and $a,b\in\mathbb{R}$, then $V(aX \pm bY) = a^2V(X) + b^2V(Y) \pm 2abCov(X,Y)$.]
+If we wanted to implement Sun and Abraham's estimator entirely by hand we could, and all that is missing to do this is to generate standard errors to build the confidence intervals. Following @AbrahamSun2018 we note that the variance of $\widehat{v}_\ell$ can be written as follows^[This comes from the followingproperty: Let $X,Y$ be random variables and $a,b\in\mathbb{R}$, then $V(aX \pm bY) = a^2V(X) + b^2V(Y) \pm 2abCov(X,Y)$.]
 \begin{align*}
   V \left( \widehat{v}_{\ell} \right) & = V \left( \sum_{e \in h^\ell} \widehat{Pr} \{ E_i = e | E_i \in h^\ell \} \cdot \widehat{\delta}_{e,\ell} \right) \\
-  & = \sum_{e \in h^\ell} \left( \widehat{Pr}\{ E_i = e | e \in h^\ell \} \right)^2 V \left( \widehat{\delta}_{e,\ell} \right) + \sum_{e_j \in h^\ell} \sum_{e_k \in h^\ell , e_k \neq e_j} 2 \widehat{Pr}\{ E_i = e_j | e_j \in h^\ell \} \widehat{Pr}\{ E_i = e_k | e_k \in h^\ell \} Cov \left( \widehat{\delta}_{e_j,\ell} , \widehat{\delta}_{e_k,\ell} \right) \\
-  & + \sum_{e \in h^\ell} \left( \widehat{\delta}_{e,\ell} \right)^2 V \left( \widehat{Pr}\{ E_i = e | e \in h^\ell \} \right) + \sum_{e_j \in h^\ell} \sum_{e_k \in h^\ell , e_k \neq e_j} 2 \widehat{\delta}_{e_j,\ell}  \widehat{\delta}_{e_k,\ell} Cov \left( \widehat{Pr}\{ E_i = e_j | e_j \in h^\ell \} , \widehat{Pr}\{ E_i = e_k | e_k \in h^\ell \} \right)
+  & = \sum_{e \in h^\ell} \left( \widehat{Pr}\{ E_i = e | e \in h^\ell \} \right)^2 V \left( \widehat{\delta}_{e,\ell} \right) \\
+  & + \sum_{e_j \in h^\ell} \sum_{e_k \in h^\ell , e_k \neq e_j} 2 \widehat{Pr}\{ E_i = e_j | e_j \in h^\ell \} \widehat{Pr}\{ E_i = e_k | e_k \in h^\ell \} Cov \left( \widehat{\delta}_{e_j,\ell} , \widehat{\delta}_{e_k,\ell} \right) \\
+  & + \sum_{e \in h^\ell} \left( \widehat{\delta}_{e,\ell} \right)^2 V \left( \widehat{Pr}\{ E_i = e | e \in h^\ell \} \right) \\
+  & + \sum_{e_j \in h^\ell} \sum_{e_k \in h^\ell , e_k \neq e_j} 2 \widehat{\delta}_{e_j,\ell}  \widehat{\delta}_{e_k,\ell} Cov \left( \widehat{Pr}\{ E_i = e_j | e_j \in h^\ell \} , \widehat{Pr}\{ E_i = e_k | e_k \in h^\ell \} \right)
 \end{align*}
 Where $h^\ell$ is the set of cohorts that experience the relative period $\ell$, variance and covariance of the $CATT_{e,\ell}$ come from estimates of step 1 and, variance and covariance of the weights $\widehat{Pr} \{ E_i = e | e \in h^\ell \}$ come from the regressions of $\mathbf{1} \{ E_i = e \}$ on $D^\ell_{i,t}$. 
 
-We could estimate this manually, and indeed, with the use of seemingly unrelated regression techniques it is possible to estimate the variance of $\widehat{Pr}(\cdot)$ and $\widehat\delta_{e\ell}$ in a single step.  However, in practice we will likely prefer to use a canned routine which allows for the estimation of the interaction weighted estimator, as well as the corresponding variance-covariance matrix. To see that our process of "manually" buidling up Sun and Abraham's estimator from its composite parts, and to additionally conduct inference in a direct way, we can use estimation routines such as `feols` and `sunab` functions from the `fixest` package in `R`. Below we do this, showing the point estimates recovered are identical to what we have done.  
+The key thing to see is that we could estimate this manually with the pieces we have already put together, and indeed, with the use of seemingly unrelated regression techniques it is possible to estimate the variance of $\widehat{Pr}(\cdot)$ and $\widehat\delta_{e\ell}$ in a single step.  However, in practice we will likely prefer to use a canned routine which allows for the estimation of the interaction weighted estimator, as well as the corresponding variance-covariance matrix. To see that our process of "manually" buidling up Sun and Abraham's estimator from its composite parts, and to additionally conduct inference in a direct way, we can use estimation routines such as `feols` and `sunab` functions from the `fixest` package in `R`. Below we do this, showing the point estimates recovered are identical to what we have done.  
 
-Note the usage of the `sunab` function that takes first the variable that points the cohort and next one of the variable that points the year or the variable that points the relative time to treatment, if the second variable points the year this function automatically and internally creates the relative time to period. Also you can note that we have slightly modify the data for those units never treated take a really high value in the `X_nfd` variable, this is because the `sunab` function would drop this observations if the `X_nfd` has missing values (*NA*) in this variable and instead consider a never treated unit if the relative time to treatment is always negative (for this reason the really high value at `X_nfd` so the relative time will always be negative). Finally note the second part of the formula, after `|`, that points the fixed effects variables and automatically cluster by the first variable
+Note the usage of the `sunab` function which expands dummies as we have done above first takes the variable that records treatment cohorts and next the variable which describes the relative time to treatment.  If the second variable points to the year, this function automatically and internally creates the relative time to treatment period. It is also important to see that we have slightly modify the data for those never treated units such that they take a very high value in the `X_nfd` variable, this is because the `sunab` function would drop this observations if the `X_nfd` has missing values (`NA`) in this variable and instead considers a never treated unit if the relative time to treatment is always negative. It is thus sufficient for a period beyond the last year of the data to be indicated, so that never treated are correctly viewed as units which have not *yet* adopted. Finally note the second part of the formula, after `|`, indicates the fixed effects and automatically clusters by the first variable:
 
 ```{r}
 data2 <- data |> mutate(X_nfd = ifelse(is.na(X_nfd), 5000, X_nfd)) 
