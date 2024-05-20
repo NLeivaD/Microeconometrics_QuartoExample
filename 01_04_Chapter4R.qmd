@@ -653,7 +653,7 @@ ggplot(data = plot_df) + geom_point(aes(x = Time, y = Estimate)) +
 In the figure we see, in general, relatively flat trends in the lead up to the event of interest, and thereafter a reduction in rates of female suicide following the passage of no fault divorce laws.  
 
 ### Interaction-weighted Estimator
-To see how the interaction-weighted estimator proposed by @AbrahamSun2018 accounts for time-varying treatment adoption, we will generate it "by hand" here.   This estimator proposes to generate $\widehat{v}_g$ for some period $g$ of interest, where in this case $g$ will refer to each lag and lead. Formally,  $\widehat{v}_g$ is defined as follows:
+To see how the interaction-weighted estimator proposed by @AbrahamSun2018 accounts for time-varying treatment adoption, we will generate it "by hand" here.   This estimator proposes to generate $\widehat{v}_g$ for some period $g$ of interest, where in this case $g$ will refer to each lag and lead. Formally, $\widehat{v}_g$ is defined as follows:
 $$
   \widehat{v}_g = \frac{1}{|g|} \sum_{\ell \in g} \sum_{e} \widehat{\delta}_{e,\ell} \widehat{Pr} \left\{ E_i = e | E_i \in [-\ell , T - \ell] \right\}.
 $$ {#eq-IWEstimator}
@@ -667,40 +667,45 @@ To fix ideas and get a hold on notation, in our example $g = \{-21 , -20 , \cdot
 
 ```{r}
 for (i in sort(unique(data$X_nfd))) {
-  data[, paste0('E_', i)] <- ifelse((!is.na(data$X_nfd)) & (data$X_nfd == i), 1, 0)
+  data[, paste0('E_', i)] <- ifelse((!is.na(data$X_nfd))&(data$X_nfd == i), 1, 0)
 }
 ```
+You may wish to confirm each `E_1969` generated in this loop above contains a vector of 1s for all units which were first exposed to the policy in 1969, and so forth for other indicators.
 
-If we return to (@eq-IWEstimator), we can see that we are interested in estimating a full set of lags and leads for each adoption period $e$.  With this particular setup, we have 12 indicator variables drawn from $e$, and if we consider all lags and leads in $g$, we have 48 indicator variables^[Excluding $\ell = -1$.]. Thus, from $\displaystyle\sum_{e\neq C}\sum_{\ell\neq-1}\delta_{e, \ell} (\mathbf{1}\{ E_i = e\} \cdot D_{i,t}^{\ell})$ we have 576 indicator variables. To ilustrate this we build three matrix: (i) Dummies for $g = \{-21 , -20 , \cdots , 27\}$, (ii) dummies for $e \in \{1969 , 1970 , 1971 , 1972 , 1973 , 1974 , 1975 , 1976 , 1977 , 1980 , 1984 , 1985\}$ and (iii) dummies for $CATT_{e,\ell}$, also we rename the column names of the last matrix in order to make it clearer
+If we return to (@eq-IWEstimator), we can see that we are interested in estimating a full set of lags and leads for each adoption period $e$.  With this particular setup, we have 12 indicator variables drawn from $e$, and if we consider all lags and leads in $g$, we have 48 indicator variables^[Excluding $\ell = -1$.]. Thus, from $\displaystyle\sum_{e\neq C}\sum_{\ell\neq-1}\delta_{e, \ell} (\mathbf{1}\{ E_i = e\} \cdot D_{i,t}^{\ell})$ we have 576 indicator variables! To ilustrate this we build three matrix: (i) Dummies for $g = \{-21 , -20 , \cdots , 27\}$, (ii) dummies for $e \in \{1969 , 1970 , 1971 , 1972 , 1973 , 1974 , 1975 , 1976 , 1977 , 1980 , 1984 , 1985\}$ and (iii) dummies for $CATT_{e,\ell}$.  At the end, we will also rename the column names of the last matrix in order to make it clearer when we go forward where we will store each of the outputs of interest.
 
 ```{r}
 library(dplyr)
-dummies_timeToTreat <- as.matrix(select(data, contains(c("Lead", "Lag")),
-                                        -Lead1))
-dummies_Cohort <- as.matrix(select(data, contains("E_")))
-for(i in 1:ncol(dummies_Cohort)){
-  if(i == 1){
-    dummies_CATT <- dummies_timeToTreat * dummies_Cohort[, i]
-  } else {
-    dummies_CATT <- cbind(dummies_CATT, dummies_timeToTreat * dummies_Cohort[, i])
-  }
+
+# Create matrices for timeToTreat and Cohort dummies
+dummies_timeToTreat <- select(data, contains(c("Lead", "Lag")), -Lead1) %>% as.matrix()
+dummies_Cohort <- select(data, contains("E_")) %>% as.matrix()
+
+# Initialize dummies_CATT with the first cohort's interaction
+dummies_CATT <- dummies_timeToTreat * dummies_Cohort[, 1]
+
+# Loop through the rest of the cohorts and cbind the interaction results
+for(i in 2:ncol(dummies_Cohort)) {
+  dummies_CATT <- cbind(dummies_CATT, dummies_timeToTreat * dummies_Cohort[, i])
 }
-aux = 0
-for (g in sort(unique(data$X_nfd))) {
-  aux = aux + 1
-  cnames <- colnames(dummies_CATT)[(48*(aux-1)+1):(48*aux)]
-  colnames(dummies_CATT)[(48*(aux-1)+1):(48*aux)] <- paste0("E", g, "_", cnames)
+
+# Update column names of dummies_CATT
+unique_groups <- sort(unique(data$X_nfd))
+group_size <- ncol(dummies_timeToTreat)
+
+for(aux in seq_along(unique_groups)) {
+  g <- unique_groups[aux]
+  col_indices <- (group_size * (aux - 1) + 1):(group_size * aux)
+  colnames(dummies_CATT)[col_indices] <- paste0("E", g, "_", colnames(dummies_timeToTreat))
 }
 ```
-
-Note that some of this indicator variables doesn't have sense as there isn't observations that takes value of 1 and will be a constant of value 0, this means that there are cohorts that never experience the $\ell$ relative period to treatment. As an example there is no observations with non-negative relative periods (lags: $\ell \geq 0$) before or during the first treatment period (1969) and there is no observations with negative relative periods (leads: $\ell < 0$) during or after the last treatment period (1985). In order to delete this non-sense indicator variables we correct the building of the matrix `dummies_CATT` erasing those columns with 0 mean
+The matrix `dummies_timeToTreat` will consist of an indicator for each observation capturing whether it is at a particular time to treatment adoption.  Similarly, `dummies_Cohort` will consists of an indicator for whether or not an observation is part of each group $e$.  The interaction between these two matrices (`dummies_CATT`) will thus build an indicator for each cohort and time to treatment, indicating whether an observation is in this particular group.  Note, however, that some of the indicator variables in `dummies_CATT` will actually be entirely empty. This is because there are some cohorts that never experience some specific $\ell$ relative to the period of treatment (eg early treatment adopters won't have enough data prior to treatment to observe very long leads, and late treatment adopters won't have enough post-treatment data to observe very long lags).  In order to delete these indicators which exist in our matrix `dummies_CATT` but not in practice, we can simply remove from the matrix `dummies_CATT` those columns with 0 mean:
 
 ```{r}
 dummies_CATT <- dummies_CATT[,colMeans(dummies_CATT) != 0]
 ncol(dummies_CATT)
 ```
-
-As seen we have reduce the dimensionality of the indicator variables $\displaystyle\sum_{e\neq C}\sum_{\ell\neq-1}\delta_{e, \ell} (\mathbf{1}\{ E_i = e\} \cdot D_{i,t}^{\ell})$ from 576 to 384. Now we can estimate $\delta_{e,\ell}$
+As we see here, we have now reduced the dimensionality of the indicator variables $\displaystyle\sum_{e\neq C}\sum_{\ell\neq-1}\delta_{e, \ell} (\mathbf{1}\{ E_i = e\} \cdot D_{i,t}^{\ell})$ from 576 to 384, which are the full observable lags and leads for each treatment cohort. Now we can actually go about the business of estimating $\delta_{e,\ell}$!
 
 ```{r}
 CATT_el = felm(data = data, formula = asmrs ~ dummies_CATT + pcinc + asmrh + 
@@ -708,13 +713,13 @@ CATT_el = felm(data = data, formula = asmrs ~ dummies_CATT + pcinc + asmrh +
                  stfips, cmethod = "reghdfe")
 ```
 
-As there is too many estimates we don't show the full summary, instead we show the first 10 estimates for $CATT_{e,\ell}$
+This looks quite simple, and it is precisely because we have gone to all the work of generating all the dummies we need for our CATT groups.  This, in essence, estimates an event study equivalent for each treatment adoption cohort.  As there is many estimates here, we don't show the full summary, but we can peruse the first 10 estimates for $CATT_{e,\ell}$:
 
 ```{r}
 CATT_el$coefficients[1:10,]
 ```
 
-In order to present this coefficient we do as Table 3 of @AbrahamSun2018, we set $\ell$ values in rows and $e$ values in columns so each cell in the $(e,\ell)$ coordinate will be the $\widehat{\delta}$ estimate for cohort $e$ at relative time to treatment $\ell$
+To have a full idea of what we've just estimated here, we will re-organise these estimates to present the coefficient in the style of Table 3 of @AbrahamSun2018.  In particular, let's let set $\ell$ values (lags and leads) in rows and $e$ values in columns so we can observe our cohort-specific event studies in a column-wise fashion.  We do this below, first building a matrix `deltas` to store these estimates in, and then filling them in, before finally displaying the tabular output.  To do this, we are generating a function we call `fetch_coefficient`, as the coefficient we need may sometimes be named as `_Lag`, sometimes be named as `_Lead`, and sometimes not exist.  It is worth working through this function carefully to confirm that you can see that in this way we grab each coefficient $\widehat\delta_{e,l}$.
 
 ```{r}
 # Matrix to store delta_{e,l}
@@ -750,18 +755,13 @@ for (column in seq_along(cohorts)) {
    deltas[, column] <- sapply(relative_times, fetch_coefficient, e = e)
 }
 
-# The matrix deltas is now filled
-
+# Display the coefficients in a nice tabular output
 library(kableExtra)
 kbl(deltas, booktabs = T, digits = 2, linesep = "") %>% 
   kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
 ```
 
-Now we get the the weights of each cohort at the respective relative period. In order to do this we got two ways:  
-1. Regress each cohort indicator variable $\mathbf{1} \{ E_i = e \}$ on all the relative period indicator variables $D^\ell_{i,t}$. This method is preferred as we need the variance-covariance matrix of the weights that result from this regressions later in order to build the $\widehat{v}_\ell$ variance. 
-2. Get sample share of units in each cohort that is present in the relative period $\ell$.  
-
-First we estimate the mentioned regressions:
+Now, with $\widehat\delta_{e,\ell}$ in hand, the only other thing we need are the weights of each cohort at the respective relative period.  We could do this "by hand", calculating from observations in our data, but it is likely easier to get these by regressing each cohort indicator variable $\mathbf{1} \{ E_i = e \}$ on all the relative period indicator variables $D^\ell_{i,t}$. This regression will just tell us the proportion of a specific lead or lag which are made up of observations from a particular cohort.  We will do this below, storing weights in a matrix called `w1`:
 
 ```{r}
 # Matrix to store results
@@ -780,19 +780,20 @@ for (e in sort(unique(data$X_nfd))) {
   aux_model <- lm(dummies_Cohort[,column] ~ dummies_timeToTreat - 1)
   # Assign the estimated coefficients that are the weights
   w1[,column] <- c(aux_model$coefficients[1:20], 0, aux_model$coefficients[21:48])
-  # Note those with 0 value really are relative periods that the cohort doesn't
-  # experiment so can be assignad as missing (NA) in order to follow Sun and
-  # Abraham (2021) Table 3
+  # Note those with 0 value really are relative periods for which the cohort doesn't
+  # exist, so can be assignad as missing in order to follow Sun and Abraham Table 3
   w1[w1[,column] == 0,column] <- NA
 }
 # Now row 21 is the base period l = -1, replace it for 0s
 w1[21,] <- 0
+head(w1)
 ```
 
+<!--
 Now we proceed with the second way that is to manually count the units in each cohort and identify cohorts present in each relative period. We start by get the amount of observations for each cohort at each relative time period to treatment in order to identify which cohorts were present in each relative time period to treatment. Then we continue by obtaining the number of units at each cohort of our sample
 
 ```{r}
-# Identify cohorts present in each relative time period, if count > 0 the cohort
+	# Identify cohorts present in each relative time period, if count > 0 the cohort
 # is present
 N_el = data %>% select(timeToTreat, X_nfd) %>% group_by(timeToTreat, X_nfd) %>%
   summarise(N_el = n()) %>% ungroup()
@@ -804,6 +805,7 @@ Ns = N_el %>% left_join(Ne, by = "X_nfd") %>%
   rename(l = timeToTreat, e = X_nfd) %>% select(l, e, Ne)
 head(Ns, 5)
 ```
+
 
 Now we build matrix for the amount of units at each cohort for each relative period to treatment in order to after compute the weights. This matrix is build in a similar way that `deltas` object
 
@@ -841,7 +843,6 @@ for (column in seq_along(cohorts)) {
 
 # The matrix units is now filled
 ```
-
 Now we build the weights for each $\widehat{\delta}_{e,\ell}$ as the share of cohort $e$ present in relative period $\ell$ and show that are (approximately) equal^[There may be some very small difference due to the method of estimation.] to the weights obtained in the regressions above
 
 ```{r}
@@ -850,11 +851,12 @@ w2[21, ] <- 0
 w1[1:10, 1:10]
 w2[1:10, 1:10]
 ```
+-->
 
-Finally we show this weights
+We can display these weights in the same was as we documented the quantities $\widehat\delta_{e,\ell}$ previously:
 
 ```{r}
-ws <- w2
+ws <- w1
 kbl(ws, booktabs = T, digits = 2, linesep = "") %>% 
   kable_styling(font_size = 10, bootstrap_options = c("striped", "hover"), full_width = T)
 ```
