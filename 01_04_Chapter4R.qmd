@@ -57,8 +57,11 @@ LPM_r <- felm(data = data, subset = (female == 1),
 eps_tilde <- LPM_r$residuals
 ```
 
-These restricted residuals `eps_tilde` above will be key in our wild cluster bootstrap procedure.  
-Third we should follow a few steps a large number $B$ times that create artifical bootstrap samples depending on residuals and clusters, so before we generate a common data frame to structure this artificials samples and a data frame to store the results of the bootstrap replications
+These restricted residuals `eps_tilde` above will be key in our wild cluster bootstrap procedure.  For a given bootstrap replication, for each cluster we will assign a value of -1 or +1, and multiply the previous residuals by this (cluster-specific) value.  This will maintain correlations between residuals fixed within each cluster, but allow correlations to vary between clusters.  We will thus generate a new "sample" of data taking original data and updated residuals, resulting in a new outcome for $y$.
+
+Below we will initialise this wild cluster bootstrap procedure, setting some large amount of bootstrap replicates (here 1,000), before storing the data we need as `bsample` using base `R`'s new pipe function $|>$ to send the output from the left-hand command into the right-hand command.  We will then also incorporate the residuals from above into this dataframe, so `bsample` contains all relevant covariates, as well as the restricted residuals. 
+
+**NOTE: PROBABLEMENTE MÁS RÁPIDO SIMPLEMENTE PASAR A bsample 2 ELEMENTOS, UNO QUE ES X*Beta, Y OTRO QUE ES eps_tilde.  Así, no es necesario re-escribir el modelo en cada loop...**
 
 ```{r}
 B = 1000
