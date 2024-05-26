@@ -23,11 +23,9 @@ data <- read.csv2("Datasets/PorterSerra2020.csv")
 
 Following @PorterSerra2020 we will estimate the following linear probability model (LPM)
 $$Y_{i} = \beta_0 + \beta_1 dt_i + \beta_2 dT_i + \beta_3 dt_i \times dT_i + \delta \mathbf{X}_i + \varepsilon_i$$
-where we use identical notation from their paper.  Treatment was randomly applied at the class level in 2016, and classes also existed in 2015, but no treatment was applied.  Above, $Y_i$ is a student's (binary) decision of whether or not to major in economics (`econmajor`), $dt_i$ (`yr_2016`) a dummy equal to one if she took the class in 2016 and zero if she took a class in 2015, and $dT_i$ (`treatment_class`) is a dummy equal to one if she is in a treatment class, and zero if she is in a control class. The interaction between these two dummies (`treat2016`) is the coefficient of interest and $\mathbf{X}_i$ is a vector of individual, demographic and class controls such as if the course was taught by a female professor (`female_prof`), if the student is an in-state student (`instate`), if the student is in freshman year (`freshman`), if the student is american (`american`), the student's cumulative GPA (`ACumGPA`), the student's grade in their Principles of Economics course (`gradePrinciples`) and if the student take a class with a limit of 40 students (`small_class`).  
+where we use identical notation from their paper.  Treatment was randomly applied at the class level in 2016, and classes also existed in 2015, but no treatment was applied.  Above, $Y_i$ is a student's (binary) decision of whether or not to major in economics (`econmajor`), $dt_i$ (`yr_2016`) a dummy equal to one if she took the class in 2016 and zero if she took a class in 2015, and $dT_i$ (`treatment_class`) is a dummy equal to one if she is in a treatment class, and zero if she is in a control class. The interaction between these two dummies (`treat2016`) is the coefficient of interest and $\mathbf{X}_i$ is a vector of individual, demographic and class controls such as if the course was taught by a female professor (`female_prof`), if the student is an in-state student (`instate`), if the student is in freshman year (`freshman`), if the student is american (`american`), the student's cumulative GPA (`ACumGPA`), the student's grade in their Principles of Economics course (`gradePrinciples`) and if the student take a class with a limit of 40 students (`small_class`).  As treatment is assigned at the class level (`class_fe2`), and as there are few clusters (12 clusters), the authors proceed to conduct inference using a wild cluster bootstrap.  We conduct this procedure below.
 
-The authors identify that as the treatment is at the class level (`class_fe2`), they cluster the standard errors at the class level, but since there are fewer than 30 clusters (12 classes), they apply the correction for the small number of clusters by using wild cluster bootstrapping. Next we follow the algorithm described in the book to perform the wild cluster boostrap.  
-
-First we estimate the LPM in order to get an estimate of the interest coefficient $\widehat{\beta}_3$ along with the cluster-robust standard error $se \left( \widehat{\beta}_3 \right)$ and the $t$-statistic value $\left( \widehat{\beta}_3 - 0 \right) / se \left( \widehat{\beta}_3 \right)$ by standard OLS using the `felm` function from the `lfe` package. The usage of this function includes a four-part formula where the first part is a conventional formula as in `lm`, the second part is the variables that determine the fixed effects, the third part is for an IV formula and the last part is a variable to use if clustered standard errors are desired. As we are not estimating with fixed effects or IV we indicate 0 in the second and third portion of the formula
+Here in particular we are interested in the parameter $\beta_3$ which under difference-in-difference assumptions will identify the effect of female role models on future enrollment in an economics major.  Before examining this process, we will estimate the LPM in order to get an estimate of the coefficient of interest $\widehat{\beta}_3$, along with the (traditional) cluster-robust standard error $se\left(\widehat{\beta}_3\right)$, and resulting $t$-statistic for the test of a null effect: $t=\left(\widehat{\beta}_3 - 0\right)/se\left(\widehat{\beta}_3\right)$.  We will do this using the `felm` function from the `lfe` package to estimate our regression model. The usage of this function includes a four-part formula where the first part is a conventional formula as in `lm`, the second part is the variables that determine the fixed effects (or 0 if no fixed effects are desired), the third part is for an IV formula (or 0 if OLS is desired) and the last part is a variable to use if clustered standard errors are desired. As we are not estimating with fixed effects or IV we indicate 0 in the second and third portion of the formula:
 
 ```{r}
 data$ACumGPA <- as.numeric(data$ACumGPA)
@@ -40,16 +38,16 @@ LPM <- felm(data = data, subset = (female == 1),
 summary(LPM)
 ```
 
-It can be seen that the coefficient of interest is 0.080141 with a cluster standard error of 0.036483 and a statistic of 2.197. This values are stored along with the residuals of the regression $\widehat{\varepsilon}$
+It can be seen that the coefficient of interest is 0.0801 (as per column 4 of Table 4 of @PorterSerra2020) with a clustered standard error of 0.0364 and a resulting t-statistic of 2.197. Below, we store these values along with the residuals of this unrestricte regression $\widehat{\varepsilon}$:
 
 ```{r}
-beta3_hat <- LPM$coefficients["treat2016",]
+beta3_hat    <- LPM$coefficients["treat2016",]
 se_beta3_hat <- as.numeric(LPM$cse["treat2016"])
-t_beta3_hat <- as.numeric(LPM$ctval["treat2016"])
-eps_hat <- LPM$residuals
+t_beta3_hat  <- as.numeric(LPM$ctval["treat2016"])
+eps_hat      <- LPM$residuals
 ```
 
-Second we impose the restriction $\beta_3 = 0$ and reestimate the LPM model to obtain the restricted residuals $\tilde{\varepsilon}$
+Because we are interested in considering the variation of data in a model where we assume the null hypotehsis $\beta_3=0$ is true, we will now *impose* this hypothesis, and re-estimate our model.  We do this below, imposing the restriction $\beta_3 = 0$ by simply omiting the `treat2016` variable from the model, storing the restricted residuals from this regression as $\tilde{\varepsilon}$. 
 
 ```{r}
 LPM_r <- felm(data = data, subset = (female == 1),
@@ -59,6 +57,7 @@ LPM_r <- felm(data = data, subset = (female == 1),
 eps_tilde <- LPM_r$residuals
 ```
 
+These restricted residuals `eps_tilde` above will be key in our wild cluster bootstrap procedure.  
 Third we should follow a few steps a large number $B$ times that create artifical bootstrap samples depending on residuals and clusters, so before we generate a common data frame to structure this artificials samples and a data frame to store the results of the bootstrap replications
 
 ```{r}
@@ -79,6 +78,7 @@ Now we start with the steps, we show one iteration example and then automate the
 ```{r}
 clusters <- data.frame(class_fe2 = unique(data$class_fe2),
                        ag = sample(c(-1,1), size = 12, replace = T))
+print(clusters)		       
 bsample <- bsample |> left_join(clusters, by = "class_fe2")
 ```
 
@@ -157,6 +157,10 @@ for (b in 2:B) {
   WildClusterBootstrap$se_beta3[b] <- LPM_b$cse["treat2016"]
   WildClusterBootstrap$t_stat[b] <- LPM_b$ctval["treat2016"]
 }
+```
+
+```{r}
+hist(WildClusterBootstrap$t_stat)
 ```
 
 Now we compare our original $t$-statistic `r round(t_beta3_hat, 3)` with the 97.5 percentile of the $t$-statistics computed in our bootstraping to see if we can reject the null of $\beta_3 = 0$ to a 5% significance level
