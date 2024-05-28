@@ -59,10 +59,10 @@ eps_tilde <- LPM_r$residuals
 
 These restricted residuals `eps_tilde` above will be key in our wild cluster bootstrap procedure.  For a given bootstrap replication, for each cluster we will assign a value of -1 or +1, and multiply the previous residuals by this (cluster-specific) value.  This will maintain correlations between residuals fixed within each cluster, but allow correlations to vary between clusters.  We will thus generate a new "sample" of data taking original data and updated residuals, resulting in a new outcome for $Y_i$.
 
-Below we will initialise this wild cluster bootstrap procedure, setting some large amount of bootstrap replicates (here 1,000), before storing the data we need as `bsample` using base `R`'s new pipe function $|>$ to send the output from the left-hand command into the right-hand command.  We will then also incorporate the residuals from above into this dataframe, so `bsample` contains all relevant covariates, as well as the restricted residuals.  It is worth noting, that in practice, all we require from these covariates is the ability to form $\widehat{Y}_i=\widehat\beta_0+\widehat\beta_1 dt_i + \widehat\beta_2 dT_i + \widehat\delta \mathbf{X}_i$, and we could actually just work with the quantity $\widehat{Y}_i$ below (you may wish to confirm this to yourself by editing the code below).  However, for ease of exposition we will work with the full set of covariates in code below, even though this is somewhat less efficient.
+Below we will initialise this wild cluster bootstrap procedure, setting some large amount of bootstrap replicates (here 999), before storing the data we need as `bsample` using base `R`'s new pipe function $|>$ to send the output from the left-hand command into the right-hand command.  We will then also incorporate the residuals from above into this dataframe, so `bsample` contains all relevant covariates, as well as the restricted residuals.  It is worth noting, that in practice, all we require from these covariates is the ability to form $\widehat{Y}_i=\widehat\beta_0+\widehat\beta_1 dt_i + \widehat\beta_2 dT_i + \widehat\delta \mathbf{X}_i$, and we could actually just work with the quantity $\widehat{Y}_i$ below (you may wish to confirm this to yourself by editing the code below).  However, for ease of exposition we will work with the full set of covariates in code below, even though this is somewhat less efficient.
 
 ```{r}
-B = 1000
+B = 999
 WildClusterBootstrap <- data.frame(beta3 = rep(NA, B),
                                    se_beta3 = rep(NA, B),
                                    t_stat = rep(NA, B))
@@ -157,7 +157,8 @@ for (b in 2:B) {
 We can see below what this "null distribution" of t-statistics looks like.  It is not a surprise that these are centred around 0, because this is what our model has imposed.  However, more interesting than this is to see they type of variation in t-statistics which we can expect in our data with null effects imposed.  We can see, below, that this looks somewhat heavier-tailed than a standard t-distribution.
 
 ```{r}
-hist(WildClusterBootstrap$t_stat, breaks=20, xlab='Bootstrap t-statistics', main=NULL)
+hist(WildClusterBootstrap$t_stat, breaks=20, xlab='Bootstrap t-statistics',
+     main=NULL)
 ```
 
 From this distribution we can calculate a p-value by asking what proportion of t-statistics from the null distribution exceed our estimated t-statistic from the unrestricted model.  We do this below, observing that the p-value is quite close to that reported in @PorterSerra2020 (who report a p-value of 0.089), only differing due to random variation in draws of the Rademacher weights.
@@ -187,7 +188,7 @@ We also could repeat this exercise with the `bootest` function from the `fwildcl
 ```{r}
 library(fwildclusterboot)
 boot <- boottest(object = LPM,
-                 B = 1000,
+                 B = 999,
                  param = "treat2016",
                  clustid = "class_fe2")
 paste0("The p-value with the user-written function is: ",
@@ -210,9 +211,9 @@ Finally as a comparative exercise we may be interested in seeing how this proced
 library(ClusterBootstrap)
 set.seed(121316)
 boot2 <- clusbootglm(model = econmajor ~ yr_2016 + treatment_class +
-                       treat2016 + female_prof + instate + freshman +
-                       american + ACumGPA + gradePrinciples +
-                       small_class, data = data[data$female == 1,],
+                     treat2016 + female_prof + instate + freshman +
+                     american + ACumGPA + gradePrinciples +
+                     small_class, data = data[data$female == 1,],
                      clusterid = class_fe2,
                      B = 1000)
 boot2$percentile.interval
