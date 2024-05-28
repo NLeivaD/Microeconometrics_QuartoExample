@@ -38,7 +38,7 @@ LPM <- felm(data = data, subset = (female == 1),
 summary(LPM)
 ```
 
-It can be seen that the coefficient of interest is 0.0801 (as per column 4 of Table 4 of @PorterSerra2020) with a clustered standard error of 0.0364 and a resulting t-statistic of 2.197. Below, we store these values along with the residuals of this unrestricte regression $\widehat{\varepsilon}$:
+It can be seen that the coefficient of interest is 0.0801 (as per column 4 of Table 4 of @PorterSerra2020) with a cluster-robust standard error of 0.0364 and a resulting t-statistic of 2.197. Below, we store these values along with the residuals of this unrestricte regression $\widehat{\varepsilon}$:
 
 ```{r}
 beta3_hat    <- LPM$coefficients["treat2016",]
@@ -47,7 +47,7 @@ t_beta3_hat  <- as.numeric(LPM$ctval["treat2016"])
 eps_hat      <- LPM$residuals
 ```
 
-Because we are interested in considering the variation of data in a model where we assume the null hypotehsis $\beta_3=0$ is true, we will now *impose* this hypothesis, and re-estimate our model.  We do this below, imposing the restriction $\beta_3 = 0$ by simply omiting the `treat2016` variable from the model, storing the restricted residuals from this regression as $\tilde{\varepsilon}$. 
+Because we are interested in considering the variation of data in a model where we assume the null hypothesis $\beta_3=0$ is true, we will now *impose* this hypothesis, and re-estimate our model.  We do this below, imposing the restriction $\beta_3 = 0$ by simply omiting the `treat2016` variable from the model, storing the restricted residuals from this regression as $\tilde{\varepsilon}$. 
 
 ```{r}
 LPM_r <- felm(data = data, subset = (female == 1),
@@ -57,11 +57,9 @@ LPM_r <- felm(data = data, subset = (female == 1),
 eps_tilde <- LPM_r$residuals
 ```
 
-These restricted residuals `eps_tilde` above will be key in our wild cluster bootstrap procedure.  For a given bootstrap replication, for each cluster we will assign a value of -1 or +1, and multiply the previous residuals by this (cluster-specific) value.  This will maintain correlations between residuals fixed within each cluster, but allow correlations to vary between clusters.  We will thus generate a new "sample" of data taking original data and updated residuals, resulting in a new outcome for $y$.
+These restricted residuals `eps_tilde` above will be key in our wild cluster bootstrap procedure.  For a given bootstrap replication, for each cluster we will assign a value of -1 or +1, and multiply the previous residuals by this (cluster-specific) value.  This will maintain correlations between residuals fixed within each cluster, but allow correlations to vary between clusters.  We will thus generate a new "sample" of data taking original data and updated residuals, resulting in a new outcome for $Y_i$.
 
-Below we will initialise this wild cluster bootstrap procedure, setting some large amount of bootstrap replicates (here 1,000), before storing the data we need as `bsample` using base `R`'s new pipe function $|>$ to send the output from the left-hand command into the right-hand command.  We will then also incorporate the residuals from above into this dataframe, so `bsample` contains all relevant covariates, as well as the restricted residuals. 
-
-**NOTE: PROBABLEMENTE MÁS RÁPIDO SIMPLEMENTE PASAR A bsample 2 ELEMENTOS, UNO QUE ES X*Beta, Y OTRO QUE ES eps_tilde.  Así, no es necesario re-escribir el modelo en cada loop...**
+Below we will initialise this wild cluster bootstrap procedure, setting some large amount of bootstrap replicates (here 1,000), before storing the data we need as `bsample` using base `R`'s new pipe function $|>$ to send the output from the left-hand command into the right-hand command.  We will then also incorporate the residuals from above into this dataframe, so `bsample` contains all relevant covariates, as well as the restricted residuals.  It is worth noting, that in practice, all we require from these covariates is the ability to form $\widehat{Y}_i=\widehat\beta_0+\widehat\beta_1 dt_i + \widehat\beta_2 dT_i + \widehat\delta \mathbf{X}_i$, and we could actually just work with the quantity $\widehat{Y}_i$ below (you may wish to confirm this to yourself by editing the code below).  However, for ease of exposition we will work with the full set of covariates in code below, even though this is somewhat less efficient.
 
 ```{r}
 B = 1000
@@ -70,29 +68,24 @@ WildClusterBootstrap <- data.frame(beta3 = rep(NA, B),
                                    t_stat = rep(NA, B))
 library(dplyr)
 bsample <- data |> filter(female == 1) |>
-  select(econmajor, yr_2016, treatment_class, treat2016, female_prof,
-         instate, freshman, american, ACumGPA, gradePrinciples,
-         small_class, class_fe2)
+	   select(econmajor, yr_2016, treatment_class, treat2016, 
+            	  female_prof, instate, freshman, american, ACumGPA, 
+         	  gradePrinciples, small_class, class_fe2)
 bsample$eps_tilde = as.numeric(eps_tilde)
 ```
 
-Now we start with the steps, we show one iteration example and then automate the other times in a loop. For each cluster $g$ assign $a_g = 1$ or $a_g = -1$ with probability 0.5 
-
+Now let's see what each iteration of a wild cluster bootstrap looks like.  As we will generate our new sample of data by (randomly) selecting values of -1 or 1 for each cluster to form "resampled" residuals, we will start by drawing these "Rademacher" weights for each cluster.  Below we do this by first generating a cluster-specific draw for each cluster $g$ which assigns $a_g = 1$ or $a_g = -1$ with probability 0.5 (as seen in `clusters`).  This value $a_g$ is joined into our main data:
 ```{r}
 clusters <- data.frame(class_fe2 = unique(data$class_fe2),
                        ag = sample(c(-1,1), size = 12, replace = T))
 print(clusters)		       
 bsample <- bsample |> left_join(clusters, by = "class_fe2")
 ```
-
-Now generate the new set of bootstrap errors
-
+Now, based on this draw and the original errors from the restricted model, we will generate the new set of bootstrap errors, which below we call `berrors`:
 ```{r}
 bsample <- bsample |> mutate(berrors = eps_tilde * ag)
 ```
-
-Next form the artificial outcome variable
-
+Finally, below we will generate our new resampled outcome variable `beconmajor` from covariates, restricted regression estimates, and our resampled error term `berrors`.
 ```{r}
 bsample <- bsample |> 
   mutate(beconmajor = LPM_r$beta["(Intercept)",] +
@@ -108,26 +101,25 @@ bsample <- bsample |>
            berrors)
 ```
 
-Now we estimate the non restricted LPM with this sample
+With this data in hand, we estimate the non-restricted model exactly as we did so previously with `felm`.  Below, we estimate this model, and examine summary output:
 
 ```{r}
 LPM_b <- felm(data = bsample,
               formula = beconmajor ~ yr_2016 + treatment_class +
-                treat2016 + female_prof + instate + freshman +
-                american + ACumGPA + gradePrinciples + 
-                small_class | 0 | 0 | class_fe2)
+	      treat2016 + female_prof + instate + freshman +
+              american + ACumGPA + gradePrinciples + 
+              small_class | 0 | 0 | class_fe2)
 summary(LPM_b)
 ```
 
-Finally we rescue the relevant values
+You will note here that the coefficient of interest (that on `treat2016`) is small and insignificant.  This should not be surprising to us, as we have imposed that this coefficient should be zero in the process where we generated `beconmajor` previously.  The idea of this process is that in this way we should have some idea of the variation we may expect in parameter estimates when the true parameter actually *is* zero.  If we observe that our true estimate greatly exceeds these "null" estimates, we may be willing to conclude that the original effect is real.  We store the relevant values from our regression model below to calculate a t-statistic from this bootstrap replicate.
 
 ```{r}
-WildClusterBootstrap$beta3[1] <- LPM_b$beta["treat2016",]
+WildClusterBootstrap$beta3[1]    <- LPM_b$beta["treat2016",]
 WildClusterBootstrap$se_beta3[1] <- LPM_b$cse["treat2016"]
-WildClusterBootstrap$t_stat[1] <- LPM_b$ctval["treat2016"]
+WildClusterBootstrap$t_stat[1]   <- LPM_b$ctval["treat2016"]
 ```
-
-And now we repeat this for the other $B-1$ times in a loop
+We wish to see how extreme our original t-statistic is compared to many t-statistics generated in this way, where the null is imposed.  Thus, we will now repeat the previous bootstrap replicate $B-1$ more times in a loop, so that we have $B$ t-statistics.
 
 ```{r}
 for (b in 2:B) {
@@ -151,21 +143,27 @@ for (b in 2:B) {
            berrors)
   # Estimate artificial model
   LPM_b <- felm(data = bsample,
-              formula = beconmajor ~ yr_2016 + treatment_class +
+                formula = beconmajor ~ yr_2016 + treatment_class +
                 treat2016 + female_prof + instate + freshman +
                 american + ACumGPA + gradePrinciples + 
                 small_class | 0 | 0 | class_fe2)
   # Store values
-  WildClusterBootstrap$beta3[b] <- LPM_b$beta["treat2016",]
+  WildClusterBootstrap$beta3[b]    <- LPM_b$beta["treat2016",]
   WildClusterBootstrap$se_beta3[b] <- LPM_b$cse["treat2016"]
-  WildClusterBootstrap$t_stat[b] <- LPM_b$ctval["treat2016"]
+  WildClusterBootstrap$t_stat[b]   <- LPM_b$ctval["treat2016"]
 }
 ```
 
+We can see below what this "null distribution" of t-statistics looks like.  It is not a surprise that these are centred around 0, because this is what our model has imposed.  However, more interesting than this is to see they type of variation in t-statistics which we can expect in our data with null effects imposed.  We can see, below, that this looks somewhat heavier-tailed than a standard t-distribution.
+
 ```{r}
-hist(WildClusterBootstrap$t_stat)
+hist(WildClusterBootstrap$t_stat, breaks=20, xlab='Bootstrap t-statistics', main=NULL)
 ```
 
+From this distribution we can calculate a p-value by asking what proportion of t-statistics from the null distribution exceed our estimated t-statistic from the unrestricted model.  We do this below, observing that the p-value is quite close to that reported in @PorterSerra2020 (who report a p-value of 0.089), only differing due to random variation in draws of the Rademacher weights.
+
+
+<!--
 Now we compare our original $t$-statistic `r round(t_beta3_hat, 3)` with the 97.5 percentile of the $t$-statistics computed in our bootstraping to see if we can reject the null of $\beta_3 = 0$ to a 5% significance level
 
 ```{r}
@@ -176,7 +174,7 @@ if(abs(t_beta3_hat) > abs(t97_5)){
   print("We can't reject the null.")
 }
 ```
-Finally we also compute the the p-value of our hypothesis
+-->
 
 ```{r}
 pval <- mean(abs(WildClusterBootstrap$t_stat) > 
@@ -184,7 +182,7 @@ pval <- mean(abs(WildClusterBootstrap$t_stat) >
 paste0("The p-value is: ", round(pval, 3))
 ```
 
-As we can see we can't reject the null. We also could repeat this exercise with the `bootest` function from the `fwildclusterboot` developed by @FischerRoodman2021 and get the same conclusion
+We also could repeat this exercise with the `bootest` function from the `fwildclusterboot` developed by @FischerRoodman2021 and arrive to the same conclusion.  This function works with the original model we estimated previously (`LPM`), and conducts an identical procedure to that which we have done above "by hand".  Any difference in p-values is incidental, owing to different random draws.  
 
 ```{r}
 library(fwildclusterboot)
@@ -192,28 +190,25 @@ boot <- boottest(object = LPM,
                  B = 1000,
                  param = "treat2016",
                  clustid = "class_fe2")
-t97_5 <- quantile(boot$t_boot, 0.975)
-if(abs(t_beta3_hat) > abs(t97_5)){
-  print("The null is rejected.")
-} else {
-  print("We can't reject the null.")
-}
 paste0("The p-value with the user-written function is: ",
        round(boot$p_val, 3))
 ```
 
-In this case the 97.5% quantile may be different from the manual exercise due to the randomization of the exercise but our conclusion doesn't change as seen with the p-value. Finally the authors in @Roodmanetal2019 mentioned that compute the confidence set require a more complex exercise on obtaining more bootstrap samples but conveniently the user-written function does this efficiently and automatically so we can directly from the results get the confidence interval
+In principle, using such a library is likely the preferred way of conducting procedures such as the wild cluster bootstrap, however it is illustrative to see how it works in practice, as we do above.  A nice element of user-written procedures such as that of @Roodmanetal2019 is that it also seamlessly returns other quantities of interest which we would have to generate ourselves above, such as confidence interval, which we can see below:
 
 ```{r}
 paste0("The confidence interval is: [", 
        round(boot$conf_int[1], 3),
        ",", round(boot$conf_int[2], 3), "].")
 ```
+These values correspond closely to the original 95% CIs reported in the paper of [-0.015; 0.160].
 
-Finally as a comparative exercise we can compare this results with the ones from the clustered standard errors computed at the beginning where null were rejected and with a standard cluster bootstrap using the package `ClusterBootstrap`
+
+Finally as a comparative exercise we may be interested in seeing how this procedure compares to a standard clustered bootstrap.  While there are many ways we could do this -- including quite easily by hand -- we examine this below using the `ClusterBootstrap` library.  It turns out that while the 95% CI on `treat2016` coming from clustered bootstrap is narrower than the 95% CI from the wild cluster bootstrap (as expected), the difference is not *so* substantial in this particular case. 
 
 ```{r}
 library(ClusterBootstrap)
+set.seed(121316)
 boot2 <- clusbootglm(model = econmajor ~ yr_2016 + treatment_class +
                        treat2016 + female_prof + instate + freshman +
                        american + ACumGPA + gradePrinciples +
@@ -222,8 +217,6 @@ boot2 <- clusbootglm(model = econmajor ~ yr_2016 + treatment_class +
                      B = 1000)
 boot2$percentile.interval
 ```
-
-In this procedure the null is rejected as 0 is included in the 95% confidence interval.
 
 ## Code call-out 4.2: Exploring the Two-way Fixed Effect Model and Parameter Decompositions
 
