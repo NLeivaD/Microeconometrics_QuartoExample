@@ -826,7 +826,18 @@ Depending on the nature of treatment assignment, ie the number of treated period
 ## Code call-out 4.3: Event study and Interaction-weighted Estimators
 
 ## Code call-out 4.4: Synthetic control, difference-in-differences, and synthetic difference-in-differences
+In this code call out, we will explore the use of synthetic control methods as well as extensions into synthetic difference-in-differences with the data using in the original @Abadieetal2010 paper.  In particular, these data provide a balanced sample from 39 states in the United States covering the period of 1970 to 2000.  In particular, the interest in these methods is estimating the impact of the passage of Proposition 99, which was a reform to increase the sales tax paid per package of cigarettes sold in California.
 
+We will begin by opening the data used by @Abadieetal2010, and checking the variables available.  If we wished we could confirm that this is effectively a balanced panel by tabulating (`tab`) the variable year and state.  
+
+```{stata}
+use "Datasets/smoking.dta"
+describe
+```
+
+Here our outcome of interest will be the variable `cigsale` which records the number of packages sold per capita in each state.  The proposition 99 reform was passed in 1989, and we will thus consider 1970-1988 as the pre-period, while the period of 1989-2000 is the treatment period. While @Abadieetal2010 actually construct their synthetic control considering both certain pre-period realisations as well as control variables included in their data, we will follow suggestions from @Fermanetal2020 and document a case where we simply use the full set of pre-treatment realisations of the outcome of interest to generate our synthetic control.  We will do this below, noting that the `state` variable in these data uses Stata FIPS codes, and so California corresponds to state 3.  The below code assumes that the `synth` routine is installed, which is available from Stata's SSC.
+
+<!--
 The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
 
 -   Use the 'synth' command to construct the synthetic control for California
@@ -836,55 +847,47 @@ The synthetic control method seeks to construct a "synthetic control" for a trea
 -   Periods used to construct the synthetic control: 1980-1988
 
 Once the synthetic control is constructed, we can compare the trends of the treated unit and the synthetic control in the post-treatment period. Any divergence in trends is interpreted as the treatment effect. In this case, we are assessing the impact of a hypothetical policy implemented in California in 1989 on cigarette sales.
+-->
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(Statamarkdown)
 ```
 
 ```{stata}
-* Clear the workspace and turn off result pagination
-clear all
-set more off
-
-* Install the 'synth' package if not already installed
-*ssc install synth, replace
-
-* Load the dataset 'smoking.dta'
 use "Datasets/smoking.dta"
 
-* Set the data as panel data with 'state' as the panel unit and 'year' as the time variable
+// Set the data as panel data with 'state' as the panel unit and 'year' as the time variable
 tsset state year
 
-* The synthetic control method seeks to construct a "synthetic control" for a treated unit (in this case, California) using a weighted combination of control units (other states). The aim is for this synthetic control to closely resemble the treated unit in the pre-treatment period based on predictor variables.
+synth cigsale cigsale(1970) cigsale(1971) cigsale(1972) cigsale(1973) ///
+              cigsale(1974) cigsale(1985) cigsale(1976) cigsale(1977) ///
+              cigsale(1978) cigsale(1979) cigsale(1980) cigsale(1981) ///
+              cigsale(1982) cigsale(1983) cigsale(1984) cigsale(1985) ///
+              cigsale(1986) cigsale(1987) cigsale(1988),              ///
+   trunit(3) trperiod(1989) keep(synth_results) replace
+```
 
-* Use the 'synth' command to construct the synthetic control for California
-* - Predictor variables: cigsale from specific years, beer, lnincome, retprice, age15to24
-* - Treated unit: California (state==3)
-* - Treatment period: 1989
-* - Periods used to construct the synthetic control: 1980-1988
-synth cigsale beer lnincome retprice age15to24 cigsale(1988) cigsale(1980) cigsale(1975), ///
-      trunit(3) trperiod(1989) xperiod(1980(1)1988) fig keep(results) replace
-	  
-use results.dta, clear
+You may note a number of things with the way that we have implemented `synth` above.  The first is that the way we have entered the covariates on which to match (pre-treatment lags of the sales variable) is very cumbersome.  It turns out that this is required if we do indeed wish to match on the variable at each pre-treatment period.  While the syntax `cigsale(1970(1)1988)` would also be valid, it is *not* what we are after, as this would match on mean sales across the whole period, rather than sales in each pre-treatment period.  A second thing to note is that there is substantial output both in terms of the data setup, the root mean square prediction error across all variables used in the match, and the resulting weights and predictor balances.   From this we can see (for example), that the synthetic control for California is constructed using a combination of Colorado, Connecticut, Montana, Nevada, New Hampshire, and Utah.  In the above implementation we have saved a dataset called `synth_results` which we can use to consider how the resulting synthetic control compares with California.  The nature of the variables generated in this dataset are contained in the help file from `synth`.   We will generate this graphical output below, starting with the `synth_results` dataset.
+
+```{stata echo = 1:10}
+use synth_results.dta, clear
 tsset _time
 
 * Create the graph with a dotted line at the treatment period
-twoway (tsline _Y_treated _Y_synthetic, graphregion(color(white)) lcolor(blue red) ///
-    title("Cigarette Sales in California vs. Synthetic Control") ///
-    legend(label(1 "California") label(2 "Synthetic California") order(1 2 3))) ///
-    (function y = _Y_treated, range(1989 1989) lpattern(dash) lcolor(gs8) legend(label(3 "Tobacco Policy Change (1989)"))), ///
-    ytitle("Cigarette Sales") xtitle("Year")
+set scheme plotplainblind
+twoway tsline _Y_treated _Y_synthetic, lcolor(blue red) lwidth(thick thick) ///
+    legend(order(1 "California" 2 "Synthetic California") pos(1) ring(0))   ///
+    xline(1989)  ytitle("Cigarette Sales") xtitle("Year")
+qui graph export "synth.png", replace
 
-
-* Once the synthetic control is constructed, we can compare the trends of the treated unit and the synthetic control in the post-treatment period. Any divergence in trends is interpreted as the treatment effect. In this case, we are assessing the impact of a hypothetical policy implemented in California in 1989 on cigarette sales.
-
-* Results:
-
-* 1. The synthetic control for California is constructed using a combination of other states. Specifically, weights are assigned to states like Colorado, Connecticut, Montana, Nevada, New Mexico, and Utah.
+* 1.
 * 2. The RMSPE (Root Mean Squared Prediction Error) is a measure of how well the synthetic control approximates California in the pre-treatment period. A lower RMSPE indicates a better fit. In this case, the RMSPE is 1.756235, suggesting a reasonably good fit.
 * 3. The "Predictor Balance" table shows how California and the synthetic control compare in terms of the predictor variables. The figures show that there is a good balance between the treated unit and the synthetic control on these variables.
 
 * The graph displays per capita cigarette sales in California and the synthetic control over time. The divergence between the two lines post-1989 represents the estimated effect of the policy.
-
-
 ```
+![California and it's Synthetic Control](synth.png)
+
+Here we can see that (as expected) the synthetic control and California follow a very similar trend up to the period in which treatment is applied.  This comes precisely from the optimisation procedure, which seeks to construct a synthetic control which minimises this distance.  However, we observe that outcomes then diverge between California and the synthetic control...
+
+INCLUDE SYNTHETIC DIFF-IN-DIFF SHOWING OUTCOMES, SYNTHETIC CONTROL AND SYNTHETIC DIFF-IN-DIFF.
