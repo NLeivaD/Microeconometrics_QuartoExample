@@ -888,6 +888,61 @@ qui graph export "synth.png", replace
 ```
 ![California and it's Synthetic Control](synth.png)
 
-Here we can see that (as expected) the synthetic control and California follow a very similar trend up to the period in which treatment is applied.  This comes precisely from the optimisation procedure, which seeks to construct a synthetic control which minimises this distance.  However, we observe that outcomes then diverge between California and the synthetic control...
+Here we can see that (as expected) the synthetic control and California follow a very similar trend up to the period in which treatment is applied.  This comes precisely from the optimisation procedure, which seeks to construct a synthetic control which minimises this distance.  However, we observe that outcomes then diverge between California and the synthetic control in the post-reform period, with a substantially larger decline in California.  If we wished to formally conduct hypothesis tests related to this synthetic control procedure, we could conduct the permutation inference procedures laid out in @Abadieetal2010 and discussed in Chapter 4. While we will not set this up here it is a worthwhile activity to understand the practicalities of inference.  We *will* also consider below extensions of these methods into synthetic difference-in-differences, additionally documenting inference following permutation procedures.
 
-INCLUDE SYNTHETIC DIFF-IN-DIFF SHOWING OUTCOMES, SYNTHETIC CONTROL AND SYNTHETIC DIFF-IN-DIFF.
+We will do this using the `sdid` library...
+
+```{stata}
+qui use "Datasets/smoking.dta"
+gen treated = state==3&year>=1989
+decode state, gen(statename)
+
+sdid cigsale statename year treated, method(sdid) vce(placebo) ///
+graph g1on g1_opt(ylabel(-110(20)50) xtitle("")) ///
+g2_opt(ylabel(0(25)150) ytitle("Packs per capita")) 
+```
+::: {#fig-sdid layout-ncol=2}
+
+![Trends and Time Weights](sdid_trends1989.png){#fig-surus}
+
+![Differences and State Weights](sdid_weights1989.png){#fig-hanno}
+
+Synthetic difference-in-differences: Unit weights, time weights, trends and differences
+:::
+
+
+```{stata echo=3:6}
+qui use "Datasets/smoking.dta"
+gen treated = state==3&year>=1989
+decode state, gen(statename)
+sdid cigsale statename year treated, method(sc) vce(placebo) ///
+graph g1on g1_opt(ylabel(-110(20)50) xtitle("")) ///
+g2_opt(ylabel(0(25)150) ytitle("Packs per capita"))
+```
+::: {#fig-sc layout-ncol=2}
+
+![Trends and Time Weights](sc_trends1989.png){#fig-surus}
+
+![Differences and State Weights](sc_weights1989.png){#fig-hanno}
+
+Synthetic control: Unit weights, time weights, trends and differences
+:::
+
+
+```{stata echo=3:6}
+qui use "Datasets/smoking.dta"
+gen treated = state==3&year>=1989
+decode state, gen(statename)
+sdid cigsale statename year treated, method(did) vce(placebo) ///
+graph g1on g1_opt(ylabel(-110(20)50) xtitle("")) ///
+g2_opt(ylabel(0(25)150) ytitle("Packs per capita")) graph_export(did_, .png)
+```
+::: {#fig-did layout-ncol=2}
+
+![Trends and Time Weights](did_trends1989.png){#fig-surus}
+
+![Differences and State Weights](did_weights1989.png){#fig-hanno}
+
+Difference-in-differences: Unit weights, time weights, trends and differences
+:::
+
