@@ -112,9 +112,9 @@ print(LPM_b.summary2())
 You will note here that the coefficient of interest (that on `treat2016`) is small and insignificant.  This should not be surprising to us, as we have imposed that this coefficient should be zero in the process where we generated `beconmajor` previously.  The idea of this process is that in this way we should have some idea of the variation we may expect in parameter estimates when the true parameter actually *is* zero.  If we observe that our true estimate greatly exceeds these "null" estimates, we may be willing to conclude that the original effect is real.  We store the relevant values from our regression model below to calculate a t-statistic from this bootstrap replicate.
 
 ```{python}
-WildClusterBootstrap['beta3'][0] = LPM_b.params['treat2016']
-WildClusterBootstrap['se_beta3'][0] = LPM_b.bse['treat2016']
-WildClusterBootstrap['t_stat'][0] = LPM_b.tvalues['treat2016']
+WildClusterBootstrap.loc[0,'beta3']    = LPM_b.params['treat2016']
+WildClusterBootstrap.loc[0,'se_beta3'] = LPM_b.bse['treat2016']
+WildClusterBootstrap.loc[0,'t_stat']   = LPM_b.tvalues['treat2016']
 ```
 We wish to see how extreme our original t-statistic is compared to many t-statistics generated in this way, where the null is imposed.  Thus, we will now repeat the previous bootstrap replicate $B-1$ more times in a loop, so that we have $B$ t-statistics.
 
@@ -147,9 +147,9 @@ for b in range(1,B):
                                     'treat2016'],
                       cluster_ids = ['class_fe2']).fit()
   # Store values
-  WildClusterBootstrap['beta3'][b] = LPM_b.params['treat2016']
-  WildClusterBootstrap['se_beta3'][b] = LPM_b.bse['treat2016']
-  WildClusterBootstrap['t_stat'][b] = LPM_b.tvalues['treat2016']
+  WildClusterBootstrap.loc[b,'beta3']    = LPM_b.params['treat2016']
+  WildClusterBootstrap.loc[b,'se_beta3'] = LPM_b.bse['treat2016']
+  WildClusterBootstrap.loc[b,'t_stat']   = LPM_b.tvalues['treat2016']
 ```
 
 We can see below what this "null distribution" of t-statistics looks like.  It is not a surprise that these are centred around 0, because this is what our model has imposed.  However, more interesting than this is to see they type of variation in t-statistics which we can expect in our data with null effects imposed.  We can see, below, that this looks somewhat heavier-tailed than a standard t-distribution.
@@ -166,14 +166,14 @@ From this distribution we can calculate a p-value by asking what proportion of t
 <!--
 Now we compare our original $t$-statistic `r round(t_beta3_hat, 3)` with the 97.5 percentile of the $t$-statistics computed in our bootstraping to see if we can reject the null of $\beta_3 = 0$ to a 5% significance level
 
-```{r}
+{r}
 t97_5 <- quantile(WildClusterBootstrap$t_stat, 0.975)
 if(abs(t_beta3_hat) > abs(t97_5)){
   print("The null is rejected.")
 } else {
   print("We can't reject the null.")
 }
-```
+
 -->
 
 ```{python}
@@ -201,18 +201,19 @@ In principle, using such a library is likely the preferred way of conducting pro
 <!--
 nice element of user-written procedures such as that of @Roodmanetal2019 is that it also seamlessly returns other quantities of interest which we would have to generate ourselves above, such as confidence interval, which we can see below:
 
-```{r}
+{r}
 paste0("The confidence interval is: [", 
        round(boot$conf_int[1], 3),
        ",", round(boot$conf_int[2], 3), "].")
-```
 These values correspond closely to the original 95% CIs reported in the paper of [-0.015; 0.160].
 -->
 
 ** Update up to here, not found yet a user-written package for "normal" cluster bootstrap**
 Finally as a comparative exercise we may be interested in seeing how this procedure compares to a standard clustered bootstrap.  While there are many ways we could do this -- including quite easily by hand -- we examine this below using the `ClusterBootstrap` library.  It turns out that while the 95% CI on `treat2016` coming from clustered bootstrap is narrower than the 95% CI from the wild cluster bootstrap (as expected), the difference is not *so* substantial in this particular case. 
 
-```{r}
+
+<!--
+{r}
 library(ClusterBootstrap)
 set.seed(121316)
 boot2 <- clusbootglm(model = econmajor ~ yr_2016 + treatment_class +
@@ -222,7 +223,7 @@ boot2 <- clusbootglm(model = econmajor ~ yr_2016 + treatment_class +
                      clusterid = class_fe2,
                      B = 1000)
 boot2$percentile.interval
-```
+-->
 
 ## Code Call Out 4.2: Exploring the Two-way Fixed Effect Model and Parameter Decomposition
 
@@ -980,7 +981,7 @@ CATT_el.params[0:9]
 
 To have a full idea of what we've just estimated here, we will re-organise these estimates to present the coefficient in the style of Table 3 of @AbrahamSun2018.  In particular, let's display $\ell$ values (lags and leads) in rows and $e$ values in columns so we can observe our cohort-specific event studies in a column-wise fashion.  We do this below, we first build a matrix `deltas` in which to store these estimates, then fill them in, before finally displaying the tabular output.  Most of this code is actually relatively auxiliary, used to ensure that we can extract each lag and lead from regression results.  To do this, we are generating a function we call `fetch_coefficient`, as the coefficient we need may sometimes be named with `_Lag` in the variable, sometimes be named as `_Lead`, and sometimes not exist (and this may imply either that it is the base period -1, or that the lag or lead doesn't exist).  It is worth working through this function carefully to confirm that you can see that in this way we grab each coefficient $\widehat\delta_{e,\ell}$. 
 
-```{r}
+```{python}
 # Matrix to store delta_{e,l}
 deltas = pd.DataFrame(index = dummies_timeToTreat.columns,
                       columns = dummies_Cohort.columns)
@@ -1156,19 +1157,25 @@ The key thing to see is that we could estimate this manually with the pieces we 
 Note the usage of the `sunab` function which expands dummies as we have done above first takes the variable that records treatment cohorts and next the variable which describes the relative time to treatment.  If the second variable points to the year, this function automatically and internally creates the relative time to treatment period. It is also important to see that we have slightly modify the data for those never treated units such that they take a very high value in the `X_nfd` variable, this is because the `sunab` function would drop this observations if the `X_nfd` has missing values (`NA`) in this variable and instead considers a never treated unit if the relative time to treatment is always negative. It is thus sufficient for a period beyond the last year of the data to be indicated, so that never treated are correctly viewed as units which have not *yet* adopted. Finally note the second part of the formula, after `|`, indicates the fixed effects and automatically clusters by the first variable:
 
 ```{python}
-data = pd.read_csv("../../Ejemplo_QuartoBook/Datasets/StevensonWolfers2006.csv")
+data = pd.read_csv("Datasets/StevensonWolfers2006.csv")
 import paneleventstudy
+print(data.dtypes)
+data['stfips']=data['stfips'].astype(str)
+
 paneleventstudy.balancepanel(data = data, group = 'stfips', event = 'post', 
                              calendartime = 'year')
 data = paneleventstudy.identifycontrols(data = data, group = 'stfips', 
                                  event = 'post')
 paneleventstudy.genreltime(data = data, group = 'stfips', event = 'post', 
                            calendartime = 'year', reltime = 'reltime', 
-                           check_balance=True)```
+                           check_balance=True)
+```
+
 
 Finally, we plot the output along with its 95% confidence intervals to compare this with our original event study.
 
-```{r}
+<!--
+{r}
 # Create Cols for IW Estimates Information
 plot_df <- plot_df |> mutate(IWEstimate = NA,
                              IWSE = NA)
@@ -1192,7 +1199,8 @@ ggplot(data = plot_df) + geom_point(aes(x = Time, y = Estimate)) +
   scale_x_continuous(limits = c(-21, 28), breaks = seq(-20, 25, 5)) +
   scale_y_continuous(limits = c(-40, 40), breaks = seq(-40, 40, 20)) +
   labs(x = 'Time To Treatment', y = 'Suicide per 1m Woman')
-```
+
+-->
 
 ## Code call-out 4.4: Synthetic control, difference-in-differences, and synthetic difference-in-differences
 
