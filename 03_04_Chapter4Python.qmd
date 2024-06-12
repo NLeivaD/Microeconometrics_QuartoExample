@@ -4,7 +4,225 @@ bibliography: references.bib
 ---
 
 # Code Call Outs
+
 ## Code Call Out 4.1: Wild cluster bootstrap implementation
+
+To see the difference between the wild cluster bootstrap described in Section 4.2.3.2 of the book and other clustering options such as standard cluster bootstrap or clustered standard errors we will set up an example by hand of the wild cluster bootstrap.  We will do this with data provided by @PorterSerra2020 who conducted a field experiment which sought to test whether student exposure to engaging and successful women instructors in early economics classes increases the likelihood that female students go on to major in economics.  The dataset is provided under the name `PorterSerra2020.csv`, and we will open this data as `data` below:
+
+```{python}
+import pandas as pd
+data = pd.read_csv("Datasets/PorterSerra2020.csv", sep = ";")
+```
+
+Following @PorterSerra2020 we will estimate the following linear probability model (LPM)
+$$Y_{i} = \beta_0 + \beta_1 dt_i + \beta_2 dT_i + \beta_3 dt_i \times dT_i + \delta \mathbf{X}_i + \varepsilon_i$$
+where we use identical notation from their paper.  Treatment was randomly applied at the class level in 2016, and classes also existed in 2015, but no treatment was applied.  Above, $Y_i$ is a student's (binary) decision of whether or not to major in economics (`econmajor`), $dt_i$ (`yr_2016`) a dummy equal to one if she took the class in 2016 and zero if she took a class in 2015, and $dT_i$ (`treatment_class`) is a dummy equal to one if she is in a treatment class, and zero if she is in a control class. The interaction between these two dummies (`treat2016`) is the coefficient of interest and $\mathbf{X}_i$ is a vector of individual, demographic and class controls such as if the course was taught by a female professor (`female_prof`), if the student is an in-state student (`instate`), if the student is in freshman year (`freshman`), if the student is american (`american`), the student's cumulative GPA (`ACumGPA`), the student's grade in their Principles of Economics course (`gradePrinciples`) and if the student take a class with a limit of 40 students (`small_class`).  As treatment is assigned at the class level (`class_fe2`), and as there are few clusters (12 clusters), the authors proceed to conduct inference using a wild cluster bootstrap.  We conduct this procedure below.
+
+Here in particular we are interested in the parameter $\beta_3$ which under difference-in-difference assumptions will identify the effect of female role models on future enrollment in an economics major.  Before examining this process, we will estimate the LPM in order to get an estimate of the coefficient of interest $\widehat{\beta}_3$, along with the (traditional) cluster-robust standard error $se\left(\widehat{\beta}_3\right)$, and resulting $t$-statistic for the test of a null effect: $t=\left(\widehat{\beta}_3 - 0\right)/se\left(\widehat{\beta}_3\right)$.  We will do this using the `Regpyhdfe` function from the `regpyhdfe` package to estimate our regression model. The usage of this function includes a several arguments separate from each other, one for the dependent variable, other for the explanatory covariates, or predictors, other for the clustering variables and other for one of the the variables that determine the fixed effects (or ommitted if no fixed effects are desired). As we are not estimating with fixed effects or IV we don't indicate an `ids` argument:
+
+```{python}
+from regpyhdfe import Regpyhdfe
+data['Constant'] = 1
+LPM = Regpyhdfe(df = data[data['female'] == 1], target = 'econmajor', 
+                       predictors = ['yr_2016', 'treatment_class', 'treat2016',
+                                     'female_prof', 'instate', 'freshman',
+                                     'american', 'ACumGPA', 'gradePrinciples',
+                                     'small_class', 'Constant'],
+                       cluster_ids=['class_fe2']).fit()
+print(LPM.summary2())
+```
+
+It can be seen that the coefficient of interest is 0.0801 (as per column 4 of Table 4 of @PorterSerra2020) with a cluster-robust standard error of 0.0365 and a resulting t-statistic of 2.197. Below, we store these values along with the residuals of this unrestricte regression $\widehat{\varepsilon}$:
+
+```{python}
+beta3_hat = LPM.params['treat2016']
+se_beta3_hat = LPM.bse['treat2016']
+t_beta3_hat = LPM.tvalues['treat2016']
+eps_hat = LPM.resid
+```
+
+Because we are interested in considering the variation of data in a model where we assume the null hypothesis $\beta_3=0$ is true, we will now *impose* this hypothesis, and re-estimate our model.  We do this below, imposing the restriction $\beta_3 = 0$ by simply omiting the `treat2016` variable from the model, storing the restricted residuals from this regression as $\tilde{\varepsilon}$. 
+
+```{python}
+LPM_r = Regpyhdfe(df = data[data['female'] == 1], target = 'econmajor',
+                  predictors = ['yr_2016', 'treatment_class', 'female_prof', 
+                                'instate', 'freshman', 'american', 'ACumGPA', 
+                                'gradePrinciples', 'small_class', 'Constant'],
+                  cluster_ids=['class_fe2']).fit()
+eps_tilde = LPM_r.resid
+```
+
+These restricted residuals `eps_tilde` above will be key in our wild cluster bootstrap procedure.  For a given bootstrap replication, for each cluster we will assign a value of -1 or +1, and multiply the previous residuals by this (cluster-specific) value.  This will maintain correlations between residuals fixed within each cluster, but allow correlations to vary between clusters.  We will thus generate a new "sample" of data taking original data and updated residuals, resulting in a new outcome for $Y_i$.
+
+Below we will initialise this wild cluster bootstrap procedure, setting some large amount of bootstrap replicates (here 999), before storing the data we need as `bsample`.  We will then also incorporate the residuals from above into this dataframe, so `bsample` contains all relevant covariates, as well as the restricted residuals.  It is worth noting, that in practice, all we require from these covariates is the ability to form $\widehat{Y}_i=\widehat\beta_0+\widehat\beta_1 dt_i + \widehat\beta_2 dT_i + \widehat\delta \mathbf{X}_i$, and we could actually just work with the quantity $\widehat{Y}_i$ below (you may wish to confirm this to yourself by editing the code below).  However, for ease of exposition we will work with the full set of covariates in code below, even though this is somewhat less efficient.
+
+```{python}
+B = 999
+WildClusterBootstrap = pd.DataFrame({'beta3': [float('nan')] * B,
+                                     'se_beta3': [float('nan')] * B,
+                                     't_stat': [float('nan')] * B})
+bsample = data[data['female'] == 1][['econmajor', 'yr_2016', 'treatment_class', 
+                                     'treat2016', 'female_prof', 'instate', 
+                                     'freshman', 'american', 'ACumGPA', 
+                                     'gradePrinciples', 'small_class', 
+                                     'class_fe2', 'Constant']].reset_index(drop = False)
+bsample['eps_tilde'] = eps_tilde
+```
+
+Now let's see what each iteration of a wild cluster bootstrap looks like.  As we will generate our new sample of data by (randomly) selecting values of -1 or 1 for each cluster to form "resampled" residuals, we will start by drawing these "Rademacher" weights for each cluster.  Below we do this by first generating a cluster-specific draw for each cluster $g$ which assigns $a_g = 1$ or $a_g = -1$ with probability 0.5 (as seen in `clusters`).  This value $a_g$ is joined into our main data:
+```{python}
+import random
+clusters = pd.DataFrame({'class_fe2': bsample['class_fe2'].unique(),
+                         'ag': random.choices([-1, 1], k = 12)})
+print(clusters)
+bsample = pd.merge(left = bsample, right = clusters, how = 'left',
+                   on = 'class_fe2')
+```
+Now, based on this draw and the original errors from the restricted model, we will generate the new set of bootstrap errors, which below we call `berrors`:
+```{python}
+bsample['berrors'] = bsample['eps_tilde'] * bsample['ag']
+```
+Finally, below we will generate our new resampled outcome variable `beconmajor` from covariates, restricted regression estimates, and our resampled error term `berrors`.
+```{python}
+bsample['beconmajor'] = (LPM_r.params['Constant'] + 
+                         LPM_r.params['yr_2016'] * bsample['yr_2016'] +
+                         LPM_r.params['treatment_class'] * bsample['treatment_class'] +
+                         LPM_r.params['female_prof'] * bsample['female_prof'] +
+                         LPM_r.params['instate'] * bsample['instate'] +
+                         LPM_r.params['freshman'] * bsample['freshman'] +
+                         LPM_r.params['american'] * bsample['american'] +
+                         LPM_r.params['ACumGPA'] * bsample['ACumGPA'] +
+                         LPM_r.params['gradePrinciples'] * bsample['gradePrinciples'] +
+                         LPM_r.params['small_class'] * bsample['small_class'] +
+                         bsample['berrors'])
+```
+
+With this data in hand, we estimate the non-restricted model exactly as we did so previously with `Regpyhdfe`.  Below, we estimate this model, and examine summary output:
+
+```{python}
+LPM_b = Regpyhdfe(df = bsample, target = 'beconmajor',
+                  predictors = ['yr_2016', 'treatment_class', 'female_prof', 
+                                'instate', 'freshman', 'american', 'ACumGPA', 
+                                'gradePrinciples', 'small_class', 'Constant',
+                                'treat2016'],
+                  cluster_ids = ['class_fe2']).fit()
+print(LPM_b.summary2())
+```
+
+You will note here that the coefficient of interest (that on `treat2016`) is small and insignificant.  This should not be surprising to us, as we have imposed that this coefficient should be zero in the process where we generated `beconmajor` previously.  The idea of this process is that in this way we should have some idea of the variation we may expect in parameter estimates when the true parameter actually *is* zero.  If we observe that our true estimate greatly exceeds these "null" estimates, we may be willing to conclude that the original effect is real.  We store the relevant values from our regression model below to calculate a t-statistic from this bootstrap replicate.
+
+```{python}
+WildClusterBootstrap['beta3'][0] = LPM_b.params['treat2016']
+WildClusterBootstrap['se_beta3'][0] = LPM_b.bse['treat2016']
+WildClusterBootstrap['t_stat'][0] = LPM_b.tvalues['treat2016']
+```
+We wish to see how extreme our original t-statistic is compared to many t-statistics generated in this way, where the null is imposed.  Thus, we will now repeat the previous bootstrap replicate $B-1$ more times in a loop, so that we have $B$ t-statistics.
+
+```{python}
+for b in range(1,B):
+  # Erase from common data frame the data of previous replication
+  bsample = bsample.drop(columns = ['ag', 'berrors', 'beconmajor'])
+  # Add new replication data
+  clusters = pd.DataFrame({'class_fe2': bsample['class_fe2'].unique(),
+                             'ag': random.choices([-1, 1], k = 12)})
+  bsample = pd.merge(left = bsample, right = clusters, how = 'left',
+                       on = 'class_fe2')
+  bsample['berrors'] = bsample['eps_tilde'] * bsample['ag']
+  bsample['beconmajor'] = (LPM_r.params['Constant'] + 
+                             LPM_r.params['yr_2016'] * bsample['yr_2016'] +
+                             LPM_r.params['treatment_class'] * bsample['treatment_class'] +
+                             LPM_r.params['female_prof'] * bsample['female_prof'] +
+                             LPM_r.params['instate'] * bsample['instate'] +
+                             LPM_r.params['freshman'] * bsample['freshman'] +
+                             LPM_r.params['american'] * bsample['american'] +
+                             LPM_r.params['ACumGPA'] * bsample['ACumGPA'] +
+                             LPM_r.params['gradePrinciples'] * bsample['gradePrinciples'] +
+                             LPM_r.params['small_class'] * bsample['small_class'] +
+                             bsample['berrors'])
+  # Estimate artificial model
+  LPM_b = Regpyhdfe(df = bsample, target = 'beconmajor',
+                      predictors = ['yr_2016', 'treatment_class', 'female_prof', 
+                                    'instate', 'freshman', 'american', 'ACumGPA', 
+                                    'gradePrinciples', 'small_class', 'Constant',
+                                    'treat2016'],
+                      cluster_ids = ['class_fe2']).fit()
+  # Store values
+  WildClusterBootstrap['beta3'][b] = LPM_b.params['treat2016']
+  WildClusterBootstrap['se_beta3'][b] = LPM_b.bse['treat2016']
+  WildClusterBootstrap['t_stat'][b] = LPM_b.tvalues['treat2016']
+```
+
+We can see below what this "null distribution" of t-statistics looks like.  It is not a surprise that these are centred around 0, because this is what our model has imposed.  However, more interesting than this is to see they type of variation in t-statistics which we can expect in our data with null effects imposed.  We can see, below, that this looks somewhat heavier-tailed than a standard t-distribution.
+
+```{python}
+WildClusterBootstrap.plot(kind = 'hist', column = 't_stat', bins = 20,
+                          title = '', legend = '', ylabel = '',
+                          xlabel = 'Bootstrap t-statistics')
+```
+
+From this distribution we can calculate a p-value by asking what proportion of t-statistics from the null distribution exceed our estimated t-statistic from the unrestricted model.  We do this below, observing that the p-value is quite close to that reported in @PorterSerra2020 (who report a p-value of 0.089), only differing due to random variation in draws of the Rademacher weights.
+
+
+<!--
+Now we compare our original $t$-statistic `r round(t_beta3_hat, 3)` with the 97.5 percentile of the $t$-statistics computed in our bootstraping to see if we can reject the null of $\beta_3 = 0$ to a 5% significance level
+
+```{r}
+t97_5 <- quantile(WildClusterBootstrap$t_stat, 0.975)
+if(abs(t_beta3_hat) > abs(t97_5)){
+  print("The null is rejected.")
+} else {
+  print("We can't reject the null.")
+}
+```
+-->
+
+```{python}
+pval = (abs(WildClusterBootstrap['t_stat']) > abs(t_beta3_hat)).mean()
+print('The p-value is: ', round(pval, 3))
+```
+
+We also could repeat this exercise with the `wildboottest` function from the `wildboottest` developed by @FischerRoodman2021 and arrive to the same conclusion.  This function works with the original model we estimated previously (`LPM`), and conducts an identical procedure to that which we have done above "by hand".  Any difference in p-values is incidental, owing to different random draws.  
+
+```{python}
+import statsmodels.formula.api as sm
+model = sm.ols(data = data[data['female'] == 1].reset_index(), 
+               formula = 'econmajor ~ yr_2016 + treatment_class + treat2016' +
+               ' + female_prof + instate + freshman + american + ACumGPA +' +
+               ' gradePrinciples + small_class')
+from wildboottest.wildboottest import wildboottest
+boot = wildboottest(model, param = 'treat2016', B = 999,
+                     cluster = data[data['female'] == 1].reset_index().class_fe2)
+print('The p-value with the user-written function is: ' +
+      str(round(boot['p-value'].iloc[0], 3)))
+```
+
+In principle, using such a library is likely the preferred way of conducting procedures such as the wild cluster bootstrap, however it is illustrative to see how it works in practice, as we do above.  Although other feautres such as confidence intervals formed by inverting the test and iteratively searching for bounds are not available yet.
+
+<!--
+nice element of user-written procedures such as that of @Roodmanetal2019 is that it also seamlessly returns other quantities of interest which we would have to generate ourselves above, such as confidence interval, which we can see below:
+
+```{r}
+paste0("The confidence interval is: [", 
+       round(boot$conf_int[1], 3),
+       ",", round(boot$conf_int[2], 3), "].")
+```
+These values correspond closely to the original 95% CIs reported in the paper of [-0.015; 0.160].
+-->
+
+** Update up to here, not found yet a user-written package for "normal" cluster bootstrap**
+Finally as a comparative exercise we may be interested in seeing how this procedure compares to a standard clustered bootstrap.  While there are many ways we could do this -- including quite easily by hand -- we examine this below using the `ClusterBootstrap` library.  It turns out that while the 95% CI on `treat2016` coming from clustered bootstrap is narrower than the 95% CI from the wild cluster bootstrap (as expected), the difference is not *so* substantial in this particular case. 
+
+```{r}
+library(ClusterBootstrap)
+set.seed(121316)
+boot2 <- clusbootglm(model = econmajor ~ yr_2016 + treatment_class +
+                     treat2016 + female_prof + instate + freshman +
+                     american + ACumGPA + gradePrinciples +
+                     small_class, data = data[data$female == 1,],
+                     clusterid = class_fe2,
+                     B = 1000)
+boot2$percentile.interval
+```
 
 ## Code Call Out 4.2: Exploring the Two-way Fixed Effect Model and Parameter Decomposition
 
