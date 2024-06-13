@@ -55,9 +55,13 @@ These restricted residuals `eps_tilde` above will be key in our wild cluster boo
 
 Below we will initialise this wild cluster bootstrap procedure, setting some large amount of bootstrap replicates in a global macro (here 999), before storing the data we need as `b_sample` using `Stata`'s new feature `frames` to store multiple datasets in one session.  We will then also incorporate the residuals from above into this dataframe, so `b_sample` contains all relevant covariates, as well as the restricted residuals.  It is worth noting, that in practice, all we require from these covariates is the ability to form $\widehat{Y}_i=\widehat\beta_0+\widehat\beta_1 dt_i + \widehat\beta_2 dT_i + \widehat\delta \mathbf{X}_i$, and we could actually just work with the quantity $\widehat{Y}_i$ below (you may wish to confirm this to yourself by editing the code below).  However, for ease of exposition we will work with the full set of covariates in code below, even though this is somewhat less efficient.
 
-```{stata echo = 3:14}
-qui import delimited "Datasets\PorterSerra2020.csv", clear
-qui keep if female == 1
+```{stata echo = 7:18}
+quietly{
+    import delimited "Datasets\PorterSerra2020.csv", clear
+	keep if female == 1
+	reg econmajor yr_2016 treatment_class female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
+	predict eps_tilde, resid
+}
 * Global macro for setting bootstrap amount of replications
 global B = 999
 
@@ -73,9 +77,15 @@ frame put *, into(b_sample)
 ```
 
 Now let's see what each iteration of a wild cluster bootstrap looks like.  As we will generate our new sample of data by (randomly) selecting values of -1 or 1 for each cluster to form "resampled" residuals, we will start by drawing these "Rademacher" weights for each cluster.  Below we do this by first generating a cluster-specific draw for each cluster $g$ which assigns $a_g = 1$ or $a_g = -1$ with probability 0.5 (as seen in `clusters`).  This value $a_g$ is joined into our main data:
-```{stata echo = 3:25}
-qui import delimited "Datasets\PorterSerra2020.csv", clear
-qui keep if female == 1
+```{stata echo = 9:31}
+quietly{
+    import delimited "Datasets\PorterSerra2020.csv", clear
+	keep if female == 1
+	reg econmajor yr_2016 treatment_class female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
+	predict eps_tilde, resid
+	keep econmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class class_fe2 eps_tilde
+	frame put *, into(b_sample)
+}
 * Keep cluster variable
 keep class_fe2
 
@@ -197,9 +207,9 @@ matrix define WildClusterBootstrap[1,1] = _b["treat2016"]
 matrix define WildClusterBootstrap[1,2] = _se["treat2016"]
 matrix define WildClusterBootstrap[1,3] = _b["treat2016"] / _se["treat2016"]
 ```
-We wish to see how extreme our original t-statistic is compared to many t-statistics generated in this way, where the null is imposed.  Thus, we will now repeat the previous bootstrap replicate $B-1$ more times in a loop, so that we have $B$ t-statistics.
+We wish to see how extreme our original t-statistic is compared to many t-statistics generated in this way, where the null is imposed.  Thus, we will now repeat the previous bootstrap replicate $B-1$ more times in a loop, so that we have $B$ t-statistics. Note we use `quietly` to ommit all intermediate output.
 
-```{stata echo = 26:40}
+```{stata echo = 26:42}
 quietly{
   import delimited "Datasets\PorterSerra2020.csv", clear
   keep if female == 1
@@ -226,25 +236,27 @@ quietly{
   matrix define WildClusterBootstrap[1,3] = _b["treat2016"] / _se["treat2016"]
 }
 forvalues b = 2/$B{
-	drop beconmajor berrors ag clusters
-	frame change clusters
-	drop ag
-	gen ag = cond(runiform() < 0.5, -1, 1)
-	frame change b_sample
-	frlink m:1 class_fe2, frame(clusters)
-	frget ag, from(clusters)
-	gen berrors = eps_tilde * ag
-	gen beconmajor = LPM_r[1, 10] + LPM_r[1, 1] * yr_2016 + LPM_r[1, 2] * treatment_class + LPM_r[1, 3] * female_prof + LPM_r[1, 4] * instate + LPM_r[1, 5] * freshman + LPM_r[1, 6] * american + LPM_r[1, 7] * acumgpa + LPM_r[1, 8] * gradeprinciples + LPM_r[1, 9] * small_class + berrors
-	xi: reg beconmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
-	matrix define WildClusterBootstrap[`b',1] = _b["treat2016"]
-	matrix define WildClusterBootstrap[`b',2] = _se["treat2016"]
-	matrix define WildClusterBootstrap[`b',3] = _b["treat2016"] / _se["treat2016"]
+    quietly{
+		drop beconmajor berrors ag clusters
+		frame change clusters
+		drop ag
+		gen ag = cond(runiform() < 0.5, -1, 1)
+		frame change b_sample
+		frlink m:1 class_fe2, frame(clusters)
+		frget ag, from(clusters)
+		gen berrors = eps_tilde * ag
+		gen beconmajor = LPM_r[1, 10] + LPM_r[1, 1] * yr_2016 + LPM_r[1, 2] * treatment_class + LPM_r[1, 3] * female_prof + LPM_r[1, 4] * instate + LPM_r[1, 5] * freshman + LPM_r[1, 6] * american + LPM_r[1, 7] * acumgpa + LPM_r[1, 8] * gradeprinciples + LPM_r[1, 9] * small_class + berrors
+		reg beconmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
+		matrix define WildClusterBootstrap[`b',1] = _b["treat2016"]
+		matrix define WildClusterBootstrap[`b',2] = _se["treat2016"]
+		matrix define WildClusterBootstrap[`b',3] = _b["treat2016"] / _se["treat2016"]
+	}
 }
 ```
 
 We can see below what this "null distribution" of t-statistics looks like.  It is not a surprise that these are centred around 0, because this is what our model has imposed.  However, more interesting than this is to see they type of variation in t-statistics which we can expect in our data with null effects imposed.  We can see, below, that this looks somewhat heavier-tailed than a standard t-distribution.
 
-```{stata echo = 41:43}
+```{stata echo = 42:44}
 quietly{
   import delimited "Datasets\PorterSerra2020.csv", clear
   keep if female == 1
@@ -253,6 +265,7 @@ quietly{
   predict eps_tilde, resid
   global B = 999
   matrix WildClusterBootstrap = J($B, 3, .)
+  matrix colnames WildClusterBootstrap = "beta3" "se_beta3" "t_stat"
   keep econmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class class_fe2 eps_tilde
   frame put *, into(b_sample)
   keep class_fe2
@@ -279,7 +292,7 @@ quietly{
 	  frget ag, from(clusters)
 	  gen berrors = eps_tilde * ag
 	  gen beconmajor = LPM_r[1, 10] + LPM_r[1, 1] * yr_2016 + LPM_r[1, 2] * treatment_class + LPM_r[1, 3] * female_prof + LPM_r[1, 4] * instate + LPM_r[1, 5] * freshman + LPM_r[1, 6] * american + LPM_r[1, 7] * acumgpa + LPM_r[1, 8] * gradeprinciples + LPM_r[1, 9] * small_class + berrors
-	  xi: reg beconmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
+	  reg beconmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
 	  matrix define WildClusterBootstrap[`b',1] = _b["treat2016"]
 	  matrix define WildClusterBootstrap[`b',2] = _se["treat2016"]
 	  matrix define WildClusterBootstrap[`b',3] = _b["treat2016"] / _se["treat2016"]
@@ -288,7 +301,10 @@ quietly{
 clear
 svmat WildClusterBootstrap, names(col)
 histogram t_stat, bin(20) scheme(plottig) color(blue*2)
+qui graph export "WCB_Histogram.png", replace
 ```
+
+![Wild Cluster Bootstrap Histogram](WCB_Histogram.png)
 
 From this distribution we can calculate a p-value by asking what proportion of t-statistics from the null distribution exceed our estimated t-statistic from the unrestricted model.  We do this below, observing that the p-value is quite close to that reported in @PorterSerra2020 (who report a p-value of 0.089), only differing due to random variation in draws of the Rademacher weights.
 
@@ -306,15 +322,18 @@ if(abs(t_beta3_hat) > abs(t97_5)){
 ```
 -->
 
-```{stata echo = 43:46}
+```{stata echo = 46:49}
 quietly{
   import delimited "Datasets\PorterSerra2020.csv", clear
   keep if female == 1
+  reg econmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
+  scalar t_beta3_hat = _b["treat2016"] / _se["treat2016"]
   reg econmajor yr_2016 treatment_class female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
   matrix LPM_r = e(b)
   predict eps_tilde, resid
   global B = 999
   matrix WildClusterBootstrap = J($B, 3, .)
+  matrix colnames WildClusterBootstrap = "beta3" "se_beta3" "t_stat"
   keep econmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class class_fe2 eps_tilde
   frame put *, into(b_sample)
   keep class_fe2
@@ -341,7 +360,7 @@ quietly{
 	  frget ag, from(clusters)
 	  gen berrors = eps_tilde * ag
 	  gen beconmajor = LPM_r[1, 10] + LPM_r[1, 1] * yr_2016 + LPM_r[1, 2] * treatment_class + LPM_r[1, 3] * female_prof + LPM_r[1, 4] * instate + LPM_r[1, 5] * freshman + LPM_r[1, 6] * american + LPM_r[1, 7] * acumgpa + LPM_r[1, 8] * gradeprinciples + LPM_r[1, 9] * small_class + berrors
-	  xi: reg beconmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
+	  reg beconmajor yr_2016 treatment_class treat2016 female_prof instate freshman american acumgpa gradeprinciples small_class, cluster(class_fe2)
 	  matrix define WildClusterBootstrap[`b',1] = _b["treat2016"]
 	  matrix define WildClusterBootstrap[`b',2] = _se["treat2016"]
 	  matrix define WildClusterBootstrap[`b',3] = _b["treat2016"] / _se["treat2016"]
