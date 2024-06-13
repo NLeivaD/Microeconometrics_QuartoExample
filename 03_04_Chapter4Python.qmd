@@ -208,22 +208,22 @@ paste0("The confidence interval is: [",
 These values correspond closely to the original 95% CIs reported in the paper of [-0.015; 0.160].
 -->
 
-** Update up to here, not found yet a user-written package for "normal" cluster bootstrap**
-Finally as a comparative exercise we may be interested in seeing how this procedure compares to a standard clustered bootstrap.  While there are many ways we could do this -- including quite easily by hand -- we examine this below using the `ClusterBootstrap` library.  It turns out that while the 95% CI on `treat2016` coming from clustered bootstrap is narrower than the 95% CI from the wild cluster bootstrap (as expected), the difference is not *so* substantial in this particular case. 
+Finally as a comparative exercise we may be interested in seeing how this procedure compares to a standard clustered bootstrap.  We do this by hand.  It turns out that while the 95% CI on `treat2016` coming from clustered bootstrap is narrower than the 95% CI from the wild cluster bootstrap (as expected), the difference is not *so* substantial in this particular case. 
 
 
-<!--
-{r}
-library(ClusterBootstrap)
-set.seed(121316)
-boot2 <- clusbootglm(model = econmajor ~ yr_2016 + treatment_class +
-                     treat2016 + female_prof + instate + freshman +
-                     american + ACumGPA + gradePrinciples +
-                     small_class, data = data[data$female == 1,],
-                     clusterid = class_fe2,
-                     B = 1000)
-boot2$percentile.interval
--->
+```{python}
+ClusterBootstrap = []
+for _ in range(10000):
+    sampled_clusters = random.choices(clusters.class_fe2, k = 12)
+    bootstrap_sample = pd.concat([data[(data['class_fe2'] == cluster) & (data['female'] == 1)] for cluster in sampled_clusters])
+    model = sm.ols(data = bootstrap_sample, 
+                   formula = 'econmajor ~ yr_2016 + treatment_class + treat2016' +
+                   ' + female_prof + instate + freshman + american + ACumGPA +' +
+                   ' gradePrinciples + small_class').fit()
+    ClusterBootstrap.append(model.params['treat2016'])
+from numpy import percentile
+percentile(a = ClusterBootstrap, q = [2.5, 97.5])
+```
 
 ## Code Call Out 4.2: Exploring the Two-way Fixed Effect Model and Parameter Decomposition
 
