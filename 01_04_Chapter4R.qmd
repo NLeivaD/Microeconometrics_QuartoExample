@@ -10,7 +10,125 @@ rm(list = ls())
 ```
 
 # Tools required for Chapter 4
-Check if we need to introduce sapply here?
+In this chapter you will see the use of a new type of function that hasn't been used yet, this function is the `sapply` function. The `sapply` function belongs to the `apply`'s family of functions that are a powerful suite of tools for performing operations iteratively over the elements on various types of data structures. These functions are particularly useful for applying an specific function to elements of a data structure, such as matrices, lists, or data frames, without the need for explicit loops. Here we present an introduction to the most commonly used functions: `apply`, `lapply`, `sapply`, `tapply` and `mapply`.  
+
+1. The `apply` function is used to apply a function to the rows or columns of a matrix or to the margins of an array. As a simple example consider a $3times3$ matrix and calculate the mean of each row in three ways: (i) Manually indexing each row, (ii) With a loop iterating over each row number and (iii) using the `apply` function:
+
+```{r}
+# Create a 3x3 matrix for the example
+x <- matrix(1:9, nrow = 3)
+
+# Get the mean of each row manually
+mean(x[1,])
+mean(x[2,])
+mean(x[3,])
+
+# Iterate over each row with a loop
+for(i in 1:nrow(x)){print(mean(x[i,]))}
+
+# Use the apply function
+apply(X = x, MARGIN = 1, FUN = mean)
+```
+
+Note the use of the arguments in the function: `X` argument refer to the object over we want to apply the function, `MARGIN` point the dimension along we want to apply the function and `FUN` is the function to apply.  If you see the help documentation of the `apply` function there is a `...` in the arguments that is for additional arguments for the functions. As an example below we replace one of the elements of the matrix with a missing value and, as you could know until now, if you use the mean function with a missing value in the vector it returns a missing value unleast you specify the `na.rm = TRUE` argument.
+
+```{r}
+# Assign the missing value
+x[2,2] <- NA
+
+# Apply mean to the rows
+apply(X = x, MARGIN = 1, FUN = mean)
+
+# Specify the additional argument
+apply(X = x, MARGIN = 1, FUN = mean, na.rm = T)
+```
+
+2. The `lapply` function applies a function to each element of a list and returns a list. Below we create a list and try to use the `apply` function seeing how an error is returned as a list object doesn't have a dimension
+
+```{r error = TRUE}
+# Create a list
+x <- list(Nums = rep(1:3, 3), Letters = rep(c("A", "B", "C"), 3))
+
+# Apply function as error
+apply(X = x, FUN = unique)
+
+# Inspect the dimension
+dim(x)
+```
+
+Now instead the `lapply` function operate without problem
+
+```{r}
+lapply(X = x, FUN = unique)
+```
+
+3. The `sapply` function is a variant of lapply that simplifies the result to a vector or matrix if possible with the `simplify` argument as `TRUE`, instead if we specify `simplify = FALSE` we get the same result as in `lapply` function.
+
+```{r}
+# Sapply as the same result of lapply
+sapply(X = x, FUN = unique, simplify = F)
+
+# Sapply as the default functionaility
+sapply(X = x, FUN = unique)
+```
+
+4. The `tapply` function applies a function over subsets of a vector, defined by some other vector that interprets like a factor. Below we make a simple example using first groups defined by some variable and then by a factor variable, showing that get the same result
+
+```{r}
+# Create vector of values
+values <- 1:9
+
+# Create vector of groups
+groups <- rep(c("A", "B", "C"), 3)
+
+# Use of tapply without factor
+tapply(X = values, INDEX = groups, FUN = mean)
+
+# Groups as factor
+groups <- as.factor(groups)
+
+# Use of tapply with factor
+tapply(X = values, INDEX = groups, FUN = mean)
+```
+
+Another remark in `tapply` function is that works as `sapply` and try to return a dataframe or matrix, but if you specify `simplify = FALSE` it will return a list.
+
+5. The `mapply` function is a multivariate version of sapply. It applies a function to the first elements of each argument, the second elements, and so on. As an example consider the next example where we have two elements: `v1` and `v2`
+
+```{r}
+# Create values
+v1 <- c(1,2)
+v2 <- c(3,4)
+
+# Get sum of the first elements of each object
+v1[1] + v2[1]
+
+# Get sum of the second elements of each object
+v1[2] + v2[2]
+
+# Use of mapply function
+mapply(FUN = sum, v1, v2)
+```
+
+One remark is that this function iterates over the elements of the different objects we impute so the different inputs must have same length or lengths such that each length be a multiple of the shorters lengths, if we don't accomplish this requirement we will get an error
+
+```{r error = TRUE}
+# Create one element of length 3
+v2 <- 3:5
+
+# Get error as the lengths aren't multiple
+mapply(FUN = sum, v1, v2)
+```
+
+Finally we show how with lengths that are multiple it works fine by just repeat the shorter length element in the same order
+
+```{r}
+# Create one element of length 4
+v2 <- 3:6
+
+# Get error as the lengths aren't multiple
+mapply(FUN = sum, v1, v2)
+```
 
 # Code Call-outs
 
