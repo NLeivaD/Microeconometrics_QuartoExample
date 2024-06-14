@@ -1152,55 +1152,122 @@ If we wanted to implement Sun and Abraham's estimator entirely by hand we could,
 \end{align*}
 Where $h^\ell$ is the set of cohorts that experience the relative period $\ell$, variance and covariance of the $CATT_{e,\ell}$ come from estimates of step 1 and, variance and covariance of the weights $\widehat{Pr} \{ E_i = e | e \in h^\ell \}$ come from the regressions of $\mathbf{1} \{ E_i = e \}$ on $D^\ell_{i,t}$. 
 ** UNTIL HERE IS READY, BELOW HERE IS THE ERROR IN CODE, TEXT IS NOT MODIFIED YET NEITHER**
-The key thing to see is that we could estimate this manually with the pieces we have already put together, and indeed, with the use of seemingly unrelated regression techniques it is possible to estimate the variance of $\widehat{Pr}(\cdot)$ and $\widehat\delta_{e\ell}$ in a single step.  However, in practice we will likely prefer to use a canned routine which allows for the estimation of the interaction weighted estimator, as well as the corresponding variance-covariance matrix. To see that our process of "manually" buidling up Sun and Abraham's estimator from its composite parts, and to additionally conduct inference in a direct way, we can use estimation routines such as `feols` and `sunab` functions from the `fixest` package in `R`. Below we do this, showing the point estimates recovered are identical to what we have done.  
+The key thing to see is that we could estimate this manually with the pieces we have already put together, and indeed, with the use of seemingly unrelated regression techniques it is possible to estimate the variance of $\widehat{Pr}(\cdot)$ and $\widehat\delta_{e\ell}$ in a single step.  However, in practice we will likely prefer to use a canned routine which allows for the estimation of the interaction weighted estimator, as well as the corresponding variance-covariance matrix. To see that our process of "manually" buidling up Sun and Abraham's estimator from its composite parts, and to additionally conduct inference in a direct way, we can use estimation routines such as `interactionweighted_eventstudy` function from the `paneleventstudy` package in `Python`. Below we do this, showing the point estimates recovered are identical to what we have done.  
 
-Note the usage of the `sunab` function which expands dummies as we have done above first takes the variable that records treatment cohorts and next the variable which describes the relative time to treatment.  If the second variable points to the year, this function automatically and internally creates the relative time to treatment period. It is also important to see that we have slightly modify the data for those never treated units such that they take a very high value in the `X_nfd` variable, this is because the `sunab` function would drop this observations if the `X_nfd` has missing values (`NA`) in this variable and instead considers a never treated unit if the relative time to treatment is always negative. It is thus sufficient for a period beyond the last year of the data to be indicated, so that never treated are correctly viewed as units which have not *yet* adopted. Finally note the second part of the formula, after `|`, indicates the fixed effects and automatically clusters by the first variable:
+Note the usage of the `interactionweighted_eventstudy` function requires an specific data preparation, reason why we upload again the package and follow the data preparation steps of the package. The first step is to check if the panel is balanced as the function only works with balanced panels, the package includes the function `balancepanel` to check this.
 
 ```{python}
+# Upload data
 data = pd.read_csv("Datasets/StevensonWolfers2006.csv")
-import paneleventstudy
-print(data.dtypes)
-data['stfips']=data['stfips'].astype(str)
 
+# Library load
+import paneleventstudy
+
+# Check balance in panel
 paneleventstudy.balancepanel(data = data, group = 'stfips', event = 'post', 
                              calendartime = 'year')
-data = paneleventstudy.identifycontrols(data = data, group = 'stfips', 
-                                 event = 'post')
-paneleventstudy.genreltime(data = data, group = 'stfips', event = 'post', 
-                           calendartime = 'year', reltime = 'reltime', 
-                           check_balance=True)
 ```
 
+Now we identify the controls units with the `identifycontrols` that check which groups has only 0 treatment events. A detail of the dataset in here is that originally have some 1s in the `post` variable that indicate treatment, so we slightly modify the dataset to ensure never treated units has only 0s in `post` variable. We identify this units by those who whas nan values in the variable `_nfd`. In this case the result is an exactly copy of the dataframe `data` with a new column named `control_group` that takes value equal to 1 for never (or last if never doesn't exists) treated units and 0 otherwise.
 
-Finally, we plot the output along with its 95% confidence intervals to compare this with our original event study.
+```{python}
+# Replace mistaken post values
+data['post'] = np.where(np.isnan(data['_nfd']), 0, data['post'])
 
-<!--
-{r}
-# Create Cols for IW Estimates Information
-plot_df <- plot_df |> mutate(IWEstimate = NA,
-                             IWSE = NA)
-# Assign IW Estimates Information
-plot_df[1:20, c("IWEstimate", "IWSE")] <- IW$coeftable[1:20, c("Estimate",
-                                                               "Std. Error")]
-plot_df[21, c("IWEstimate", "IWSE")] <- 0
-plot_df[22:49, c("IWEstimate", "IWSE")] <- IW$coeftable[21:48, c("Estimate",
-                                                               "Std. Error")]
-# Graph
-ggplot(data = plot_df) + geom_point(aes(x = Time, y = Estimate)) +
-  geom_errorbar(aes(ymin = Estimate - 1.96 * SE, ymax = Estimate + 1.96 * SE, 
-                    x = Time)) + 
-  geom_point(aes(x = Time, y = IWEstimate), color = "blue",
-             position = position_nudge(x = 0.4)) +
-  geom_errorbar(aes(ymin = IWEstimate - 1.96 * IWSE, 
-                    ymax = IWEstimate + 1.96 * IWSE, 
-                    x = Time), color = "blue", 
-                position = position_nudge(x = 0.4)) + 
-  geom_hline(yintercept = 0, color = 'red') + geom_vline(xintercept = -1) +
-  scale_x_continuous(limits = c(-21, 28), breaks = seq(-20, 25, 5)) +
-  scale_y_continuous(limits = c(-40, 40), breaks = seq(-40, 40, 20)) +
-  labs(x = 'Time To Treatment', y = 'Suicide per 1m Woman')
+# Identify controls units
+data = paneleventstudy.identifycontrols(data = data, group = 'stfips', 
+                                 event = 'post')
 
--->
+# Check new dataframe
+data.head()
+```
+
+The next step is to generate the relative time variable, in this case the function `genreltime` needs the unit id variable be a string so we previously create a new variable `stfips_s` that transform the existing unit id `stfips` into a string. As the previous function this one also return a dataframe that is an exact copy of the previous one with an additional column whose name is specified in the `reltime` argument.
+
+```{python}
+# Create string unit id
+data['stfips_s'] = data['stfips'].astype(str)
+
+# Generate relative time to treatment
+data = paneleventstudy.genreltime(data = data, group = 'stfips_s', event = 'post',
+                                  calendartime = 'year', reltime = 'reltime',
+                                  check_balance=False)
+```
+
+Note how we just set `check_balance` as `False` in order to the function doesn't check if the panel is balance as we checked this earlier. Proceeding with data preparation we now generate the cohort variables. As the previous functions this one also return a dataframe that is an exact copy of the previous one with an additional column whose name is specified in the `cohort` argument.
+
+```{python}
+data = paneleventstudy.gencohort(data = data, group = 'stfips_s', event = 'post',
+                                 calendartime = 'year', cohort = 'cohort',
+                                 check_balance=False)
+```
+
+Finally we ensure the calendartime variable is a numeric variable. The next function operates as the previous ones with the new column be named following the `calendartime_numerics` argument
+
+```{python}
+data = paneleventstudy.gencalendartime_numerics(data = data, group = 'stfips_s', 
+                                                event = 'post', calendartime = 'year',
+                                                calendartime_numerics = 'ct')
+```
+
+With all data preparation ready we can proceed to estimate with the `interactionweighted_eventstudy` function that returns a dataframe with the point estimante and the 95% CI and show it along with our manual estimates.
+
+```{python warning = F}
+# Estimate IW estimator
+IW = paneleventstudy.interactionweighted_eventstudy(data = data, 
+                                                    outcome = 'asmrs',
+                                                    event = 'post', 
+                                                    group = 'stfips_s',
+                                                    cohort = 'cohort',
+                                                    reltime = 'reltime',
+                                                    calendartime = 'ct',
+                                                    covariates = ['pcinc',
+                                                                  'asmrh',
+                                                                  'cases'],
+                                                    vcov_type = 'clustered')
+
+# Create a function to rename index in IW
+def ren_rows(idx):
+    if idx < 0:
+        return f'Lead{-idx}'
+    else:
+        return f'Lag{idx}'
+
+# Rename index in IW
+IW.index = IW.index.map(ren_rows)
+
+# Left join to coefs
+coefs = coefs.join(IW['parameter']).rename(columns = {'parameter': 'paneleventstudy IW'})
+
+# Assign 0 to Lead 1
+coefs.loc['Lead1', 'paneleventstudy IW'] = 0
+
+# Print the table
+Markdown(tabulate(coefs[['IW', 'paneleventstudy IW']]))
+```
+
+Finally, we plot the output along with its 95% confidence intervals to compare this with our original event study. In order to do this previously we get the standard error and then 1.96 times the standard error
+
+```{python}
+# Add to plot data frame
+plot_df['IW Estimate'] = IW['parameter']
+plot_df['IW StdErr95%'] = IW['upper'] - IW['parameter']
+
+# Plot
+plt.figure(figsize=(10,6))
+plt.errorbar(plot_df['Time'], plot_df['Estimate'], yerr = plot_df['StdErr95%'],
+             fmt = 'o', color='black', label='Panel Event Study')
+plt.errorbar(plot_df['Time']+0.4, plot_df['IW Estimate'], 
+             yerr = plot_df['IW StdErr95%'], fmt = 'o', color = 'blue', 
+             label='IW')
+plt.axvline(-1, color = 'black', alpha=0.5)
+plt.axhline(0, color = 'red')
+plt.xlabel('Time to Treatment')
+plt.ylabel('Suicides per 1m Woman')
+plt.legend()
+plt.grid(True)
+plt.show()
+```
 
 ## Code call-out 4.4: Synthetic control, difference-in-differences, and synthetic difference-in-differences
 
