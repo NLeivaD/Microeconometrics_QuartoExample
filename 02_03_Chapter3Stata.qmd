@@ -63,46 +63,83 @@ library(Statamarkdown)
 
 ```{stata}
 clear all
+set more off
 
-use "Datasets/Birth_Weight.dta", replace
+* Load the dataset
+import delimited "Datasets/Birth_Weight.csv", clear
 
+* Recode variables
+gen mmarried_num = 0
+replace mmarried_num = 1 if mmarried == "Married"
 
+gen fbaby_num = 0
+replace fbaby_num = 1 if fbaby == "Yes"
 
-teffects psmatch (bweight) (mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenatal), atet caliper(.25)
+gen mbsmoke_num = 0
+replace mbsmoke_num = 1 if mbsmoke == "Smoker"
 
+* Perform OLS regression
+regress bweight mbsmoke_num mmarried_num mage medu fbaby_num
+display "OLS Results on the Full Dataset:"
+regress bweight mbsmoke_num mmarried_num mage medu fbaby_num
 
-pstest alcohol deadkids foreign mage i.medu2 mhisp ///
- mmarried mrace nprenatal order i.prenatal ///
- , raw treated(mbsmoke)
+* Estimate Propensity Scores using logistic regression
+logit mbsmoke_num mmarried_num mage medu fbaby_num
+predict pscore, pr
 
-* INDIVIDUAL CONTINUOUS COVARIATES
-pstest mage, density raw treated(mbsmoke)
+* Diagnose Propensity Score overlap
+twoway (kdensity pscore if mbsmoke_num == 0, color(red)) ///
+       (kdensity pscore if mbsmoke_num == 1, color(blue)), ///
+       legend(label(1 "Non-Smoker") label(2 "Smoker")) ///
+       title("Propensity Score Overlap")
+graph export "Propensity_Score_Overlap_Before.png", replace
 
-* MODEL ALCOHOL CONSUMPTION
-logistic mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenatal
+* Perform nearest neighbor matching using psmatch2
+psmatch2 mbsmoke_num (bweight mmarried_num mage medu fbaby_num), neighbor(1) caliper(0.05) common
 
-* LOG ODDS OF SMOKING
-predict logodds, xb
+* Create a variable to indicate matched observations
+gen matched = (_weight != .)
 
+* Evaluate covariate balance before and after matching
+foreach var in mmarried_num mage medu fbaby_num {
+    * Before matching
+    summarize `var' if mbsmoke_num == 1, detail
+    scalar mean_treated_unmatched = r(mean)
+    scalar var_treated_unmatched = r(Var)
+    summarize `var' if mbsmoke_num == 0, detail
+    scalar mean_control_unmatched = r(mean)
+    scalar var_control_unmatched = r(Var)
+    scalar sd_pooled_unmatched = sqrt((var_treated_unmatched + var_control_unmatched) / 2)
+    scalar smd_unmatched = (mean_treated_unmatched - mean_control_unmatched) / sd_pooled_unmatched
+    display "Unmatched SMD for `var': " smd_unmatched
 
-* CONSTRUCT MATCHES
-psmatch2 mbsmoke, outcome(bweight) pscore(logodds) neighbor(1) noreplace caliper(.25)
+    * After matching
+    summarize `var' if mbsmoke_num == 1 & matched, detail
+    scalar mean_treated_matched = r(mean)
+    scalar var_treated_matched = r(Var)
+    summarize `var' if mbsmoke_num == 0 & matched, detail
+    scalar mean_control_matched = r(mean)
+    scalar var_control_matched = r(Var)
+    scalar sd_pooled_matched = sqrt((var_treated_matched + var_control_matched) / 2)
+    scalar smd_matched = (mean_treated_matched - mean_control_matched) / sd_pooled_matched
+    display "Matched SMD for `var': " smd_matched
+}
 
-* PLOT PROPENSITY SCORE BEFORE
-twoway ///
- (kdensity logodds if mbsmoke == 1, lcolor(navy) lwidth(thick)) ///
- (kdensity logodds if mbsmoke == 0, lcolor(red) lwidth(thick))  ///
- , legend(order(1 "SMOKER" 2 "NON-SMOKER"))
+* Create birth weight distribution graphs
+keep if matched
+graph box bweight, over(mbsmoke_num)  ///
+    title("Birth Weight Distribution by Smoking Status") ///
+    ytitle("Birth Weight") ///
+    legend(label(1 "Non-Smoker") label(2 "Smoker"))
+graph export "Birth_Weight_Distribution.png", replace
 
-* PLOT PROPENSITY SCORE AFTER
-twoway ///
- (kdensity logodds if mbsmoke == 1, lcolor(navy) lwidth(thick)) ///
- (kdensity logodds if mbsmoke == 0, lcolor(red) lwidth(thick))  ///
- if _weight == 1 ///
- , legend(order(1 "SMOKER" 2 "NON-SMOKER"))
+* Diagnose Propensity Score overlap (post-matching)
+twoway (kdensity pscore if mbsmoke_num == 0, color(red)) ///
+       (kdensity pscore if mbsmoke_num == 1, color(blue)), ///
+       legend(label(1 "Non-Smoker") label(2 "Smoker")) ///
+       title("Propensity Score Overlap (Post-Matching)")
+graph export "Propensity_Score_Overlap_After.png", replace
 
-
-regress bweight mbsmoke alcohol deadkids foreign mhisp i.medu2 mmarried mrace i.prenatal if _weight == 1
 ```
 ### IPW (Code call-out 3.3)
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -110,32 +147,34 @@ library(Statamarkdown)
 ```
 
 ```{stata}
-clear all 
+clear all
 set more off
-
-use ""Datasets/Dehejia_Wahba_1999.dta", clear
+* Load the data
+use "Datasets/Dehejia_Wahba.dta", clear
 
 * ATT by Regression
-teffects ra (re78 age education black hispanic married nodegree re74 re75) (treat), atet
- 
-* ATE by Regression
-teffects ra (re78 age education black hispanic married nodegree re74 re75) (treat)
 
+* Define covariates and treatment variable
+local covariates age education black hispanic married nodegree re74 re75
+local treatment treat
+local outcome re78
 
-* ATE by Matching
-teffects psmatch (re78) (treat age education black hispanic married nodegree re74 re75)
+* Perform linear regression to estimate the ATT
+regress `outcome' `treatment' `covariates'
 
+* Display the coefficient for the treatment variable (ATT)
+scalar coef_treatment = _b[`treatment']
+display "ATT by Regression: " coef_treatment
+
+*******************************************
 
 * ATT by Matching
-teffects psmatch (re78) (treat age education black hispanic married nodegree re74 re75), atet vce(iid)
+teffects psmatch (re78) (treat age education black hispanic married nodegree re74 re75), atet 
 
+*******************************************
 
 * ATT by Weighting
 teffects ipw (re78) (treat age education black hispanic married nodegree re74 re75, probit), atet
-
-
-* ATE by Weighting
-teffects ipw (re78) (treat age education black hispanic married nodegree re74 re75, probit)
 
 
 
