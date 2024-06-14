@@ -149,6 +149,8 @@ print(summary(ols_matched)$coefficients)
 # This suggests that the propensity score matching process has achieved a better balance of these covariables between the treated and untreated groups, potentially reducing confounding bias.
 # Specifically, the reduction in significance of factors like maternal age and education in the matched dataset indicates that the matching might have controlled for these variables more effectively, highlighting the importance of considering matching techniques in observational studies to understand causal relationships.
 
+
+
 ```
 
 # Dehejia and Wahba - IPW (Code call-out 3.3)
@@ -159,7 +161,7 @@ library(survey)
 library(haven)
 
 # Load the data
-data <- read_dta('Datasets/Dehejia_Wahba_1999.dta')
+data <- read_dta("Datasets/Dehejia_Wahba.dta")
 
 # Define covariates and treatment variable
 covariates <- c('age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75')
@@ -179,37 +181,77 @@ svy_design <- svydesign(ids = ~1, data = data, weights = ~weights)
 ate_iptw <- svyglm(re78 ~ treat, design = svy_design)
 
 # ATT using IPTW
-att_iptw <- svyglm(re78 ~ treat, design = svydesign(ids = ~1, data = data, weights = ifelse(data$treat == 1, 1, ps / (1 - ps))))
+att_weights <- ifelse(data$treat == 1, 1, ps / (1 - ps))
+svy_design_att <- svydesign(ids = ~1, data = data, weights = ~att_weights)
+att_iptw <- svyglm(re78 ~ treat, design = svy_design_att)
+cat("ATT by IPTW:", coef(att_iptw)["treat"], "\n")
 
-# Matching for ATT
-matchit_model <- matchit(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
-                         data = data, method = "nearest")
-matched_data <- match.data(matchit_model)
+##############################################################
+# PROPENSITY SCORE MATCHING
+library(haven)
+library(MASS)  # For the `ginv` function (generalized inverse)
+library(dplyr)
+
+# Load the data
+data <- read_dta("C:/Users/maria/Desktop/RA Microeconometría/Propensity Score Matching/Dehejia_Wahba.dta")
+
+# Define covariates and treatment variable
+covariates <- c('age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75')
+treatment <- 'treat'
+outcome <- 're78'
+
+# Estimate Propensity Scores using logistic regression
+formula <- as.formula(paste(treatment, "~", paste(covariates, collapse = "+")))
+logit_model <- glm(formula, family = binomial(), data = data)
+data$pscore <- predict(logit_model, type = "response")
+
+# Separate treated and control groups
+treated <- data %>% filter(treat == 1)
+control <- data %>% filter(treat == 0)
+
+# Function to find the nearest neighbor
+nearest_neighbor <- function(treated_pscore, control_pscores) {
+  distances <- abs(control_pscores - treated_pscore)
+  min_index <- which.min(distances)
+  return(min_index)
+}
+
+# Perform matching
+matched_control_indices <- sapply(treated$pscore, nearest_neighbor, control$pscore)
+matched_control <- control[matched_control_indices, ]
+matched_control$matched <- TRUE
+treated$matched <- TRUE
+matched_data <- bind_rows(treated, matched_control)
+
+# Check covariate balance after matching
+balance_check <- matched_data %>% group_by(treat) %>% summarize(across(all_of(covariates), mean))
+print("Covariate balance after matching:")
+print(balance_check)
 
 # Calculate ATT using Matching
-att_match <- with(matched_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
+att_match <- mean(matched_data %>% filter(treat == 1) %>% pull(re78)) - 
+  mean(matched_data %>% filter(treat == 0) %>% pull(re78))
 
-# Full Matching for ATE
-matchit_full <- matchit(treat ~ age + education + black + hispanic + married + nodegree + re74 + re75, 
-                        data = data, method = "full")
-matched_full_data <- match.data(matchit_full)
+cat("ATT by Matching:", att_match, "\n")
 
-# Calculate ATE using Full Matching
-ate_match <- with(matched_full_data, mean(re78[treat == 1]) - mean(re78[treat == 0]))
-
+########################################
 # Regression for ATT and ATE
-reg_model_att <- lm(re78 ~ treat + age + education + black + hispanic + married + nodegree + re74 + re75, 
-                    data = matched_data)
-reg_model_ate <- lm(re78 ~ treat + age + education + black + hispanic + married + nodegree + re74 + re75, 
-                    data = data)
+# Load the data
+data <- read_dta("C:/Users/maria/Desktop/RA Microeconometría/Propensity Score Matching/Dehejia_Wahba.dta")
 
-# Display the results
-print(paste("ATT by Matching:", att_match))
-print(paste("ATT by IPTW:", coef(att_iptw)["treat"]))
-print(paste("ATE by IPTW:", coef(ate_iptw)["treat"]))
-print(paste("ATE by Full Matching:", ate_match))
-print(paste("ATT by Regression:", coef(reg_model_att)["treat"]))
-print(paste("ATE by Regression:", coef(reg_model_ate)["treat"]))
+# Define covariates and treatment variable
+covariates <- c('age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75')
+treatment <- 'treat'
+outcome <- 're78'
+
+# Perform linear regression to estimate the ATT
+formula <- as.formula(paste(outcome, "~", paste(c(treatment, covariates), collapse = "+")))
+reg_model <- lm(formula, data = data)
+
+# Extract the coefficient for the treatment variable (ATT)
+coef_treatment <- coef(reg_model)[treatment]
+
+cat("ATT by Regression:", coef_treatment, "\n")
 
 
 ```
