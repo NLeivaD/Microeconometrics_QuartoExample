@@ -14,72 +14,190 @@ In this example, we will consider a setting studied by @Lalonde1986 and @Deheija
 ```{python}
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import NearestNeighbors
-import seaborn as sns
-sns.set()
-sns.set_palette("viridis", n_colors=2)
+import statsmodels.api as sm
+from scipy.spatial import distance
+from collections import Counter
 
-# Load the dataset
-###TENEMOS QUE LIMPIAR ESTO -- ES SOLO PARA DEFINIR LOS MISMOS CONTROLES QUE ELLOS
-data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
-##AQUÍ CONFIRMAMOS EL VALOR EXPERIMENTAL (FILA 1 DE TABLA 2)
-Y1 = data.loc[data['treat'] == 1, 're78'].mean()
-Y0 = data.loc[data['treat'] == 0, 're78'].mean()
-print(Y1-Y0)
+# Load and prepare the data
+df = pd.read_stata("Datasets/Dehejia_Wahba.dta")
+df['id'] = df['data_id'].astype('category').cat.codes
+df['nsw'] = np.where(df['id'] == 1, 1, np.nan)
+df['cps'] = np.where(df['id'] == 0, 1, np.nan)
+df['cps'] = np.where(df['treat'] == 1, 1, df['cps'])
 
-data2 = pd.read_stata('Datasets/cps_controls.dta')
-d1treat = data[data['treat']==1]
-data    = pd.concat([d1treat,data2])
-data['age2']=data['age']*data['age']
-data['age3']=data['age2']*data['age']
-data['school2']=data['education']*data['education']
-data['u74']=data['re74']==0
-data['u75']=data['re75']==0
-data['schoolXre74']=data['education']*data['re74']
+# Create the necessary variables
+df['Age2'] = df['age']**2
+df['Age3'] = df['age']**3
+df['School2'] = df['education']**2
+df['School_RE74'] = df['education'] * df['re74']
 
-# Define the covariates and the treatment variable
-X = data[['age','age2','age3','education','school2','married','nodegree',
-          'black', 'hispanic', 're74','re75','u74','u75','schoolXre74']]
-y = data['treat']
+# Ensure all variables are numeric
+df = df.apply(pd.to_numeric, errors='coerce')
 
-print(sum(data['treat']))
+# Create a matrix to store results
+results = np.empty((9, 9))
+results[:] = np.nan
 
-### ACTUALMENTE LOGIT NO CONVERGE...  SOSPECHO QUE ESTO HACE QUE LAS RESPUESTAS SEAN DISTINTAS...
-# Estimate propensity scores using logistic regression
-logit = LogisticRegression(max_iter=1000000)
-logit.fit(X, y)
-data['propensity_score'] = logit.predict_proba(X)[:, 1]
+# Function to estimate the propensity score using a logistic regression
+def estimate_pscore(df, features, target):
+    X = df[features]
+    X = sm.add_constant(X)
+    y = df[target]
+    logit_model = sm.Logit(y, X).fit(disp=0)
+    df['pscore'] = logit_model.predict(X)
+    return df
 
-# Perform matching
-treated = data[data.treat == 1]
-untreated = data[data.treat == 0]
-neigh = NearestNeighbors(n_neighbors=1)
-neigh.fit(untreated[['propensity_score']])
-indices = neigh.kneighbors(treated[['propensity_score']], return_distance=False)
-matched = untreated.iloc[indices.flatten()]
-#### DEBEN SER 119 DISTINTOS SEGÚN FILA 6 DE TABLA 2...
-print(matched['propensity_score'].nunique())
+# Function to calculate the unmatched ATT
+def calculate_unmatched_att(df):
+    treated = df[df['treat'] == 1]['re78']
+    control = df[df['treat'] == 0]['re78']
+    return treated.mean() - control.mean()
 
-# Reset indexes for treated and matched DataFrames
-treated = treated.reset_index(drop=True)
-matched = matched.reset_index(drop=True)
+# Function to summarize the characteristics of a subset of data
+def summarize(df):
+    summary = {
+        'mean_age': df['age'].mean(),
+        'mean_education': df['education'].mean(),
+        'mean_black': df['black'].mean(),
+        'mean_hispanic': df['hispanic'].mean(),
+        'mean_nodegree': df['nodegree'].mean(),
+        'mean_married': df['married'].mean(),
+        'mean_re74': df['re74'].mean(),
+        'mean_re75': df['re75'].mean()
+    }
+    return summary
 
-# Diagnostic Checks
-# 1. Check for Missing Values
-print(data[['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75', 're78']].isnull().sum())
+# Function to perform nearest neighbor matching manually with multiple matches
+def nearest_neighbor_matching(df, caliper=None, replacement=False):
+    treated = df[df['treat'] == 1]
+    control = df[df['treat'] == 0]
+    
+    matched_pairs = []
+    used_control_indices = []
+    for index, treat_row in treated.iterrows():
+        control_subset = control
+        if caliper is not None:
+            control_subset = control_subset[np.abs(control_subset['pscore'] - treat_row['pscore']) <= caliper]
+        if len(control_subset) == 0:
+            continue
+        distances = distance.cdist([treat_row[['pscore']]], control_subset[['pscore']])
+        min_index = distances.argmin()
+        matched_control = control_subset.iloc[min_index]
+        if not replacement:
+            used_control_indices.append(matched_control.name)
+        matched_pairs.append((treat_row, matched_control))
+    
+    # Calculate the weights
+    control_counts = Counter(used_control_indices)
+    df['weight'] = df['treat'] + df.index.map(control_counts).fillna(0)
+    
+    return matched_pairs, df
 
-# 2. Check Matching Results
-print("Number of treated individuals:", len(treated))
-print("Number of matched untreated individuals:", len(matched))
+# Function to summarize the characteristics of matched pairs
+def summarize_matched_pairs(matched_pairs):
+    summary = {
+        'mean_age': [],
+        'mean_education': [],
+        'mean_black': [],
+        'mean_hispanic': [],
+        'mean_nodegree': [],
+        'mean_married': [],
+        'mean_re74': [],
+        'mean_re75': [],
+        'att_values': []
+    }
+    for treat_row, control_row in matched_pairs:
+        summary['mean_age'].append(control_row['age'])  # Corrected
+        summary['mean_education'].append(control_row['education'])  # Corrected
+        summary['mean_black'].append(control_row['black'])  # Corrected
+        summary['mean_hispanic'].append(control_row['hispanic'])  # Corrected
+        summary['mean_nodegree'].append(control_row['nodegree'])  # Corrected
+        summary['mean_married'].append(control_row['married'])  # Corrected
+        summary['mean_re74'].append(control_row['re74'])  # Corrected
+        summary['mean_re75'].append(control_row['re75'])  # Corrected
+        summary['att_values'].append(treat_row['re78'] - control_row['re78'])
+    
+    for key in summary:
+        summary[key] = np.mean(summary[key])
+    
+    return summary
 
-# 3. Check Propensity Scores
-print("Unique propensity scores:", data['propensity_score'].nunique())
+# Methods and results
+methods = [
+    {"name": "NSW", "filter": df['nsw'] == 1, "caliper": None, "replacement": False, "unmatched": True, "treated_only": True},
+    {"name": "CPS", "filter": df['cps'] == 1, "caliper": None, "replacement": False, "unmatched": True, "treated_only": False},
+    {"name": "Low-to-High", "filter": np.ones(len(df), dtype=bool), "caliper": None, "replacement": False, "unmatched": False, "treated_only": False},
+    {"name": "High-to-Low", "filter": np.ones(len(df), dtype=bool), "caliper": None, "replacement": False, "unmatched": False, "treated_only": False},
+    {"name": "Random", "filter": np.ones(len(df), dtype=bool), "caliper": None, "replacement": False, "unmatched": False, "treated_only": False},
+    {"name": "Caliper 0.00001", "filter": np.ones(len(df), dtype=bool), "caliper": 0.00001, "replacement": True, "unmatched": False, "treated_only": False},
+    {"name": "Caliper 0.00005", "filter": np.ones(len(df), dtype=bool), "caliper": 0.00005, "replacement": True, "unmatched": False, "treated_only": False},
+    {"name": "Caliper 0.0001", "filter": np.ones(len(df), dtype=bool), "caliper": 0.0001, "replacement": True, "unmatched": False, "treated_only": False},
+    {"name": "NN Replacement", "filter": np.ones(len(df), dtype=bool), "caliper": None, "replacement": True, "unmatched": False, "treated_only": False},
+]
 
-# Calculate ATT
-ATT = (treated['re78'] - matched['re78']).mean()
-print(f"Average Treatment Effect on the Treated (ATT): {ATT}")
+features = ['age', 'Age2', 'Age3', 'education', 'School2', 'married', 'nodegree', 'black', 'hispanic', 're74', 're75', 'School_RE74']
+for i, method in enumerate(methods):
+    df_filtered = df[method['filter']].copy()
+    print(f"\nProcessing method: {method['name']}")
+    print(f"Filtered data shape: {df_filtered.shape}")
+    
+    if df_filtered.empty:
+        continue
+    
+    if method['unmatched']:
+        att_unmatched = calculate_unmatched_att(df_filtered)
+        if method['treated_only']:
+            treated_subset = df_filtered[df_filtered['treat'] == 1]
+        else:
+            treated_subset = df_filtered[df_filtered['treat'] == 0]
+        summary = summarize(treated_subset)
+        results[i, 0] = summary['mean_age']
+        results[i, 1] = summary['mean_education']
+        results[i, 2] = summary['mean_black']
+        results[i, 3] = summary['mean_hispanic']
+        results[i, 4] = summary['mean_nodegree']
+        results[i, 5] = summary['mean_married']
+        results[i, 6] = summary['mean_re74']
+        results[i, 7] = summary['mean_re75']
+        results[i, 8] = att_unmatched
+    else:
+        df_filtered = estimate_pscore(df_filtered, features, 'treat')
+        print(f"Propensity scores calculated for {method['name']}")
+        
+        # Apply sorting or randomization
+        if method['name'] == "Low-to-High":
+            df_filtered = df_filtered.sort_values(by='pscore').copy()
+        elif method['name'] == "High-to-Low":
+            df_filtered = df_filtered.sort_values(by='pscore', ascending=False).copy()
+        elif method['name'] == "Random":
+            np.random.seed(12345)
+            df_filtered = df_filtered.sample(frac=1).reset_index(drop=True).copy()
+        
+        # Perform matching
+        matched_pairs, df_with_weights = nearest_neighbor_matching(df_filtered, caliper=method['caliper'], replacement=method['replacement'])
+        print(f"Number of matched pairs for {method['name']}: {len(matched_pairs)}")
+        
+        if len(matched_pairs) == 0:
+            continue
+        summary = summarize_matched_pairs(matched_pairs)
+        
+        # Store summarized results
+        results[i, 0] = summary['mean_age']
+        results[i, 1] = summary['mean_education']
+        results[i, 2] = summary['mean_black']
+        results[i, 3] = summary['mean_hispanic']
+        results[i, 4] = summary['mean_nodegree']
+        results[i, 5] = summary['mean_married']
+        results[i, 6] = summary['mean_re74']
+        results[i, 7] = summary['mean_re75']
+        results[i, 8] = summary['att_values']
+
+# Name rows and columns
+row_labels = ["NSW", "CPS", "Low-to-High", "High-to-Low", "Random", "Caliper 0.00001", "Caliper 0.00005", "Caliper 0.0001", "NN Replacement"]
+col_labels = ["Age", "School", "Black", "Hispanic", "No Degree", "Married", "RE74", "RE75", "ATT"]
+
+results_df = pd.DataFrame(results, index=row_labels, columns=col_labels)
+print(results_df)
 ```
 
 ```{python}
@@ -108,135 +226,271 @@ Maternal smoking during pregnancy has been a subject of extensive study due to i
 ```{python}
 
 import pandas as pd
-import statsmodels.formula.api as smf
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import NearestNeighbors
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import NearestNeighbors
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.weightstats import ttest_ind
 
 ```
 ```{python}
-# Read in data
+
+# Read the dataset
 birth_weight = pd.read_csv("Datasets/Birth_Weight.csv")
 
-# Recod variables in binary
-birth_weight['mmarried'] = birth_weight['mmarried'].apply(lambda x: 1 if x == "Married" else 0)
-birth_weight['fbaby'] = birth_weight['fbaby'].apply(lambda x: 1 if x == "Yes" else 0)
-birth_weight['mbsmoke'] = birth_weight['mbsmoke'].apply(lambda x: 1 if x == "Smoker" else 0)
+# Recode variables
+birth_weight['mmarried'] = (birth_weight['mmarried'] == "Married").astype(int)
+birth_weight['fbaby'] = (birth_weight['fbaby'] == "Yes").astype(int)
+birth_weight['mbsmoke'] = (birth_weight['mbsmoke'] == "Smoker").astype(int)
 
-# Consider an OLS regression conditioning on covariates
-ols_model = smf.ols('bweight ~ mbsmoke + mmarried + mage + medu + fbaby', data=birth_weight).fit()
+# Perform OLS regression
+ols_model = ols('bweight ~ mbsmoke + mmarried + mage + medu + fbaby', data=birth_weight).fit()
 print(ols_model.summary())
 
-# Estimate propensity score
-X = birth_weight[['mmarried', 'mage', 'medu', 'fbaby']]
-y = birth_weight['mbsmoke']
-logit = LogisticRegression()
-logit.fit(X, y)
-birth_weight['pscore'] = logit.predict_proba(X)[:, 1]
+# Estimate Propensity Scores using logistic regression
+ps_model = LogisticRegression()
+ps_model.fit(birth_weight[['mmarried', 'mage', 'medu', 'fbaby']], birth_weight['mbsmoke'])
+birth_weight['pscore'] = ps_model.predict_proba(birth_weight[['mmarried', 'mage', 'medu', 'fbaby']])[:, 1]
 
-# Examine overlap
-sns.kdeplot(birth_weight[birth_weight['mbsmoke'] == 0]['pscore'], shade=True, label='No Smoker')
-sns.kdeplot(birth_weight[birth_weight['mbsmoke'] == 1]['pscore'], shade=True, label='Smoker')
+# Nearest neighbor matching
+treated = birth_weight[birth_weight['mbsmoke'] == 1]
+control = birth_weight[birth_weight['mbsmoke'] == 0]
+nn = NearestNeighbors(n_neighbors=1)
+nn.fit(control[['pscore']])
+distances, indices = nn.kneighbors(treated[['pscore']])
+matched_control = control.iloc[indices.flatten()]
+
+# Create matched dataset
+matched_data = pd.concat([treated, matched_control])
+
+# Evaluate covariate balance before and after matching
+def balance_table(data, columns, group):
+    means = data.groupby(group)[columns].mean().T
+    stds = data.groupby(group)[columns].std().T
+    return means.join(stds, lsuffix='_mean', rsuffix='_std')
+
+print("Balance before matching")
+print(balance_table(birth_weight, ['mmarried', 'mage', 'medu', 'fbaby'], 'mbsmoke'))
+
+print("Balance after matching")
+print(balance_table(matched_data, ['mmarried', 'mage', 'medu', 'fbaby'], 'mbsmoke'))
+
+# Estimate ATT using the matched sample
+att_ttest = ttest_ind(matched_data['bweight'][matched_data['mbsmoke'] == 1],
+                      matched_data['bweight'][matched_data['mbsmoke'] == 0], usevar='unequal')
+print(f"ATT by t-test: {att_ttest[0]}")
+
+# Visualization of Propensity Score overlap
+sns.kdeplot(data=birth_weight, x='pscore', hue='mbsmoke', common_norm=False, fill=True)
 plt.xlabel('Propensity Score')
 plt.ylabel('Density')
+plt.title('Propensity Score Overlap')
 plt.show()
 
-# Conduct nearest-neighbour matching
-smokers = birth_weight[birth_weight['mbsmoke'] == 1]
-non_smokers = birth_weight[birth_weight['mbsmoke'] == 0]
-nn = NearestNeighbors(n_neighbors=1)
-nn.fit(non_smokers[['pscore']])
-matches = nn.kneighbors(smokers[['pscore']], return_distance=False)
-matched_smokers = smokers
-matched_non_smokers = non_smokers.iloc[matches[:, 0]]
-
-# Comare matched groups
-matched_data = pd.concat([matched_smokers, matched_non_smokers])
-matched_data.boxplot(column='bweight', by='mbsmoke')
+# Boxplot for comparing birth weight distribution by smoking status
+sns.boxplot(x='mbsmoke', y='bweight', data=matched_data)
 plt.xlabel('Mother Smoked')
 plt.ylabel('Birth Weight')
+plt.title('Birth Weight Distribution by Smoking Status')
 plt.show()
+
+# OLS estimation on the full dataset
+ols_full = ols('bweight ~ mbsmoke + mmarried + mage + medu + fbaby', data=birth_weight).fit()
+print("OLS Results on the Full Dataset:")
+print(ols_full.summary().tables[1])
+
+# OLS estimation on the matched dataset
+ols_matched = ols('bweight ~ mbsmoke + mmarried + mage + medu + fbaby', data=matched_data).fit()
+print("OLS Results on the Matched Dataset:")
+print(ols_matched.summary().tables[1])
+
+# Function to calculate standardized mean differences
+def standardized_mean_differences(df, treatment, covariates):
+    treated = df[df[treatment] == 1]
+    control = df[df[treatment] == 0]
+    
+    smd = {}
+    for covariate in covariates:
+        mean_treated = treated[covariate].mean()
+        mean_control = control[covariate].mean()
+        pooled_std = np.sqrt((treated[covariate].var() + control[covariate].var()) / 2)
+        smd[covariate] = (mean_treated - mean_control) / pooled_std
+    
+    return smd
+
+# Read the dataset
+birth_weight = pd.read_csv("Datasets/Birth_Weight.csv")
+
+# Recode variables
+birth_weight['mmarried'] = (birth_weight['mmarried'] == "Married").astype(int)
+birth_weight['fbaby'] = (birth_weight['fbaby'] == "Yes").astype(int)
+birth_weight['mbsmoke'] = (birth_weight['mbsmoke'] == "Smoker").astype(int)
+
+# Define covariates
+covariates = ['mmarried', 'mage', 'medu', 'fbaby']
+
+# Estimate Propensity Scores using logistic regression
+ps_model = LogisticRegression()
+ps_model.fit(birth_weight[covariates], birth_weight['mbsmoke'])
+birth_weight['pscore'] = ps_model.predict_proba(birth_weight[covariates])[:, 1]
+
+# Nearest neighbor matching
+treated = birth_weight[birth_weight['mbsmoke'] == 1]
+control = birth_weight[birth_weight['mbsmoke'] == 0]
+nn = NearestNeighbors(n_neighbors=1)
+nn.fit(control[['pscore']])
+distances, indices = nn.kneighbors(treated[['pscore']])
+matched_control = control.iloc[indices.flatten()]
+
+# Create matched dataset
+matched_data = pd.concat([treated, matched_control])
+
+# Calculate standardized mean differences before and after matching
+smd_unadjusted = standardized_mean_differences(birth_weight, 'mbsmoke', covariates)
+smd_adjusted = standardized_mean_differences(matched_data, 'mbsmoke', covariates)
+
+# Create a DataFrame for the results
+smd_df = pd.DataFrame({
+    'Covariate': covariates,
+    'Unadjusted': [smd_unadjusted[cov] for cov in covariates],
+    'Adjusted': [smd_adjusted[cov] for cov in covariates]
+})
+
+# Melt the DataFrame for easier plotting
+smd_melted = smd_df.melt(id_vars='Covariate', var_name='Sample', value_name='Mean Differences')
+
+# Plot
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=smd_melted, x='Mean Differences', y='Covariate', hue='Sample', style='Sample', s=100)
+plt.axvline(x=0, color='grey', linestyle='--')
+plt.title('Covariate Balance')
+plt.show()
+
 
 ```
 
 ## Code Call Out 3.3 - Inverse Propensity Score Weighting 
 ```{python}
-# Import Libraries and Load Data
+#REGRESSION
 import pandas as pd
-import numpy as np
-from sklearn.linear_model import LinearRegression, LogisticRegression
 import statsmodels.api as sm
-import statsmodels.formula.api as smf
-from dowhy import CausalModel as DoWhyCausalModel
-from sklearn.neighbors import NearestNeighbors
 
 # Load the data
-data = pd.read_stata('Datasets/Dehejia_Wahba_1999.dta')
+data = pd.read_stata("Datasets/Dehejia_Wahba.dta")
 
 # Define covariates and treatment variable
 covariates = ['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']
 treatment = 'treat'
 outcome = 're78'
 
+# Prepare the data for regression
+X = data[covariates + [treatment]]
+X = sm.add_constant(X)
+y = data[outcome]
+
+# Perform the linear regression
+reg_model = sm.OLS(y, X).fit()
+
+# Extract the coefficient for the treatment variable (ATT)
+coef_treatment = reg_model.params[treatment]
+
+print(f"ATT by Regression: {coef_treatment}")
 
 
-# DoWhy CausalModel for Propensity Score Methods
-dowhy_model = DoWhyCausalModel(
-    data=data,
-    treatment=treatment,
-    outcome=outcome,
-    common_causes=covariates
-)
-identified_estimand = dowhy_model.identify_effect(proceed_when_unidentifiable=True)
-ps_methods = ["matching", "weighting"]
-ate_dowhy = {}
-att_dowhy = {}
-for method in ps_methods:
-    estimate_ate = dowhy_model.estimate_effect(
-        identified_estimand,
-        method_name=f"backdoor.propensity_score_{method}",
-        target_units="ate"
-    )
-    estimate_att = dowhy_model.estimate_effect(
-        identified_estimand,
-        method_name=f"backdoor.propensity_score_{method}",
-        target_units="att"
-    )
-    ate_dowhy[method] = estimate_ate.value
-    att_dowhy[method] = estimate_att.value
+###############################################################################
 
-# Estimating Propensity Scores
-logit_model = LogisticRegression()
+#PROPENSITY SCORE MATCHING
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.discrete.discrete_model import Logit
+
+# Load the data
+data = pd.read_stata("Datasets/Dehejia_Wahba.dta")
+
+# Define covariables and treatment variable
+covariates = ['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']
+treatment = 'treat'
+outcome = 're78'
+
+# Estimate Propensity Scores using logistic regression
 X = data[covariates]
+X = sm.add_constant(X)  # Agregar constante para el intercepto
 y = data[treatment]
-logit_model.fit(X, y)
-data['pscore'] = logit_model.predict_proba(X)[:, 1]
+logit_model = Logit(y, X).fit()
+data['pscore'] = logit_model.predict(X)
 
-# Propensity Score Matching for ATT
+
 treated = data[data[treatment] == 1]
 control = data[data[treatment] == 0]
-nn = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(control[covariates])
-distances, indices = nn.kneighbors(treated[covariates])
-matched_control = control.iloc[indices.flatten()]
+
+
+def nearest_neighbor(treated_pscore, control_pscores):
+    distances = np.abs(control_pscores - treated_pscore)
+    min_index = np.argmin(distances)
+    return min_index
+
+# Matching
+matched_control_indices = [nearest_neighbor(ps, control['pscore']) for ps in treated['pscore']]
+matched_control = control.iloc[matched_control_indices].copy()
+matched_control['matched'] = True
+treated['matched'] = True
 matched_data = pd.concat([treated, matched_control])
 
-# Regression for ATT on Matched Data
-X_matched = sm.add_constant(matched_data[covariates + [treatment]])
-y_matched = matched_data[outcome]
-model_matched = sm.OLS(y_matched, X_matched).fit()
-att_matched = model_matched.params[treatment]
-# Linear Regression for ATE
-lm_ate = LinearRegression().fit(data[[treatment]], data[outcome])
-ate_regression = lm_ate.coef_[0]
 
-# Display Results
-print(f"ATE by Regression: {ate_regression}")
-print(f"ATT by Matching and Regression: {att_matched}")
-for method, estimate in ate_dowhy.items():
-    print(f"ATE by {method.capitalize()}: {estimate}")
-for method, estimate in att_dowhy.items():
-    print(f"ATT by {method.capitalize()}: {estimate}")
+for column in covariates:
+    matched_data[column] = pd.to_numeric(matched_data[column], errors='coerce')
 
+# Check balance of covariables after matching
+balance_check = matched_data.groupby(treatment).agg({col: 'mean' for col in covariates})
+print("Balance de covariables después del emparejamiento:")
+print(balance_check)
 
+# Calculate ATT using Matching
+att_match = matched_data[matched_data[treatment] == 1][outcome].mean() - \
+            matched_data[matched_data[treatment] == 0][outcome].mean()
+
+# Show results
+print(f"ATT por Matching: {att_match}")
+
+###############################################################################
+
+#INVERSE PROPENSITY WEIGHTING
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.genmod.families import Gaussian
+
+# Load the data
+data = pd.read_stata("Datasets/Dehejia_Wahba.dta")
+
+# Define covariables and treatment variable
+covariates = ['age', 'education', 'black', 'hispanic', 'married', 'nodegree', 're74', 're75']
+treatment = 'treat'
+outcome = 're78'
+
+# Propensity Scores estimation for IPTW
+X = data[covariates]
+X = sm.add_constant(X)
+y = data[treatment]
+logit_model = sm.Logit(y, X).fit()
+ps = logit_model.predict(X)
+
+# Avoid extreme values propensity scores
+ps = np.clip(ps, 1e-5, 1 - 1e-5)
+
+# Calculating weights for IPTW
+weights = np.where(data[treatment] == 1, 1 / ps, 1 / (1 - ps))
+
+# ATT using IPTW
+att_weights = np.where(data[treatment] == 1, 1, ps / (1 - ps))
+data['att_weights'] = att_weights
+weighted_model_att = sm.GLM(data[outcome], sm.add_constant(data[treatment]), freq_weights=data['att_weights'], family=Gaussian()).fit()
+att_iptw = weighted_model_att.params[treatment]
+
+print(f"ATT por IPTW: {att_iptw}")
 ```
